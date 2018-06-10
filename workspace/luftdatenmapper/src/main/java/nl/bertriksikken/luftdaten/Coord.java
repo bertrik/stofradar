@@ -1,5 +1,7 @@
 package nl.bertriksikken.luftdaten;
 
+import java.util.Locale;
+
 public final class Coord {
 
 	private double x;
@@ -16,6 +18,11 @@ public final class Coord {
 
 	public double getY() {
 		return y;
+	}
+	
+	@Override
+	public String toString() {
+		return String.format(Locale.US, "{x=%f,y=%f}", x, y);
 	}
 	
 }
