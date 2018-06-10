@@ -1,0 +1,41 @@
+version = '0.1'
+
+allprojects { group = 'nl.sikken.bertrik' }
+
+// Define all library dependencies in one file for clarity
+apply from:'dependencies.gradle'
+
+subprojects {
+    apply plugin: "java"
+    apply plugin: "eclipse"
+    apply plugin: "pmd"
+    apply plugin: "findbugs"
+    
+    targetCompatibility = 1.8
+    targetCompatibility = 1.8
+
+    repositories {
+        mavenCentral()
+    }
+
+    pmd {
+        toolVersion = "5.8.1"
+    }
+    
+    findbugsMain {
+        reports {
+            xml.enabled = false
+            html.enabled = true
+        }
+    }    
+
+    // Standard libraries added to all projects
+    dependencies {
+        testCompile libraries.junit
+	    testCompile libraries.mockito
+	    testCompile libraries.slf4jlog4j
+
+        compile libraries.slf4j
+    }
+
+}
