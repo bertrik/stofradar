@@ -5,13 +5,7 @@ mainClassName = 'nl.bertrik.LuftdatenMapper'
 dependencies {
     compile libraries.slf4jlog4j
     
-//    compile libraries.mqtt_client
-//    compile libraries.jackson
-//    compile libraries.influxdb_java
-    
-//    compile libraries.retrofit
-
-
+    compile libraries.retrofit
 	compile libraries.jackson
 }
 
