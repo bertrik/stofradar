@@ -1,4 +1,4 @@
-package nl.bertriksikken.luftdatenmapper;
+package nl.bertriksikken.luftdaten;
 
 public final class Coord {
 
