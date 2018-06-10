@@ -1,4 +1,4 @@
-package nl.bertriksikken.luftdatenmapper;
+package nl.bertriksikken.luftdaten;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -9,8 +9,8 @@ import org.junit.Test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import nl.bertriksikken.luftdaten.LuftdatenMapper;
 import nl.bertriksikken.luftdaten.api.dto.DataPoints;
-import nl.bertriksikken.luftdatenmapper.LuftdatenMapper;
 
 /**
  * @author bertrik
