@@ -9,14 +9,16 @@ public final class ColorPoint {
 	private final int[] rgb;
 
 	/**
-	 * Constructor.
-	 * 
-	 * @param value the measurement value
-	 * @param rgb the associaetd rgb value
-	 */
+     * Constructor.
+     * 
+     * @param value
+     *            the measurement value
+     * @param rgb
+     *            the associated rgb value
+     */
 	public ColorPoint(double value, int[] rgb) {
 		this.value = value;
-		this.rgb = rgb;
+        this.rgb = rgb.clone();
 	}
 
 	public double getValue() {
@@ -24,7 +26,7 @@ public final class ColorPoint {
 	}
 
 	public int[] getRgb() {
-		return rgb;
+        return rgb.clone();
 	}
 	
 	@Override
