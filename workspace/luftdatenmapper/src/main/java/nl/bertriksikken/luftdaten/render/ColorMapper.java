@@ -15,7 +15,7 @@ public final class ColorMapper {
 	 * @param range the color range
 	 */
 	public ColorMapper(ColorPoint[] range) {
-		this.range = range;
+        this.range = range.clone();
 	}
 	
 	/**
