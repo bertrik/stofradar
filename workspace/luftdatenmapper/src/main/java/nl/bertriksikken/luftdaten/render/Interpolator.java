@@ -43,7 +43,7 @@ public final class Interpolator {
 			Location l = dp.getLocation();
 			Coord c1 = new Coord(l.getLongitude(), l.getLatitude());
 			double d2 = distance2(aspect, pixel, c1);
-			double w = 1.0 / d2;
+            double w = 1.0 / d2;
 			DataValue value = dp.getSensorDataValues().getDataValue(valueId);
 			if (value != null) {
 				double v = value.getValue();

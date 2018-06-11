@@ -5,26 +5,26 @@ import java.util.Locale;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-@JsonIgnoreProperties(ignoreUnknown=true)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public final class Sensor {
-	
-	@JsonProperty("id")
-	private int id;
-	
-	@JsonProperty("sensor_type")
-	private SensorType sensorType;
-	
-	public int getId() {
-		return id;
-	}
-	
-	public SensorType getSensorType() {
-		return sensorType;
-	}
-	
-	@Override
-	public String toString() {
-		return String.format(Locale.US, "{%d,%s}", id, sensorType);
-	}
+
+    @JsonProperty("id")
+    private int id;
+
+    @JsonProperty("sensor_type")
+    private SensorType sensorType;
+
+    public int getId() {
+        return id;
+    }
+
+    public SensorType getSensorType() {
+        return sensorType;
+    }
+
+    @Override
+    public String toString() {
+        return String.format(Locale.US, "{%d,%s}", id, sensorType);
+    }
 
 }

@@ -5,41 +5,40 @@ import java.util.Locale;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-@JsonIgnoreProperties(ignoreUnknown=true)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public final class Location {
-	
-	@JsonProperty("latitude")
-	private double latitude;
-	
-	@JsonProperty("longitude")
-	private double longitude;
-	
-	@JsonProperty("altitude")
-	private double altitude;
-	
-	@JsonProperty("country")
-	private String country;
 
-	public double getLatitude() {
-		return latitude;
-	}
+    @JsonProperty("latitude")
+    private double latitude;
 
-	public double getLongitude() {
-		return longitude;
-	}
-	
-	public double getAltitude() {
-		return altitude;
-	}
-	
-	public String getCountry() {
-		return country;
-	}
-	
-	@Override
-	public String toString() {
-		return String.format(Locale.US, "{%f,%f,%f,%s}", latitude, longitude, altitude, country);
-	}
-	
-	
+    @JsonProperty("longitude")
+    private double longitude;
+
+    @JsonProperty("altitude")
+    private double altitude;
+
+    @JsonProperty("country")
+    private String country;
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public double getAltitude() {
+        return altitude;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    @Override
+    public String toString() {
+        return String.format(Locale.US, "{%f,%f,%f,%s}", latitude, longitude, altitude, country);
+    }
+
 }

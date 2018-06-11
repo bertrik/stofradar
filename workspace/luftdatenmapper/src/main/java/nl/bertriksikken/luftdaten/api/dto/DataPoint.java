@@ -8,32 +8,32 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 /**
  * Object describing a particular sensor and its current measurement.
  */
-@JsonIgnoreProperties(ignoreUnknown=true)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public final class DataPoint {
 
-	@JsonProperty("sensordatavalues")
-	private SensorDataValues sensorDataValues;
-	
-	@JsonProperty("location")
-	private Location location;
+    @JsonProperty("sensordatavalues")
+    private SensorDataValues sensorDataValues;
 
-	@JsonProperty("sensor")
-	private Sensor sensor;
+    @JsonProperty("location")
+    private Location location;
 
-	public SensorDataValues getSensorDataValues() {
-		return sensorDataValues;
-	}
+    @JsonProperty("sensor")
+    private Sensor sensor;
 
-	public Location getLocation() {
-		return location;
-	}
-	
-	public Sensor getSensor() {
-		return sensor;
-	}
-	
-	@Override
-	public String toString() {
-		return String.format(Locale.US, "{%s,%s,%s}", location, sensor, sensorDataValues);
-	}
+    public SensorDataValues getSensorDataValues() {
+        return sensorDataValues;
+    }
+
+    public Location getLocation() {
+        return location;
+    }
+
+    public Sensor getSensor() {
+        return sensor;
+    }
+
+    @Override
+    public String toString() {
+        return String.format(Locale.US, "{%s,%s,%s}", location, sensor, sensorDataValues);
+    }
 }

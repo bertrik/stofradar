@@ -10,7 +10,7 @@ import retrofit2.http.GET;
  */
 public interface ILuftdatenRestApi {
 
-	@GET("/static/v2/data.dust.min.json")
-	Call<JsonNode> getAverageDustData();
+    @GET("/static/v2/data.dust.min.json")
+    Call<JsonNode> getAverageDustData();
 
 }
