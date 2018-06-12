@@ -77,14 +77,6 @@ public final class LuftdatenMapper {
     }
 
     private void run(ILuftdatenMapperConfig config) throws IOException {
-        File inputDir = new File("download");
-        File doneDir = new File("processed");
-        File outputDir = new File("image");
-
-        if (inputDir.mkdirs() || doneDir.mkdirs() || outputDir.mkdirs()) {
-            throw new IOException("Failed to create directories");
-        }
-
         executor.scheduleAtFixedRate(() -> downloadAndProcess(config), 0L, 300L, TimeUnit.SECONDS);
     }
 
