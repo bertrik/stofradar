@@ -175,7 +175,7 @@ public final class LuftdatenMapper {
         List<String> arguments = new ArrayList<>();
         arguments.add(command);
         arguments.addAll(Arrays.asList("-compose", "over"));
-        arguments.addAll(Arrays.asList("-geometry", "800x600"));
+        arguments.addAll(Arrays.asList("-geometry", "600x800"));
         arguments.add(overlay.getAbsolutePath());
         arguments.add(baseMap.getAbsolutePath());
         arguments.add(outFile.getAbsolutePath());
