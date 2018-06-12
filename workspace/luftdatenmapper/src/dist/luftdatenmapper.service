@@ -1,0 +1,20 @@
+# copy this to /etc/systemd/system
+# then sudo systemctl daemon-reload
+# and enable with sudo systemctl enable --now luftdatenmapper
+
+[Unit]
+Description=luftdatenmapper
+After=network.target
+
+[Service]
+WorkingDirectory=/home/bertrik/luftdatenmapper
+ExecStart=/home/bertrik/luftdatenmapper/bin/luftdatenmapper
+Type=simple
+KillMode=process
+Restart=on-failure
+RestartSec=10s
+TimeoutStopSec=15s
+User=bertrik
+
+[Install]
+WantedBy=multi-user.target
