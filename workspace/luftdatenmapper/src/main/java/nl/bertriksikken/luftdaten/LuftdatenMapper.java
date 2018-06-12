@@ -148,6 +148,8 @@ public final class LuftdatenMapper {
         int width = 60;
         int height = 80;
 
+        LOG.info("Rendering {} to {}", jsonFile, pngFile);
+
         // read file
         ObjectMapper mapper = new ObjectMapper();
         DataPoints dataPoints = mapper.readValue(jsonFile, DataPoints.class);
@@ -176,6 +178,8 @@ public final class LuftdatenMapper {
      * @param outFile the combined image
      */
     private void composite(String command, File overlay, File baseMap, File outFile) {
+        LOG.info("Compositing {} over {} to {}", overlay, baseMap, outFile);
+
         List<String> arguments = new ArrayList<>();
         arguments.add(command);
         arguments.addAll(Arrays.asList("-compose", "over"));
