@@ -20,6 +20,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.imageio.ImageIO;
 
@@ -85,13 +86,17 @@ public final class LuftdatenMapper {
             File tempDir = new File(config.getIntermediateDir());
             tempDir.mkdirs();
 
+            int[] dims = Stream.of(config.getOverlayGeometry().split("x")).mapToInt(Integer::parseInt).toArray();
+            int width = dims[0];
+            int height = dims[1];
+
             // download
             File jsonFile = downloadFile(tempDir, config.getLuftdatenUrl());
 
             // create overlay
             File overlayFile = new File(tempDir, jsonFile.getName() + ".png");
             ColorMapper colorMapper = new ColorMapper(RANGE);
-            renderDust(jsonFile, overlayFile, colorMapper);
+            renderDust(jsonFile, overlayFile, width, height, colorMapper);
 
             // create composite
             File baseMap = new File(config.getBaseMapPath());
@@ -136,10 +141,8 @@ public final class LuftdatenMapper {
      * @param colorMapper the color mapper
      * @throws IOException
      */
-    private void renderDust(File jsonFile, File pngFile, ColorMapper colorMapper) throws IOException {
-        int width = 60;
-        int height = 80;
-
+    private void renderDust(File jsonFile, File pngFile, int width, int height, ColorMapper colorMapper)
+            throws IOException {
         LOG.info("Rendering {} to {}", jsonFile, pngFile);
 
         // read file
