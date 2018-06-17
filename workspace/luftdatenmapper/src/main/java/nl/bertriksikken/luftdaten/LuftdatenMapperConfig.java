@@ -11,9 +11,11 @@ import nl.bertriksikken.luftdaten.config.BaseConfig;
 public final class LuftdatenMapperConfig extends BaseConfig implements ILuftdatenMapperConfig {
     
 	private enum EConfigItem {
-        COMPOSITE_CMD("composite.cmd", "c:/cygwin64/bin/composite.exe", "Path to the imagemagick composite command"),
+        COMPOSITE_CMD("cmd.composite", "c:/cygwin64/bin/composite.exe", "Path to the imagemagick composite command"),
+        CONVERT_CMD("cmd.convert", "c:/cygwin64/bin/convert.exe", "Path to the imagemagick convert command"),
         OVERLAY_GEOMETRY("overlay.geometry", "75x100", "Dimensions of the dust calculation grid (width x height)"),
         LUFTDATEN_URL("luftdaten.url", "https://api.luftdaten.info", "luftdaten server URL (empty to disable)"),
+        LUFTDATEN_TIMEOUT("luftdaten.timeout", "5000", "luftdaten server timeout (milliseconds)"),
         LUFTDATEN_BLACKLIST("luftdaten.blacklist", "", "Comma-separated list of blacklisted stations"),
         INTERMEDIATE_DIR("intermediate.dir", "tmp", "Path to intermediate file storage"), 
         BASEMAP_PATH("basemap.path", "netherlands.png", "Path to base map"),
@@ -43,6 +45,11 @@ public final class LuftdatenMapperConfig extends BaseConfig implements ILuftdate
     }
 
     @Override
+    public int getLuftdatenTimeout() {
+        return Integer.parseInt(get(EConfigItem.LUFTDATEN_TIMEOUT.key));
+    }
+
+    @Override
     public List<Integer> getLuftdatenBlacklist() {
         String[] items = get(EConfigItem.LUFTDATEN_BLACKLIST.key).trim().split(",");
         List<Integer> blackList = new ArrayList<>();
@@ -57,6 +64,11 @@ public final class LuftdatenMapperConfig extends BaseConfig implements ILuftdate
     @Override
     public String getCompositeCmd() {
         return get(EConfigItem.COMPOSITE_CMD.key);
+    }
+
+    @Override
+    public String getConvertCmd() {
+        return get(EConfigItem.CONVERT_CMD.key);
     }
 
     @Override

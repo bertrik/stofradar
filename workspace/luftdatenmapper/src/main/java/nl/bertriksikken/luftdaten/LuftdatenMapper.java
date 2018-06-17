@@ -9,8 +9,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -97,8 +100,18 @@ public final class LuftdatenMapper {
             int width = dims[0];
             int height = dims[1];
 
+            // get timestamp
+            Instant now = Instant.now();
+            ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(now, ZoneId.of("UTC"));
+            int minute = 5 * (zonedDateTime.get(ChronoField.MINUTE_OF_HOUR) / 5);
+            zonedDateTime = zonedDateTime.withMinute(minute);
+
+            // create text
+            LocalDateTime localDateTime = LocalDateTime.ofInstant(now, ZoneId.systemDefault());
+            String timestampText = localDateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+
             // download
-            File jsonFile = downloadFile(tempDir, config.getLuftdatenUrl());
+            File jsonFile = downloadFile(zonedDateTime, tempDir, config.getLuftdatenUrl());
 
             // JSON to objects
             ObjectMapper mapper = new ObjectMapper();
@@ -112,9 +125,14 @@ public final class LuftdatenMapper {
 
             // create composite
             File baseMap = new File(config.getBaseMapPath());
-            File compositeFile = new File(config.getOutputPath());
+            File compositeFile = new File(tempDir, "composite.png");
             compositeFile.getParentFile().mkdirs();
             composite(config.getCompositeCmd(), overlayFile, baseMap, compositeFile);
+
+            // add timestamp
+            File outputFile = new File(config.getOutputPath());
+            timestamp(config.getConvertCmd(), timestampText, compositeFile, outputFile);
+
         } catch (IOException e) {
             LOG.trace("Caught IOException", e);
             LOG.warn("Caught IOException: {}", e.getMessage());
@@ -129,12 +147,10 @@ public final class LuftdatenMapper {
      * @return the file
      * @throws IOException
      */
-    private File downloadFile(File downloadDir, String url) throws IOException {
-        ZonedDateTime dt = ZonedDateTime.now(ZoneId.of("UTC"));
-        int minute = 5 * (dt.get(ChronoField.MINUTE_OF_HOUR) / 5);
+    private File downloadFile(ZonedDateTime dt, File downloadDir, String url) throws IOException {
         String fileName = String.format(Locale.US, "%04d%02d%02d_%02d%02d.json", dt.get(ChronoField.YEAR),
                 dt.get(ChronoField.MONTH_OF_YEAR), dt.get(ChronoField.DAY_OF_MONTH), dt.get(ChronoField.HOUR_OF_DAY),
-                minute);
+                dt.get(ChronoField.MINUTE_OF_HOUR));
         File file = new File(downloadDir, fileName);
         if (!file.exists()) {
             ILuftdatenRestApi restApi = LuftDatenDataApi.newRestClient(url, 3000);
@@ -190,6 +206,37 @@ public final class LuftdatenMapper {
         arguments.add(overlay.getAbsolutePath());
         arguments.add(baseMap.getAbsolutePath());
         arguments.add(outFile.getAbsolutePath());
+        ProcessBuilder pb = new ProcessBuilder(arguments);
+        try {
+            Process process = pb.start();
+            int exitValue = process.waitFor();
+            if (exitValue != 0) {
+                InputStream is = process.getErrorStream();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    LOG.info("line: {}", line);
+                }
+            }
+            LOG.info("Process ended with {}", exitValue);
+        } catch (Exception e) {
+            LOG.trace("Caught IOException", e);
+            LOG.warn("Caught IOException: {}", e.getMessage());
+        }
+    }
+
+    private void timestamp(String command, String timestampText, File compositeFile, File outputFile) {
+        LOG.info("Timestamping {} over {} to {}", timestampText, compositeFile, outputFile);
+
+        List<String> arguments = new ArrayList<>();
+        arguments.add(command);
+        arguments.addAll(Arrays.asList("-gravity", "northwest"));
+        arguments.addAll(Arrays.asList("-pointsize", "24"));
+        arguments.addAll(Arrays.asList("-stroke", "white"));
+        arguments.addAll(Arrays.asList("-annotate", "0"));
+        arguments.add("'" + timestampText + "'");
+        arguments.add(compositeFile.getAbsolutePath());
+        arguments.add(outputFile.getAbsolutePath());
         ProcessBuilder pb = new ProcessBuilder(arguments);
         try {
             Process process = pb.start();
