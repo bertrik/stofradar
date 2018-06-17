@@ -111,7 +111,8 @@ public final class LuftdatenMapper {
             String timestampText = localDateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
 
             // download
-            File jsonFile = downloadFile(zonedDateTime, tempDir, config.getLuftdatenUrl());
+            File jsonFile = downloadFile(zonedDateTime, tempDir, config.getLuftdatenUrl(),
+                    config.getLuftdatenTimeout());
 
             // JSON to objects
             ObjectMapper mapper = new ObjectMapper();
@@ -147,13 +148,13 @@ public final class LuftdatenMapper {
      * @return the file
      * @throws IOException
      */
-    private File downloadFile(ZonedDateTime dt, File downloadDir, String url) throws IOException {
+    private File downloadFile(ZonedDateTime dt, File downloadDir, String url, int timeout) throws IOException {
         String fileName = String.format(Locale.US, "%04d%02d%02d_%02d%02d.json", dt.get(ChronoField.YEAR),
                 dt.get(ChronoField.MONTH_OF_YEAR), dt.get(ChronoField.DAY_OF_MONTH), dt.get(ChronoField.HOUR_OF_DAY),
                 dt.get(ChronoField.MINUTE_OF_HOUR));
         File file = new File(downloadDir, fileName);
         if (!file.exists()) {
-            ILuftdatenRestApi restApi = LuftDatenDataApi.newRestClient(url, 3000);
+            ILuftdatenRestApi restApi = LuftDatenDataApi.newRestClient(url, timeout);
             LuftDatenDataApi api = new LuftDatenDataApi(restApi);
             LOG.info("Downloading new dataset to {}", file);
             api.downloadDust(file);
