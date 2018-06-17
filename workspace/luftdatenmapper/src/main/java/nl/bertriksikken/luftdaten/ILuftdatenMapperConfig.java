@@ -1,5 +1,7 @@
 package nl.bertriksikken.luftdaten;
 
+import java.util.List;
+
 /**
  * Configuration interface for the application.
  */
@@ -10,6 +12,11 @@ public interface ILuftdatenMapperConfig {
      */
     String getLuftdatenUrl();
     
+    /**
+     * @return comma-separated list of blacklisted stations
+     */
+    List<Integer> getLuftdatenBlacklist();
+
     /**
      * @return the path to the imagemagick 'composite' command
      */

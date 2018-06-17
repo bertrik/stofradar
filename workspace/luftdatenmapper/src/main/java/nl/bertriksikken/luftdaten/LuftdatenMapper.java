@@ -56,6 +56,13 @@ public final class LuftdatenMapper {
             new ColorPoint(200, new int[] { 0xFF, 0x00, 0xFF, 0xC0 }), // purple
     };
 
+    private DataPoints filterBySensorId(DataPoints dataPoints, List<Integer> blacklist) {
+        DataPoints dps = new DataPoints();
+        dps.addAll(dataPoints.stream().filter(dp -> !blacklist.contains(dp.getSensor().getId()))
+                .collect(Collectors.toList()));
+        return dps;
+    }
+
     private DataPoints filterBySensorType(DataPoints dataPoints, int sensorType) {
         DataPoints dps = new DataPoints();
         dps.addAll(dataPoints.stream().filter(dp -> (dp.getSensor().getSensorType().getId() == sensorType))
@@ -93,10 +100,15 @@ public final class LuftdatenMapper {
             // download
             File jsonFile = downloadFile(tempDir, config.getLuftdatenUrl());
 
+            // JSON to objects
+            ObjectMapper mapper = new ObjectMapper();
+            DataPoints dataPoints = mapper.readValue(jsonFile, DataPoints.class);
+            DataPoints filtered = filterBySensorId(filterBySensorType(dataPoints, 14), config.getLuftdatenBlacklist());
+
             // create overlay
             File overlayFile = new File(tempDir, jsonFile.getName() + ".png");
             ColorMapper colorMapper = new ColorMapper(RANGE);
-            renderDust(jsonFile, overlayFile, width, height, colorMapper);
+            renderDust(filtered, overlayFile, width, height, colorMapper);
 
             // create composite
             File baseMap = new File(config.getBaseMapPath());
@@ -136,23 +148,19 @@ public final class LuftdatenMapper {
     /**
      * Renders a JSON file to a PNG.
      * 
-     * @param jsonFile the JSON file
+     * @param dataPoints the data points
      * @param pngFile the PNG file
      * @param colorMapper the color mapper
      * @throws IOException
      */
-    private void renderDust(File jsonFile, File pngFile, int width, int height, ColorMapper colorMapper)
+    private void renderDust(DataPoints dataPoints, File pngFile, int width, int height, ColorMapper colorMapper)
             throws IOException {
-        LOG.info("Rendering {} to {}", jsonFile, pngFile);
-
-        // read file
-        ObjectMapper mapper = new ObjectMapper();
-        DataPoints dataPoints = mapper.readValue(jsonFile, DataPoints.class);
-        DataPoints filtered = filterBySensorType(dataPoints, 14);
+        LOG.info("Rendering {} data points to {}", dataPoints.size(), pngFile);
 
         // interpolate over grid
         Interpolator interpolator = new Interpolator();
-        double[][] field = interpolator.interpolate(filtered, new Coord(3.3, 53.7), new Coord(4.0, 3.0), width, height);
+        double[][] field = interpolator.interpolate(dataPoints, new Coord(3.3, 53.7), new Coord(4.0, 3.0), width,
+                height);
 
         // convert to color PNG
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
