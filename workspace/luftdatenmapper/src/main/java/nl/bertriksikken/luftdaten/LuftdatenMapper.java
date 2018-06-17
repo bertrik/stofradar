@@ -117,7 +117,7 @@ public final class LuftdatenMapper {
             composite(config.getCompositeCmd(), overlayFile, baseMap, compositeFile);
         } catch (IOException e) {
             LOG.trace("Caught IOException", e);
-            LOG.warn("Caught IOException", e.getMessage());
+            LOG.warn("Caught IOException: {}", e.getMessage());
         }
     }
 
