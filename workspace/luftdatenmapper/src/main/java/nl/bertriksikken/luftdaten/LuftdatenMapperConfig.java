@@ -2,6 +2,7 @@ package nl.bertriksikken.luftdaten;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 import nl.bertriksikken.luftdaten.config.BaseConfig;
 
@@ -72,8 +73,10 @@ public final class LuftdatenMapperConfig extends BaseConfig implements ILuftdate
     }
 
     @Override
-    public String getOverlayGeometry() {
-        return get(EConfigItem.OVERLAY_GEOMETRY.key);
+    public int[] getOverlayGeometry() {
+        String geometry = get(EConfigItem.OVERLAY_GEOMETRY.key);
+        int[] dims = Stream.of(geometry.split("x")).mapToInt(Integer::parseInt).toArray();
+        return dims;
     }
 
     @Override

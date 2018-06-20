@@ -23,7 +23,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.imageio.ImageIO;
 
@@ -108,7 +107,7 @@ public final class LuftdatenMapper {
         File overlayFile = new File(tempDir, jsonFile.getName() + ".png");
 
         try {
-            int[] dims = Stream.of(config.getOverlayGeometry().split("x")).mapToInt(Integer::parseInt).toArray();
+            int[] dims = config.getOverlayGeometry();
             int width = dims[0];
             int height = dims[1];
 
