@@ -235,7 +235,7 @@ public final class LuftdatenMapper {
         arguments.addAll(Arrays.asList("-pointsize", "24"));
         arguments.addAll(Arrays.asList("-stroke", "white"));
         arguments.addAll(Arrays.asList("-annotate", "0"));
-        arguments.add("'" + timestampText + "'");
+        arguments.add(timestampText);
         arguments.add(compositeFile.getAbsolutePath());
         arguments.add(outputFile.getAbsolutePath());
         ProcessBuilder pb = new ProcessBuilder(arguments);
