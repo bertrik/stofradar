@@ -92,27 +92,28 @@ public final class LuftdatenMapper {
     }
 
     private void downloadAndProcess(ILuftdatenMapperConfig config) {
-        try {
-            File tempDir = new File(config.getIntermediateDir());
-            tempDir.mkdirs();
+        // get timestamp
+        Instant now = Instant.now();
+        ZonedDateTime dt = ZonedDateTime.ofInstant(now, ZoneId.of("UTC"));
+        int minute = 5 * (dt.get(ChronoField.MINUTE_OF_HOUR) / 5);
+        dt = dt.withMinute(minute);
 
+        // create temporary name
+        File tempDir = new File(config.getIntermediateDir());
+        tempDir.mkdirs();
+        String fileName = String.format(Locale.US, "%04d%02d%02d_%02d%02d.json", dt.get(ChronoField.YEAR),
+                dt.get(ChronoField.MONTH_OF_YEAR), dt.get(ChronoField.DAY_OF_MONTH), dt.get(ChronoField.HOUR_OF_DAY),
+                dt.get(ChronoField.MINUTE_OF_HOUR));
+        File jsonFile = new File(tempDir, fileName);
+        File overlayFile = new File(tempDir, jsonFile.getName() + ".png");
+
+        try {
             int[] dims = Stream.of(config.getOverlayGeometry().split("x")).mapToInt(Integer::parseInt).toArray();
             int width = dims[0];
             int height = dims[1];
 
-            // get timestamp
-            Instant now = Instant.now();
-            ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(now, ZoneId.of("UTC"));
-            int minute = 5 * (zonedDateTime.get(ChronoField.MINUTE_OF_HOUR) / 5);
-            zonedDateTime = zonedDateTime.withMinute(minute);
-
-            // create text
-            LocalDateTime localDateTime = LocalDateTime.ofInstant(now, ZoneId.systemDefault());
-            String timestampText = localDateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-
-            // download
-            File jsonFile = downloadFile(zonedDateTime, tempDir, config.getLuftdatenUrl(),
-                    config.getLuftdatenTimeout());
+            // download JSON
+            downloadFile(jsonFile, config.getLuftdatenUrl(), config.getLuftdatenTimeout());
 
             // JSON to objects
             ObjectMapper mapper = new ObjectMapper();
@@ -120,23 +121,27 @@ public final class LuftdatenMapper {
             DataPoints filtered = filterBySensorId(filterBySensorType(dataPoints, 14), config.getLuftdatenBlacklist());
 
             // create overlay
-            File overlayFile = new File(tempDir, jsonFile.getName() + ".png");
             ColorMapper colorMapper = new ColorMapper(RANGE);
             renderDust(filtered, overlayFile, width, height, colorMapper);
 
-            // create composite
+            // create composite from background image and overlay
             File baseMap = new File(config.getBaseMapPath());
             File compositeFile = new File(tempDir, "composite.png");
             compositeFile.getParentFile().mkdirs();
             composite(config.getCompositeCmd(), overlayFile, baseMap, compositeFile);
 
-            // add timestamp
+            // add timestamp to composite
+            LocalDateTime localDateTime = LocalDateTime.ofInstant(now, ZoneId.systemDefault());
+            String timestampText = localDateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
             File outputFile = new File(config.getOutputPath());
             timestamp(config.getConvertCmd(), timestampText, compositeFile, outputFile);
 
         } catch (IOException e) {
             LOG.trace("Caught IOException", e);
             LOG.warn("Caught IOException: {}", e.getMessage());
+        } finally {
+            jsonFile.delete();
+            overlayFile.delete();
         }
     }
 
@@ -148,11 +153,7 @@ public final class LuftdatenMapper {
      * @return the file
      * @throws IOException
      */
-    private File downloadFile(ZonedDateTime dt, File downloadDir, String url, int timeout) throws IOException {
-        String fileName = String.format(Locale.US, "%04d%02d%02d_%02d%02d.json", dt.get(ChronoField.YEAR),
-                dt.get(ChronoField.MONTH_OF_YEAR), dt.get(ChronoField.DAY_OF_MONTH), dt.get(ChronoField.HOUR_OF_DAY),
-                dt.get(ChronoField.MINUTE_OF_HOUR));
-        File file = new File(downloadDir, fileName);
+    private File downloadFile(File file, String url, int timeout) throws IOException {
         if (!file.exists()) {
             ILuftdatenRestApi restApi = LuftDatenDataApi.newRestClient(url, timeout);
             LuftDatenDataApi api = new LuftDatenDataApi(restApi);
@@ -232,7 +233,7 @@ public final class LuftdatenMapper {
         List<String> arguments = new ArrayList<>();
         arguments.add(command);
         arguments.addAll(Arrays.asList("-gravity", "northwest"));
-        arguments.addAll(Arrays.asList("-pointsize", "24"));
+        arguments.addAll(Arrays.asList("-pointsize", "30"));
         arguments.addAll(Arrays.asList("-stroke", "white"));
         arguments.addAll(Arrays.asList("-annotate", "0"));
         arguments.add(timestampText);
