@@ -9,6 +9,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -81,7 +82,9 @@ public final class LuftdatenMapper {
             config.load(new FileInputStream(configFile));
         } else {
             LOG.info("Saving config to {}", configFile);
-            config.save(new FileOutputStream(configFile));
+            try (OutputStream os = new FileOutputStream(configFile)) {
+                config.save(os);
+            }
         }
         luftdatenMapper.run(config);
     }
@@ -106,7 +109,9 @@ public final class LuftdatenMapper {
 
         // create temporary name
         File tempDir = new File(config.getIntermediateDir());
-        tempDir.mkdirs();
+        if (!tempDir.exists() && !tempDir.mkdirs()) {
+            LOG.warn("Failed to create directory {}", tempDir.getAbsolutePath());
+        }
         String fileName = String.format(Locale.US, "%04d%02d%02d_%02d%02d.json", dt.get(ChronoField.YEAR),
                 dt.get(ChronoField.MONTH_OF_YEAR), dt.get(ChronoField.DAY_OF_MONTH), dt.get(ChronoField.HOUR_OF_DAY),
                 dt.get(ChronoField.MINUTE_OF_HOUR));
@@ -133,7 +138,10 @@ public final class LuftdatenMapper {
             // create composite from background image and overlay
             File baseMap = new File(config.getBaseMapPath());
             File compositeFile = new File(tempDir, "composite.png");
-            compositeFile.getParentFile().mkdirs();
+            File dir = compositeFile.getParentFile();
+            if (!dir.exists() && !compositeFile.getParentFile().mkdirs()) {
+                LOG.warn("Could not create directory {}", dir.getAbsolutePath());
+            }
             composite(config.getCompositeCmd(), overlayFile, baseMap, compositeFile);
 
             // add timestamp to composite
@@ -146,8 +154,12 @@ public final class LuftdatenMapper {
             LOG.trace("Caught IOException", e);
             LOG.warn("Caught IOException: {}", e.getMessage());
         } finally {
-            jsonFile.delete();
-            overlayFile.delete();
+            if (!jsonFile.delete()) {
+                LOG.warn("Failed to delete JSON file");
+            }
+            if (!overlayFile.delete()) {
+                LOG.warn("Failed to delete overlay file");
+            }
         }
     }
 
@@ -220,10 +232,11 @@ public final class LuftdatenMapper {
             int exitValue = process.waitFor();
             if (exitValue != 0) {
                 InputStream is = process.getErrorStream();
-                BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    LOG.info("line: {}", line);
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        LOG.info("line: {}", line);
+                    }
                 }
             }
             LOG.info("Process ended with {}", exitValue);
@@ -251,10 +264,11 @@ public final class LuftdatenMapper {
             int exitValue = process.waitFor();
             if (exitValue != 0) {
                 InputStream is = process.getErrorStream();
-                BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    LOG.info("line: {}", line);
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        LOG.info("line: {}", line);
+                    }
                 }
             }
             LOG.info("Process ended with {}", exitValue);
