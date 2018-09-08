@@ -9,6 +9,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -219,7 +220,7 @@ public final class LuftdatenMapper {
             int exitValue = process.waitFor();
             if (exitValue != 0) {
                 InputStream is = process.getErrorStream();
-                BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+                BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
                 String line;
                 while ((line = reader.readLine()) != null) {
                     LOG.info("line: {}", line);
@@ -250,7 +251,7 @@ public final class LuftdatenMapper {
             int exitValue = process.waitFor();
             if (exitValue != 0) {
                 InputStream is = process.getErrorStream();
-                BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+                BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
                 String line;
                 while ((line = reader.readLine()) != null) {
                     LOG.info("line: {}", line);
