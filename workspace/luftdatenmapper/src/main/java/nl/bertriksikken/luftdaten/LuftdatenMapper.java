@@ -22,7 +22,6 @@ import java.util.Locale;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
 
@@ -33,7 +32,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import nl.bertriksikken.luftdaten.api.ILuftdatenRestApi;
 import nl.bertriksikken.luftdaten.api.LuftDatenDataApi;
+import nl.bertriksikken.luftdaten.api.dto.DataPoint;
 import nl.bertriksikken.luftdaten.api.dto.DataPoints;
+import nl.bertriksikken.luftdaten.api.dto.DataValue;
 import nl.bertriksikken.luftdaten.render.ColorMapper;
 import nl.bertriksikken.luftdaten.render.ColorPoint;
 import nl.bertriksikken.luftdaten.render.Interpolator;
@@ -58,17 +59,15 @@ public final class LuftdatenMapper {
             new ColorPoint(200, new int[] { 0xFF, 0x00, 0xFF, 0xC0 }), // purple
     };
 
-    private DataPoints filterBySensorId(DataPoints dataPoints, List<Integer> blacklist) {
+    private DataPoints filterBySensorValue(DataPoints dataPoints, String type, double maxValue) {
         DataPoints dps = new DataPoints();
-        dps.addAll(dataPoints.stream().filter(dp -> !blacklist.contains(dp.getSensor().getId()))
-                .collect(Collectors.toList()));
-        return dps;
-    }
-
-    private DataPoints filterBySensorType(DataPoints dataPoints, int sensorType) {
-        DataPoints dps = new DataPoints();
-        dps.addAll(dataPoints.stream().filter(dp -> (dp.getSensor().getSensorType().getId() == sensorType))
-                .collect(Collectors.toList()));
+        for (DataPoint dp : dataPoints) {
+            DataValue dv = dp.getSensorDataValues().getDataValue(type);
+            if ((dv != null) && (dv.getValue() <= maxValue)) {
+                dps.add(dp);
+            }
+        }
+        LOG.info("Filtered by sensor value: {} -> {}", dataPoints.size(), dps.size());
         return dps;
     }
 
@@ -124,7 +123,7 @@ public final class LuftdatenMapper {
             // JSON to objects
             ObjectMapper mapper = new ObjectMapper();
             DataPoints dataPoints = mapper.readValue(jsonFile, DataPoints.class);
-            DataPoints filtered = filterBySensorId(filterBySensorType(dataPoints, 14), config.getLuftdatenBlacklist());
+            DataPoints filtered = filterBySensorValue(dataPoints, "P1", 500.0);
 
             // create overlay
             ColorMapper colorMapper = new ColorMapper(RANGE);
