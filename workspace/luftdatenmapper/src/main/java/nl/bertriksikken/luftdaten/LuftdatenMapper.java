@@ -87,7 +87,14 @@ public final class LuftdatenMapper {
     }
 
     private void run(ILuftdatenMapperConfig config) throws IOException {
-        executor.scheduleAtFixedRate(() -> downloadAndProcess(config), 0L, 300L, TimeUnit.SECONDS);
+        executor.scheduleAtFixedRate(() -> {
+            // run the main process in a try-catch to protect the thread it runs on from exceptions
+            try {
+                downloadAndProcess(config);
+            } catch (Exception e) {
+                LOG.error("Caught top-level exception {}", e.getMessage());
+            }
+        }, 0L, 300L, TimeUnit.SECONDS);
     }
 
     private void downloadAndProcess(ILuftdatenMapperConfig config) {
