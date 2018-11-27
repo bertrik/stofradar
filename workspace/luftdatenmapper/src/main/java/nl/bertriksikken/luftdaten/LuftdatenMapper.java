@@ -17,6 +17,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoField;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -143,7 +144,8 @@ public final class LuftdatenMapper {
             composite(config.getCompositeCmd(), overlayFile, baseMap, compositeFile);
 
             // add timestamp to composite
-            LocalDateTime localDateTime = LocalDateTime.ofInstant(now, ZoneId.systemDefault());
+            LocalDateTime localDateTime = LocalDateTime.ofInstant(now, ZoneId.systemDefault())
+                    .truncatedTo(ChronoUnit.SECONDS);
             String timestampText = localDateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
             File outputFile = new File(config.getOutputPath());
             timestamp(config.getConvertCmd(), timestampText, compositeFile, outputFile);
