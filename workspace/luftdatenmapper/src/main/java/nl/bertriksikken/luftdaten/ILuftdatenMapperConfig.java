@@ -26,11 +26,6 @@ public interface ILuftdatenMapperConfig {
     String getConvertCmd();
 
     /**
-     * @return the geometry (dimensions width x height) of the dust overlay
-     */
-    int[] getOverlayGeometry();
-
-    /**
      * @return the path to the directory with intermediate files
      */
     String getIntermediateDir();

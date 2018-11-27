@@ -2,9 +2,13 @@ package nl.bertriksikken.luftdaten;
 
 import java.util.Locale;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public final class Coord {
 
+    @JsonProperty("lon")
     private double x;
+    @JsonProperty("lat")
     private double y;
 
     public Coord(double x, double y) {

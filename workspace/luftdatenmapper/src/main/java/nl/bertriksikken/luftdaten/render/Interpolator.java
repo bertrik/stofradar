@@ -1,6 +1,7 @@
 package nl.bertriksikken.luftdaten.render;
 
 import nl.bertriksikken.luftdaten.Coord;
+import nl.bertriksikken.luftdaten.RenderJob;
 import nl.bertriksikken.luftdaten.api.dto.DataPoint;
 import nl.bertriksikken.luftdaten.api.dto.DataPoints;
 import nl.bertriksikken.luftdaten.api.dto.DataValue;
@@ -21,13 +22,15 @@ public final class Interpolator {
 	 * @param h the output height
 	 * @return grid of double values with the interpolated data
 	 */
-	public double[][] interpolate(DataPoints dataPoints, Coord topLeft, Coord size, int w, int h) {
-		double aspect = Math.cos(topLeft.getY() * Math.PI / 180.0);
-		double[][] field = new double[w][h];
-		for (int x = 0; x < w; x++) {
-			for (int y = 0; y < h; y++) {
-				double lon = topLeft.getX() + x * size.getX() / w;
-				double lat = topLeft.getY() - y * size.getY() / h;
+    public double[][] interpolate(DataPoints dataPoints, RenderJob job, int w, int h) {
+        double aspect = Math.cos(job.getTopLeft().getY() * Math.PI / 180.0);
+        double[][] field = new double[w][h];
+        Coord size = new Coord(job.getBottomRight().getX() - job.getTopLeft().getX(),
+                job.getTopLeft().getY() - job.getBottomRight().getY());
+        for (int x = 0; x < w; x++) {
+            for (int y = 0; y < h; y++) {
+                double lon = job.getTopLeft().getX() + (0.5 + x) * size.getX() / w;
+                double lat = job.getTopLeft().getY() - (0.5 + y) * size.getY() / h;
 				Coord pixel = new Coord(lon, lat);
 				double v = calculatePixel(dataPoints, pixel, "P1", aspect);
 				field[x][y] = v;

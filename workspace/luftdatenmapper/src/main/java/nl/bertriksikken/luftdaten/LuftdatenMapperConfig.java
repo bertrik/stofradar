@@ -1,7 +1,5 @@
 package nl.bertriksikken.luftdaten;
 
-import java.util.stream.Stream;
-
 import nl.bertriksikken.luftdaten.config.BaseConfig;
 
 /**
@@ -12,7 +10,6 @@ public final class LuftdatenMapperConfig extends BaseConfig implements ILuftdate
 	private enum EConfigItem {
         COMPOSITE_CMD("cmd.composite", "c:/cygwin64/bin/composite.exe", "Path to the imagemagick composite command"),
         CONVERT_CMD("cmd.convert", "c:/cygwin64/bin/convert.exe", "Path to the imagemagick convert command"),
-        OVERLAY_GEOMETRY("overlay.geometry", "75x100", "Dimensions of the dust calculation grid (width x height)"),
         LUFTDATEN_URL("luftdaten.url", "https://api.luftdaten.info", "luftdaten server URL (empty to disable)"),
         LUFTDATEN_TIMEOUT("luftdaten.timeout", "5000", "luftdaten server timeout (milliseconds)"),
         INTERMEDIATE_DIR("intermediate.dir", "tmp", "Path to intermediate file storage"), 
@@ -55,13 +52,6 @@ public final class LuftdatenMapperConfig extends BaseConfig implements ILuftdate
     @Override
     public String getConvertCmd() {
         return get(EConfigItem.CONVERT_CMD.key);
-    }
-
-    @Override
-    public int[] getOverlayGeometry() {
-        String geometry = get(EConfigItem.OVERLAY_GEOMETRY.key);
-        int[] dims = Stream.of(geometry.split("x")).mapToInt(Integer::parseInt).toArray();
-        return dims;
     }
 
     @Override

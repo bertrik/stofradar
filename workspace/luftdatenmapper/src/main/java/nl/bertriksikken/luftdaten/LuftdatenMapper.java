@@ -101,6 +101,8 @@ public final class LuftdatenMapper {
     }
 
     private void downloadAndProcess(ILuftdatenMapperConfig config) {
+        RenderJob job = new RenderJob("netherlands", "netherlands.png", new Coord(3.3, 53.7), new Coord(7.3, 50.7), 4);
+        
         // get timestamp
         Instant now = Instant.now();
         ZonedDateTime dt = ZonedDateTime.ofInstant(now, ZoneId.of("UTC"));
@@ -119,10 +121,6 @@ public final class LuftdatenMapper {
         File overlayFile = new File(tempDir, jsonFile.getName() + ".png");
 
         try {
-            int[] dims = config.getOverlayGeometry();
-            int width = dims[0];
-            int height = dims[1];
-
             // download JSON
             downloadFile(jsonFile, config.getLuftdatenUrl(), config.getLuftdatenTimeout());
 
@@ -133,7 +131,7 @@ public final class LuftdatenMapper {
 
             // create overlay
             ColorMapper colorMapper = new ColorMapper(RANGE);
-            renderDust(filtered, overlayFile, width, height, colorMapper);
+            renderDust(filtered, overlayFile, colorMapper, job);
 
             // create composite from background image and overlay
             File baseMap = new File(config.getBaseMapPath());
@@ -189,14 +187,19 @@ public final class LuftdatenMapper {
      * @param colorMapper the color mapper
      * @throws IOException
      */
-    private void renderDust(DataPoints dataPoints, File pngFile, int width, int height, ColorMapper colorMapper)
+    private void renderDust(DataPoints dataPoints, File pngFile, ColorMapper colorMapper, RenderJob job)
             throws IOException {
         LOG.info("Rendering {} data points to {}", dataPoints.size(), pngFile);
 
+        // parse background file
+        File mapFile = new File(job.getMapFile());
+        BufferedImage mapImage = ImageIO.read(mapFile);
+        int width = mapImage.getWidth() / job.getSubSample();
+        int height = mapImage.getHeight() / job.getSubSample();
+
         // interpolate over grid
         Interpolator interpolator = new Interpolator();
-        double[][] field = interpolator.interpolate(dataPoints, new Coord(3.3, 53.7), new Coord(4.0, 3.0), width,
-                height);
+        double[][] field = interpolator.interpolate(dataPoints, job, width, height);
 
         // convert to color PNG
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
