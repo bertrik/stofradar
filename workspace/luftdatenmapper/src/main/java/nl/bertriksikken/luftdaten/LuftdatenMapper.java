@@ -94,18 +94,20 @@ public final class LuftdatenMapper {
         executor.scheduleAtFixedRate(() -> {
             // run the main process in a try-catch to protect the thread it runs on from exceptions
             try {
-                downloadAndProcess(config);
+                Instant now = Instant.now();
+                RenderJob netherlandsJob = new RenderJob("netherlands", "netherlands.png", new Coord(3.3, 53.7),
+                        new Coord(7.3, 50.7), 4);
+                RenderJob goudaJob = new RenderJob("gouda", "gouda.png", new Coord(4.668272, 52.041162),
+                        new Coord(4.756411, 51.996627), 16);
+                downloadAndProcess(config, now, netherlandsJob);
             } catch (Exception e) {
                 LOG.error("Caught top-level exception {}", e.getMessage());
             }
         }, 0L, 300L, TimeUnit.SECONDS);
     }
 
-    private void downloadAndProcess(ILuftdatenMapperConfig config) {
-        RenderJob job = new RenderJob("netherlands", "netherlands.png", new Coord(3.3, 53.7), new Coord(7.3, 50.7), 4);
-        
+    private void downloadAndProcess(ILuftdatenMapperConfig config, Instant now, RenderJob... jobs) throws IOException {
         // get timestamp
-        Instant now = Instant.now();
         ZonedDateTime dt = ZonedDateTime.ofInstant(now, ZoneId.of("UTC"));
         int minute = 5 * (dt.get(ChronoField.MINUTE_OF_HOUR) / 5);
         dt = dt.withMinute(minute);
@@ -121,64 +123,66 @@ public final class LuftdatenMapper {
         File jsonFile = new File(tempDir, fileName);
         File overlayFile = new File(tempDir, jsonFile.getName() + ".png");
 
-        try {
-            // download JSON
-            downloadFile(jsonFile, config.getLuftdatenUrl(), config.getLuftdatenTimeout());
+        // download JSON
+        DataPoints filtered;
+        DataPoints dataPoints = downloadFile(jsonFile, config.getLuftdatenUrl(), config.getLuftdatenTimeout());
+        filtered = filterBySensorValue(dataPoints, "P1", 500.0);
 
-            // JSON to objects
-            ObjectMapper mapper = new ObjectMapper();
-            DataPoints dataPoints = mapper.readValue(jsonFile, DataPoints.class);
-            DataPoints filtered = filterBySensorValue(dataPoints, "P1", 500.0);
+        // create overlay
+        ColorMapper colorMapper = new ColorMapper(RANGE);
 
-            // create overlay
-            ColorMapper colorMapper = new ColorMapper(RANGE);
-            renderDust(filtered, overlayFile, colorMapper, job);
+        // render all jobs
+        for (RenderJob job : jobs) {
+            try {
+                renderDust(filtered, overlayFile, colorMapper, job);
 
-            // create composite from background image and overlay
-            File baseMap = new File(config.getBaseMapPath());
-            File compositeFile = new File(tempDir, "composite.png");
-            File dir = compositeFile.getParentFile();
-            if (!dir.exists() && !compositeFile.getParentFile().mkdirs()) {
-                LOG.warn("Could not create directory {}", dir.getAbsolutePath());
-            }
-            composite(config.getCompositeCmd(), overlayFile, baseMap, compositeFile);
+                // create composite from background image and overlay
+                File baseMap = new File(job.getMapFile());
+                File compositeFile = new File(tempDir, "composite.png");
+                File dir = compositeFile.getParentFile();
+                if (!dir.exists() && !compositeFile.getParentFile().mkdirs()) {
+                    LOG.warn("Could not create directory {}", dir.getAbsolutePath());
+                }
+                composite(config.getCompositeCmd(), overlayFile, baseMap, compositeFile);
 
-            // add timestamp to composite
-            LocalDateTime localDateTime = LocalDateTime.ofInstant(now, ZoneId.systemDefault())
-                    .truncatedTo(ChronoUnit.SECONDS);
-            String timestampText = localDateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-            File outputFile = new File(config.getOutputPath());
-            timestamp(config.getConvertCmd(), timestampText, compositeFile, outputFile);
+                // add timestamp to composite
+                LocalDateTime localDateTime = LocalDateTime.ofInstant(now, ZoneId.systemDefault())
+                        .truncatedTo(ChronoUnit.SECONDS);
+                String timestampText = localDateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+                File outputFile = new File(config.getOutputPath());
+                timestamp(config.getConvertCmd(), timestampText, compositeFile, outputFile);
 
-        } catch (IOException e) {
-            LOG.trace("Caught IOException", e);
-            LOG.warn("Caught IOException: {}", e.getMessage());
-        } finally {
-            if (!jsonFile.delete()) {
-                LOG.warn("Failed to delete JSON file");
-            }
-            if (!overlayFile.delete()) {
-                LOG.warn("Failed to delete overlay file");
+            } catch (IOException e) {
+                LOG.trace("Caught IOException", e);
+                LOG.warn("Caught IOException: {}", e.getMessage());
+            } finally {
+                if (!jsonFile.delete()) {
+                    LOG.warn("Failed to delete JSON file");
+                }
+                if (!overlayFile.delete()) {
+                    LOG.warn("Failed to delete overlay file");
+                }
             }
         }
     }
 
     /**
-     * Downloads a new JSON dust file if necessary.
+     * Downloads a new JSON dust file.
      * 
-     * @param downloadDir the directory to download to
+     * @param file the file to download to 
      * @param url the URL to download from
-     * @return the file
+     * @return the parsed contents
      * @throws IOException
      */
-    private File downloadFile(File file, String url, int timeout) throws IOException {
-        if (!file.exists()) {
-            ILuftdatenRestApi restApi = LuftDatenDataApi.newRestClient(url, timeout);
-            LuftDatenDataApi api = new LuftDatenDataApi(restApi);
-            LOG.info("Downloading new dataset to {}", file);
-            api.downloadDust(file);
-        }
-        return file;
+    private DataPoints downloadFile(File file, String url, int timeout) throws IOException {
+        ILuftdatenRestApi restApi = LuftDatenDataApi.newRestClient(url, timeout);
+        LuftDatenDataApi api = new LuftDatenDataApi(restApi);
+        LOG.info("Downloading new dataset to {}", file);
+        api.downloadDust(file);
+
+        LOG.info("Decoding dataset ...");
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(file, DataPoints.class);
     }
 
     /**
@@ -220,14 +224,19 @@ public final class LuftdatenMapper {
      * @param overlay the dust overlay image
      * @param baseMap the base map image
      * @param outFile the combined image
+     * @throws IOException 
      */
-    private void composite(String command, File overlay, File baseMap, File outFile) {
+    private void composite(String command, File overlay, File baseMap, File outFile) throws IOException {
         LOG.info("Compositing {} over {} to {}", overlay, baseMap, outFile);
+
+        // parse background file
+        BufferedImage mapImage = ImageIO.read(baseMap);
+        String composeArg = String.format(Locale.US, "%dx%d", mapImage.getWidth(), mapImage.getHeight());
 
         List<String> arguments = new ArrayList<>();
         arguments.add(command);
         arguments.addAll(Arrays.asList("-compose", "over"));
-        arguments.addAll(Arrays.asList("-geometry", "600x800"));
+        arguments.addAll(Arrays.asList("-geometry", composeArg));
         arguments.add(overlay.getAbsolutePath());
         arguments.add(baseMap.getAbsolutePath());
         arguments.add(outFile.getAbsolutePath());
