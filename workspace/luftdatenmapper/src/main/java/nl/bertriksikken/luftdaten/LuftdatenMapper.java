@@ -148,7 +148,7 @@ public final class LuftdatenMapper {
                 LocalDateTime localDateTime = LocalDateTime.ofInstant(now, ZoneId.systemDefault())
                         .truncatedTo(ChronoUnit.SECONDS);
                 String timestampText = localDateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-                File outputFile = new File(config.getOutputPath());
+                File outputFile = new File(config.getOutputPath(), job.getMapFile());
                 timestamp(config.getConvertCmd(), timestampText, compositeFile, outputFile);
 
             } catch (IOException e) {
