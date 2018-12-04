@@ -96,7 +96,7 @@ public final class LuftdatenMapper {
             try {
                 Instant now = Instant.now();
                 RenderJob netherlandsJob = new RenderJob("netherlands", "netherlands.png", new Coord(3.3, 53.7),
-                        new Coord(7.3, 50.7), 4);
+                        new Coord(7.3, 50.7), 16);
                 RenderJob goudaJob = new RenderJob("gouda", "gouda.png", new Coord(4.668272, 52.041162),
                         new Coord(4.756411, 51.996627), 16);
                 downloadAndProcess(config, now, netherlandsJob);
@@ -267,7 +267,8 @@ public final class LuftdatenMapper {
         arguments.add(command);
         arguments.addAll(Arrays.asList("-gravity", "northwest"));
         arguments.addAll(Arrays.asList("-pointsize", "30"));
-        arguments.addAll(Arrays.asList("-stroke", "white"));
+        arguments.addAll(Arrays.asList("-undercolor", "dimgrey"));
+        arguments.addAll(Arrays.asList("-fill", "white"));
         arguments.addAll(Arrays.asList("-annotate", "0"));
         arguments.add(timestampText);
         arguments.add(compositeFile.getAbsolutePath());
