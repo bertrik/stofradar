@@ -1,7 +1,9 @@
 package nl.bertriksikken.luftdaten;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
+@JsonPropertyOrder({ "name", "mapfile", "topleft", "botright", "subsample" })
 public final class RenderJob {
 
     @JsonProperty("name")
@@ -11,7 +13,7 @@ public final class RenderJob {
     private String mapFile;
 
     @JsonProperty("topleft")
-    private Coord topleft;
+    private Coord topLeft;
 
     @JsonProperty("botright")
     private Coord bottomRight;
@@ -27,7 +29,7 @@ public final class RenderJob {
         this();
         this.name = name;
         this.mapFile = mapFile;
-        this.topleft = topleft;
+        this.topLeft = topleft;
         this.bottomRight = bottomRight;
         this.subSample = subSample;
     }
@@ -41,7 +43,7 @@ public final class RenderJob {
     }
 
     public Coord getTopLeft() {
-        return topleft;
+        return topLeft;
     }
 
     public Coord getBottomRight() {

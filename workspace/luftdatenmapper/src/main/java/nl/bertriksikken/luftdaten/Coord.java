@@ -11,7 +11,12 @@ public final class Coord {
     @JsonProperty("lat")
     private double y;
 
+    private Coord() {
+        // jackson constructor
+    }
+
     public Coord(double x, double y) {
+        this();
         this.x = x;
         this.y = y;
     }
