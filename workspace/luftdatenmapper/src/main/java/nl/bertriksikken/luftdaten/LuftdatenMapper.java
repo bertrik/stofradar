@@ -95,18 +95,17 @@ public final class LuftdatenMapper {
             // run the main process in a try-catch to protect the thread it runs on from exceptions
             try {
                 Instant now = Instant.now();
-                RenderJob netherlandsJob = new RenderJob("netherlands", "netherlands.png", new Coord(3.3, 53.7),
-                        new Coord(7.3, 50.7), 16);
-                RenderJob goudaJob = new RenderJob("gouda", "gouda.png", new Coord(4.668272, 52.041162),
-                        new Coord(4.756411, 51.996627), 16);
-                downloadAndProcess(config, now, netherlandsJob);
+                ObjectMapper mapper = new ObjectMapper();
+                RenderJobs renderJobs = mapper.readValue(new File("renderjobs.json"), RenderJobs.class);
+                downloadAndProcess(config, now, renderJobs);
             } catch (Exception e) {
                 LOG.error("Caught top-level exception {}", e.getMessage());
             }
         }, 0L, 300L, TimeUnit.SECONDS);
     }
 
-    private void downloadAndProcess(ILuftdatenMapperConfig config, Instant now, RenderJob... jobs) throws IOException {
+    private void downloadAndProcess(ILuftdatenMapperConfig config, Instant now, List<RenderJob> jobs)
+            throws IOException {
         // get timestamp
         ZonedDateTime dt = ZonedDateTime.ofInstant(now, ZoneId.of("UTC"));
         int minute = 5 * (dt.get(ChronoField.MINUTE_OF_HOUR) / 5);
@@ -156,13 +155,15 @@ public final class LuftdatenMapper {
                 LOG.trace("Caught IOException", e);
                 LOG.warn("Caught IOException: {}", e.getMessage());
             } finally {
-                if (!jsonFile.delete()) {
-                    LOG.warn("Failed to delete JSON file");
-                }
                 if (!overlayFile.delete()) {
                     LOG.warn("Failed to delete overlay file");
                 }
             }
+        }
+
+        // delete JSON
+        if (!jsonFile.delete()) {
+            LOG.warn("Failed to delete JSON file");
         }
     }
 
