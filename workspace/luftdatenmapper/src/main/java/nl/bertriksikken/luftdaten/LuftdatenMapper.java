@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -20,11 +21,13 @@ import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
 
@@ -150,6 +153,10 @@ public final class LuftdatenMapper {
                 String timestampText = localDateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
                 File outputFile = new File(config.getOutputPath(), job.getMapFile());
                 timestamp(config.getConvertCmd(), timestampText, compositeFile, outputFile);
+
+                animate(config.getConvertCmd(), localDateTime, outputFile,
+                        new File(config.getIntermediateDir(), job.getName()),
+                        new File(config.getOutputPath(), job.getName() + ".gif"));
 
             } catch (IOException e) {
                 LOG.trace("Caught IOException", e);
@@ -293,5 +300,56 @@ public final class LuftdatenMapper {
             LOG.warn("Caught IOException: {}", e.getMessage());
         }
     }
+
+    private void animate(String command, LocalDateTime dt, File inFile, File tempDir, File outfile) throws IOException {
+        LOG.info("Animating {} into {}", inFile, outfile);
+        
+        // copy locally 
+        String fileName = String.format(Locale.US, "%02d%02d.png", dt.get(ChronoField.HOUR_OF_DAY),
+                dt.get(ChronoField.MINUTE_OF_HOUR));
+        File newFile = new File(tempDir, fileName);
+        tempDir.mkdirs();
+        Files.copy(inFile.toPath(), newFile.toPath());
+
+        // sort files
+        List<File> files = Arrays.asList(tempDir.getCanonicalFile().listFiles((d, n) -> n.endsWith(".png")));
+        files.sort(new Comparator<File>() {
+            @Override
+            public int compare(File f1, File f2) {
+                String name1 = f1.getName();
+                String name2 = f2.getName();
+                return name1.compareTo(name2);
+            }
+        });
+        List<String> pngs = files.stream().map(File::getName).collect(Collectors.toList());
+
+        // send to convert
+        List<String> arguments = new ArrayList<>();
+        arguments.add(command);
+        arguments.addAll(Arrays.asList("-loop", "0"));
+        arguments.addAll(Arrays.asList("-delay", "5"));
+        arguments.add("+map");
+        arguments.addAll(pngs);
+        arguments.add(outfile.getAbsolutePath());
+        ProcessBuilder pb = new ProcessBuilder(arguments);
+        try {
+            Process process = pb.directory(tempDir).start();
+            int exitValue = process.waitFor();
+            if (exitValue != 0) {
+                InputStream is = process.getErrorStream();
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        LOG.info("line: {}", line);
+                    }
+                }
+            }
+            LOG.info("Process ended with {}", exitValue);
+        } catch (Exception e) {
+            LOG.trace("Caught IOException", e);
+            LOG.warn("Caught IOException: {}", e.getMessage());
+        }
+    }
+
 
 }
