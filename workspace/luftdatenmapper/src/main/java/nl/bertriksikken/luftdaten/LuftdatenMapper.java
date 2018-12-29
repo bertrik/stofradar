@@ -94,17 +94,27 @@ public final class LuftdatenMapper {
     }
 
     private void run(ILuftdatenMapperConfig config) throws IOException {
-        executor.scheduleAtFixedRate(() -> {
-            // run the main process in a try-catch to protect the thread it runs on from exceptions
-            try {
-                Instant now = Instant.now();
-                ObjectMapper mapper = new ObjectMapper();
-                RenderJobs renderJobs = mapper.readValue(new File("renderjobs.json"), RenderJobs.class);
-                downloadAndProcess(config, now, renderJobs);
-            } catch (Exception e) {
-                LOG.error("Caught top-level exception {}", e.getMessage());
-            }
-        }, 0L, 300L, TimeUnit.SECONDS);
+        ObjectMapper mapper = new ObjectMapper();
+        RenderJobs renderJobs = mapper.readValue(new File("renderjobs.json"), RenderJobs.class);
+        Instant now = Instant.now();
+        long initialDelay = 300L - (now.getEpochSecond() % 300L);
+
+        // schedule immediate job for instant feedback
+        executor.submit(() -> runDownloadAndProcess(config, renderJobs));
+
+        // schedule periodic job
+        executor.scheduleAtFixedRate(() -> runDownloadAndProcess(config, renderJobs), initialDelay, 300L,
+                TimeUnit.SECONDS);
+    }
+
+    private void runDownloadAndProcess(ILuftdatenMapperConfig config, RenderJobs renderJobs) {
+        // run the main process in a try-catch to protect the thread it runs on from exceptions
+        try {
+            Instant now = Instant.now();
+            downloadAndProcess(config, now, renderJobs);
+        } catch (Exception e) {
+            LOG.error("Caught top-level exception {}", e.getMessage());
+        }
     }
 
     private void downloadAndProcess(ILuftdatenMapperConfig config, Instant now, List<RenderJob> jobs)
