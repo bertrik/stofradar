@@ -312,6 +312,10 @@ public final class LuftdatenMapper {
     }
 
     private void animate(String command, LocalDateTime dt, File inFile, File tempDir, File outfile) throws IOException {
+        if (command.isEmpty()) {
+            LOG.warn("Skipping animation");
+            return;
+        }
         LOG.info("Animating {} into {}", inFile, outfile);
         
         // copy locally 
