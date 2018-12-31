@@ -10,6 +10,7 @@ public final class LuftdatenMapperConfig extends BaseConfig implements ILuftdate
 	private enum EConfigItem {
         COMPOSITE_CMD("cmd.composite", "c:/cygwin64/bin/composite.exe", "Path to the imagemagick composite command"),
         CONVERT_CMD("cmd.convert", "c:/cygwin64/bin/convert.exe", "Path to the imagemagick convert command"),
+        ANIMATE_CMD("cmd.animate", "", "Path to the imagemagick convert command"),
         LUFTDATEN_URL("luftdaten.url", "https://api.luftdaten.info", "luftdaten server URL (empty to disable)"),
         LUFTDATEN_TIMEOUT("luftdaten.timeout", "5000", "luftdaten server timeout (milliseconds)"),
         INTERMEDIATE_DIR("intermediate.dir", "tmp", "Path to intermediate file storage"), 
@@ -52,6 +53,11 @@ public final class LuftdatenMapperConfig extends BaseConfig implements ILuftdate
     @Override
     public String getConvertCmd() {
         return get(EConfigItem.CONVERT_CMD.key);
+    }
+
+    @Override
+    public String getAnimateCmd() {
+        return get(EConfigItem.ANIMATE_CMD.key);
     }
 
     @Override

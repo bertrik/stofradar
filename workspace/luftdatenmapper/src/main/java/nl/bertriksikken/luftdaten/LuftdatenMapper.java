@@ -165,7 +165,7 @@ public final class LuftdatenMapper {
                 timestamp(config.getConvertCmd(), timestampText, compositeFile, outputFile);
 
                 // animate
-                animate(config.getConvertCmd(), localDateTime, outputFile,
+                animate(config.getAnimateCmd(), localDateTime, outputFile,
                         new File(config.getIntermediateDir(), job.getName()),
                         new File(config.getOutputPath(), job.getName() + ".gif"));
 
