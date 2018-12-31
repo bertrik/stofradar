@@ -164,6 +164,7 @@ public final class LuftdatenMapper {
                 File outputFile = new File(config.getOutputPath(), job.getMapFile());
                 timestamp(config.getConvertCmd(), timestampText, compositeFile, outputFile);
 
+                // animate
                 animate(config.getConvertCmd(), localDateTime, outputFile,
                         new File(config.getIntermediateDir(), job.getName()),
                         new File(config.getOutputPath(), job.getName() + ".gif"));
@@ -312,19 +313,20 @@ public final class LuftdatenMapper {
     }
 
     private void animate(String command, LocalDateTime dt, File inFile, File tempDir, File outfile) throws IOException {
-        if (command.isEmpty()) {
-            LOG.warn("Skipping animation");
-            return;
-        }
-        LOG.info("Animating {} into {}", inFile, outfile);
-        
-        // copy locally 
+        // copy locally
         String fileName = String.format(Locale.US, "%02d%02d.png", dt.get(ChronoField.HOUR_OF_DAY),
                 dt.get(ChronoField.MINUTE_OF_HOUR));
         File newFile = new File(tempDir, fileName);
         tempDir.mkdirs();
         Files.copy(inFile.toPath(), newFile.toPath());
 
+        // animation enabled?
+        if (command.isEmpty()) {
+            LOG.warn("Skipping animation");
+            return;
+        }
+        LOG.info("Animating {} into {}", inFile, outfile);
+        
         // sort files
         List<File> files = Arrays.asList(tempDir.getCanonicalFile().listFiles((d, n) -> n.endsWith(".png")));
         files.sort(new Comparator<File>() {
