@@ -1,9 +1,7 @@
 package nl.bertriksikken.luftdaten.render;
 
-import nl.bertriksikken.luftdaten.api.dto.DataPoint;
-import nl.bertriksikken.luftdaten.api.dto.DataPoints;
-import nl.bertriksikken.luftdaten.api.dto.DataValue;
-import nl.bertriksikken.luftdaten.api.dto.Location;
+import java.util.List;
+
 import nl.bertriksikken.luftdaten.config.Coord;
 import nl.bertriksikken.luftdaten.config.RenderJob;
 
@@ -13,16 +11,16 @@ import nl.bertriksikken.luftdaten.config.RenderJob;
 public final class Interpolator {
 	
 	/**
-	 * Interpolates values into a grid.
-	 * 
-	 * @param dataPoints the input data
-	 * @param topLeft the top-left coordinate
-	 * @param size the size of the coordinates
-	 * @param w the output width
-	 * @param h the output height
-	 * @return grid of double values with the interpolated data
-	 */
-    public double[][] interpolate(DataPoints dataPoints, RenderJob job, int w, int h) {
+     * Interpolates values into a grid.
+     * 
+     * @param sensorValues the input data
+     * @param topLeft the top-left coordinate
+     * @param size the size of the coordinates
+     * @param w the output width
+     * @param h the output height
+     * @return grid of double values with the interpolated data
+     */
+    public double[][] interpolate(List<SensorValue> sensorValues, RenderJob job, int w, int h) {
         double aspect = Math.cos(job.getTopLeft().getY() * Math.PI / 180.0);
         double[][] field = new double[w][h];
         Coord size = new Coord(job.getBottomRight().getX() - job.getTopLeft().getX(),
@@ -32,27 +30,23 @@ public final class Interpolator {
                 double lon = job.getTopLeft().getX() + (0.5 + x) * size.getX() / w;
                 double lat = job.getTopLeft().getY() - (0.5 + y) * size.getY() / h;
 				Coord pixel = new Coord(lon, lat);
-				double v = calculatePixel(dataPoints, pixel, "P1", aspect);
+                double v = calculatePixel(sensorValues, pixel, aspect);
 				field[x][y] = v;
 			}
 		}
 		return field;
 	}
 
-	private double calculatePixel(DataPoints dataPoints, Coord pixel, String valueId, double aspect) {
+    private double calculatePixel(List<SensorValue> sensorValues, Coord pixel, double aspect) {
 		double weightSum = 0.0;
 		double valueSum = 0.0;
-		for (DataPoint dp : dataPoints) {
-			Location l = dp.getLocation();
-			Coord c1 = new Coord(l.getLongitude(), l.getLatitude());
+        for (SensorValue dp : sensorValues) {
+            Coord c1 = new Coord(dp.getX(), dp.getY());
 			double d2 = distance2(aspect, pixel, c1);
             double w = 1.0 / d2;
-			DataValue value = dp.getSensorDataValues().getDataValue(valueId);
-			if (value != null) {
-				double v = value.getValue();
-				valueSum += (v * w);
-				weightSum += w;
-			}
+            double v = dp.getValue();
+            valueSum += (v * w);
+            weightSum += w;
 		}
 		return valueSum / weightSum;
 	}

@@ -41,11 +41,13 @@ import nl.bertriksikken.luftdaten.api.LuftDatenDataApi;
 import nl.bertriksikken.luftdaten.api.dto.DataPoint;
 import nl.bertriksikken.luftdaten.api.dto.DataPoints;
 import nl.bertriksikken.luftdaten.api.dto.DataValue;
+import nl.bertriksikken.luftdaten.api.dto.Location;
 import nl.bertriksikken.luftdaten.config.RenderJob;
 import nl.bertriksikken.luftdaten.config.RenderJobs;
 import nl.bertriksikken.luftdaten.render.ColorMapper;
 import nl.bertriksikken.luftdaten.render.ColorPoint;
 import nl.bertriksikken.luftdaten.render.Interpolator;
+import nl.bertriksikken.luftdaten.render.SensorValue;
 
 /**
  * Process the luftdaten JSON and produces a CSV with coordinates and weighted dust averages.
@@ -67,16 +69,10 @@ public final class LuftdatenMapper {
             new ColorPoint(200, new int[] { 0xFF, 0x00, 0xFF, 0xC0 }), // purple
     };
 
-    private DataPoints filterBySensorValue(DataPoints dataPoints, String type, double maxValue) {
-        DataPoints dps = new DataPoints();
-        for (DataPoint dp : dataPoints) {
-            DataValue dv = dp.getSensorDataValues().getDataValue(type);
-            if ((dv != null) && (dv.getValue() <= maxValue)) {
-                dps.add(dp);
-            }
-        }
-        LOG.info("Filtered by sensor value: {} -> {}", dataPoints.size(), dps.size());
-        return dps;
+    private List<SensorValue> filterBySensorValue(List<SensorValue> values, double maxValue) {
+        List<SensorValue> filtered = values.stream().filter(v -> v.getValue() < maxValue).collect(Collectors.toList());
+        LOG.info("Filtered by sensor value: {} -> {}", values.size(), filtered.size());
+        return filtered;
     }
 
     public static void main(String[] args) throws IOException {
@@ -138,9 +134,11 @@ public final class LuftdatenMapper {
         File overlayFile = new File(tempDir, jsonFile.getName() + ".png");
 
         // download JSON
-        DataPoints filtered;
         DataPoints dataPoints = downloadFile(jsonFile, config.getLuftdatenUrl(), config.getLuftdatenTimeout());
-        filtered = filterBySensorValue(dataPoints, "P1", 500.0);
+
+        // convert DataPoints to internal format
+        List<SensorValue> rawValues = convertDataPoints(dataPoints, "P1");
+        List<SensorValue> filteredValues = filterBySensorValue(rawValues, 500.0);
 
         // create overlay
         ColorMapper colorMapper = new ColorMapper(RANGE);
@@ -148,7 +146,7 @@ public final class LuftdatenMapper {
         // render all jobs
         for (RenderJob job : jobs) {
             try {
-                renderDust(filtered, overlayFile, colorMapper, job);
+                renderDust(filteredValues, overlayFile, colorMapper, job);
 
                 // create composite from background image and overlay
                 File baseMap = new File(job.getMapFile());
@@ -207,16 +205,38 @@ public final class LuftdatenMapper {
     }
 
     /**
-     * Renders a JSON file to a PNG.
+     * Converts from the luftdaten datapoints format to internal format.
      * 
      * @param dataPoints the data points
+     * @param item which item to select (P1 or P2)
+     * @return list of sensor values
+     */
+    private List<SensorValue> convertDataPoints(DataPoints dataPoints, String item) {
+        List<SensorValue> values = new ArrayList<>();
+        for (DataPoint dp : dataPoints) {
+            Location l = dp.getLocation();
+            double x = l.getLongitude();
+            double y = l.getLatitude();
+            DataValue dataValue = dp.getSensorDataValues().getDataValue(item);
+            if (dataValue != null) {
+                double v = dataValue.getValue();
+                values.add(new SensorValue(x, y, v));
+            }
+        }
+        return values;
+    }
+
+    /**
+     * Renders a JSON file to a PNG.
+     * 
+     * @param sensorValues the data points
      * @param pngFile the PNG file
      * @param colorMapper the color mapper
      * @throws IOException
      */
-    private void renderDust(DataPoints dataPoints, File pngFile, ColorMapper colorMapper, RenderJob job)
+    private void renderDust(List<SensorValue> sensorValues, File pngFile, ColorMapper colorMapper, RenderJob job)
             throws IOException {
-        LOG.info("Rendering {} data points to {}", dataPoints.size(), pngFile);
+        LOG.info("Rendering {} data points to {}", sensorValues.size(), pngFile);
 
         // parse background file
         File mapFile = new File(job.getMapFile());
@@ -226,7 +246,7 @@ public final class LuftdatenMapper {
 
         // interpolate over grid
         Interpolator interpolator = new Interpolator();
-        double[][] field = interpolator.interpolate(dataPoints, job, width, height);
+        double[][] field = interpolator.interpolate(sensorValues, job, width, height);
 
         // convert to color PNG
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
