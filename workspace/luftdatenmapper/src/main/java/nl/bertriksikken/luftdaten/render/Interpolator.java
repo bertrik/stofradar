@@ -1,11 +1,11 @@
 package nl.bertriksikken.luftdaten.render;
 
-import nl.bertriksikken.luftdaten.Coord;
-import nl.bertriksikken.luftdaten.RenderJob;
 import nl.bertriksikken.luftdaten.api.dto.DataPoint;
 import nl.bertriksikken.luftdaten.api.dto.DataPoints;
 import nl.bertriksikken.luftdaten.api.dto.DataValue;
 import nl.bertriksikken.luftdaten.api.dto.Location;
+import nl.bertriksikken.luftdaten.config.Coord;
+import nl.bertriksikken.luftdaten.config.RenderJob;
 
 /**
  * Interpolates dust values on a (lat,lon) grid in between sensors.  

@@ -1,4 +1,4 @@
-package nl.bertriksikken.luftdaten;
+package nl.bertriksikken.luftdaten.config;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;

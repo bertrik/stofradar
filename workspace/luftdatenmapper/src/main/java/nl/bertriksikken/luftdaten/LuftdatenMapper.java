@@ -41,6 +41,8 @@ import nl.bertriksikken.luftdaten.api.LuftDatenDataApi;
 import nl.bertriksikken.luftdaten.api.dto.DataPoint;
 import nl.bertriksikken.luftdaten.api.dto.DataPoints;
 import nl.bertriksikken.luftdaten.api.dto.DataValue;
+import nl.bertriksikken.luftdaten.config.RenderJob;
+import nl.bertriksikken.luftdaten.config.RenderJobs;
 import nl.bertriksikken.luftdaten.render.ColorMapper;
 import nl.bertriksikken.luftdaten.render.ColorPoint;
 import nl.bertriksikken.luftdaten.render.Interpolator;
@@ -159,7 +161,7 @@ public final class LuftdatenMapper {
 
                 // add timestamp to composite
                 LocalDateTime localDateTime = LocalDateTime.ofInstant(now, ZoneId.systemDefault())
-                        .truncatedTo(ChronoUnit.SECONDS);
+                        .truncatedTo(ChronoUnit.MINUTES);
                 String timestampText = localDateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
                 File outputFile = new File(config.getOutputPath(), job.getMapFile());
                 timestamp(config.getConvertCmd(), timestampText, compositeFile, outputFile);

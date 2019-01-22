@@ -1,4 +1,4 @@
-package nl.bertriksikken.luftdaten;
+package nl.bertriksikken.luftdaten.config;
 
 import java.util.ArrayList;
 import java.util.Collection;
