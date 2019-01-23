@@ -146,8 +146,11 @@ public final class LuftdatenMapper {
 
         // render all jobs
         for (RenderJob job : jobs) {
+            // apply bounding box
+            List<SensorValue> boundedValues = filterByBoundingBox(filteredValues, job);
+
             try {
-                renderDust(filteredValues, overlayFile, colorMapper, job);
+                renderDust(boundedValues, overlayFile, colorMapper, job);
 
                 // create composite from background image and overlay
                 File baseMap = new File(job.getMapFile());
@@ -184,6 +187,29 @@ public final class LuftdatenMapper {
         if (!jsonFile.delete()) {
             LOG.warn("Failed to delete JSON file");
         }
+    }
+
+    /**
+     * Filters sensor values by position according to a bounding box.
+     * The size of the bounding box is 3x3 times the size of the render job.
+     * 
+     * @param values the sensor values
+     * @param job the render job
+     * @return values filtered by position
+     */
+    private List<SensorValue> filterByBoundingBox(List<SensorValue> values, RenderJob job) {
+        double minX = 2 * job.getTopLeft().getX() - job.getBottomRight().getX();
+        double maxX = 2 * job.getBottomRight().getX() - job.getTopLeft().getX();
+        double minY = 2 * job.getBottomRight().getY() - job.getTopLeft().getY();
+        double maxY = 2 * job.getTopLeft().getY() - job.getBottomRight().getY();
+        List<SensorValue> filtered = values.stream()
+            .filter(v -> (v.getX() > minX))
+            .filter(v -> (v.getX() < maxX))
+            .filter(v -> (v.getY() > minY))
+            .filter(v -> (v.getY() < maxY))
+            .collect(Collectors.toList());
+        LOG.info("Filtered by bounding box: {} -> {}", values.size(), filtered.size());
+        return filtered;
     }
 
     /**
