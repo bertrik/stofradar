@@ -12,6 +12,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -340,7 +341,7 @@ public final class LuftdatenMapper {
                 dt.get(ChronoField.MINUTE_OF_HOUR));
         File newFile = new File(tempDir, fileName);
         tempDir.mkdirs();
-        Files.copy(inFile.toPath(), newFile.toPath());
+        Files.copy(inFile.toPath(), newFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 
         // animation enabled?
         if (command.isEmpty()) {
