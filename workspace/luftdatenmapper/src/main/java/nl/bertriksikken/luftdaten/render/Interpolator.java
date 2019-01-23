@@ -22,7 +22,7 @@ public final class Interpolator {
      * @param h the output height
      * @return grid of double values with the interpolated data
      */
-    public double[][] interpolate(List<SensorValue> sensorValues, RenderJob job, int w, int h) {
+    public double[][] interpolate(List<SensorValue> sensorValues, RenderJob job, int w, int h, double maxDistance) {
         // calculate km per degree
         Coord center = new Coord((job.getTopLeft().getX() + job.getBottomRight().getX()) / 2,
                 (job.getTopLeft().getY() + job.getBottomRight().getY()) / 2);
@@ -39,25 +39,29 @@ public final class Interpolator {
                 double lon = job.getTopLeft().getX() + (0.5 + x) * size.getX() / w;
                 double lat = job.getTopLeft().getY() - (0.5 + y) * size.getY() / h;
 				Coord pixel = new Coord(lon, lat);
-                double v = calculatePixel(sensorValues, pixel, aspect);
+                double v = calculatePixel(sensorValues, pixel, aspect, maxDistance);
 				field[x][y] = v;
 			}
 		}
 		return field;
 	}
 
-    private double calculatePixel(List<SensorValue> sensorValues, Coord pixel, double[] aspect) {
+    private double calculatePixel(List<SensorValue> sensorValues, Coord pixel, double[] aspect, double maxDistance) {
 		double weightSum = 0.0;
 		double valueSum = 0.0;
+        double closest = Double.MAX_VALUE;
         for (SensorValue dp : sensorValues) {
             Coord c1 = new Coord(dp.getX(), dp.getY());
 			double d2 = distance2(aspect, pixel, c1);
+            if (d2 < closest) {
+                closest = d2;
+            }
             double w = 1.0 / d2;
             double v = dp.getValue();
             valueSum += (v * w);
             weightSum += w;
 		}
-		return valueSum / weightSum;
+        return (closest < (maxDistance * maxDistance)) ? valueSum / weightSum : Double.NaN;
 	}
 	
 	/**

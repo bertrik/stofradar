@@ -7,6 +7,8 @@ import java.awt.image.WritableRaster;
  */
 public final class ColorMapper {
 
+    private static final int[] NO_DATA_COLOUR = { 0x80, 0x80, 0x80, 0x80 };
+
     private final ColorPoint[] range;
 
     /**
@@ -30,8 +32,8 @@ public final class ColorMapper {
     public void map(double[][] values, WritableRaster raster) {
         for (int x = 0; x < values.length; x++) {
             for (int y = 0; y < values[0].length; y++) {
-                double v = values[x][y];
-                int[] colour = getColour(range, v);
+                Double v = values[x][y];
+                int[] colour = v.isNaN() ? NO_DATA_COLOUR : getColour(range, v);
                 raster.setPixel(x, y, colour);
             }
         }
