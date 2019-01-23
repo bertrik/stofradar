@@ -246,7 +246,7 @@ public final class LuftdatenMapper {
 
         // interpolate over grid
         Interpolator interpolator = new Interpolator();
-        double[][] field = interpolator.interpolate(sensorValues, job, width, height, 25.0);
+        double[][] field = interpolator.interpolate(sensorValues, job, width, height, job.getMaxDistance());
 
         // convert to color PNG
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);

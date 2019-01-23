@@ -10,7 +10,8 @@
       "lon": 7.3,
       "lat": 50.7
     },
-    "subsample": 4
+    "subsample": 2,
+    "maxdistance": 25.0
   },
   {
     "name": "gouda",
@@ -23,6 +24,7 @@
       "lon": 4.756411,
       "lat": 51.996627
     },
-    "subsample": 4
+    "subsample": 2,
+    "maxdistance": 0.5
   }
 ]

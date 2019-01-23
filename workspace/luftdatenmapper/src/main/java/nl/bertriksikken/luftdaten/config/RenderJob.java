@@ -21,17 +21,21 @@ public final class RenderJob {
     @JsonProperty("subsample")
     private int subSample;
 
+    @JsonProperty("maxdistance")
+    private double maxDistance;
+
     private RenderJob() {
         // jackson constructor
     }
 
-    public RenderJob(String name, String mapFile, Coord topleft, Coord bottomRight, int subSample) {
+    public RenderJob(String name, String mapFile, Coord topleft, Coord bottomRight, int subSample, double maxDistance) {
         this();
         this.name = name;
         this.mapFile = mapFile;
         this.topLeft = topleft;
         this.bottomRight = bottomRight;
         this.subSample = subSample;
+        this.maxDistance = maxDistance;
     }
 
     public String getName() {
@@ -52,6 +56,10 @@ public final class RenderJob {
 
     public int getSubSample() {
         return subSample;
+    }
+
+    public double getMaxDistance() {
+        return maxDistance;
     }
 
 }
