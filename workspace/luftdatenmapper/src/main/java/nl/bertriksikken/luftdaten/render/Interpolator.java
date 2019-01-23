@@ -9,6 +9,8 @@ import nl.bertriksikken.luftdaten.config.RenderJob;
  * Interpolates dust values on a (lat,lon) grid in between sensors.  
  */
 public final class Interpolator {
+
+    private final double KM_PER_DEGREE_LAT = 40000.0 / 360.0;
 	
 	/**
      * Interpolates values into a grid.
@@ -21,10 +23,17 @@ public final class Interpolator {
      * @return grid of double values with the interpolated data
      */
     public double[][] interpolate(List<SensorValue> sensorValues, RenderJob job, int w, int h) {
-        double aspect = Math.cos(job.getTopLeft().getY() * Math.PI / 180.0);
-        double[][] field = new double[w][h];
+        // calculate km per degree
+        Coord center = new Coord((job.getTopLeft().getX() + job.getBottomRight().getX()) / 2,
+                (job.getTopLeft().getY() + job.getBottomRight().getY()) / 2);
+        double[] aspect = new double[] { KM_PER_DEGREE_LAT * Math.cos(Math.toRadians(center.getY())),
+                KM_PER_DEGREE_LAT };
+
         Coord size = new Coord(job.getBottomRight().getX() - job.getTopLeft().getX(),
                 job.getTopLeft().getY() - job.getBottomRight().getY());
+
+        // interpolate
+        double[][] field = new double[w][h];
         for (int x = 0; x < w; x++) {
             for (int y = 0; y < h; y++) {
                 double lon = job.getTopLeft().getX() + (0.5 + x) * size.getX() / w;
@@ -37,7 +46,7 @@ public final class Interpolator {
 		return field;
 	}
 
-    private double calculatePixel(List<SensorValue> sensorValues, Coord pixel, double aspect) {
+    private double calculatePixel(List<SensorValue> sensorValues, Coord pixel, double[] aspect) {
 		double weightSum = 0.0;
 		double valueSum = 0.0;
         for (SensorValue dp : sensorValues) {
@@ -59,9 +68,9 @@ public final class Interpolator {
 	 * @param c2 the second coordinate
 	 * @return distance-squared
 	 */
-	private double distance2(double aspect, Coord c1, Coord c2) {
-		double dx = aspect * (c1.getX() - c2.getX());
-		double dy = (c1.getY() - c2.getY());
+    private double distance2(double[] aspect, Coord c1, Coord c2) {
+        double dx = aspect[0] * (c1.getX() - c2.getX());
+        double dy = aspect[1] * (c1.getY() - c2.getY());
 		return (dx * dx) + (dy * dy);
 	}
 	
