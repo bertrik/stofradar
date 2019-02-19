@@ -14,7 +14,7 @@ import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 
-public class LuftDatenDataApi {
+public final class LuftDatenDataApi {
 
     private static final Logger LOG = LoggerFactory.getLogger(LuftDatenDataApi.class);
 
