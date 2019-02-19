@@ -10,7 +10,7 @@
       "lon": 7.3,
       "lat": 50.7
     },
-    "subsample": 2,
+    "subsample": 1,
     "maxdistance": 25.0
   },
   {
@@ -24,7 +24,7 @@
       "lon": 4.756411,
       "lat": 51.996627
     },
-    "subsample": 2,
+    "subsample": 1,
     "maxdistance": 0.5
   }
 ]
