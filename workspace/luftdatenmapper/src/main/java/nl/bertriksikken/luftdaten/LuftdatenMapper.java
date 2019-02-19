@@ -369,7 +369,10 @@ public final class LuftdatenMapper {
         String fileName = String.format(Locale.US, "%02d%02d.png", dt.get(ChronoField.HOUR_OF_DAY),
                 dt.get(ChronoField.MINUTE_OF_HOUR));
         File newFile = new File(tempDir, fileName);
-        tempDir.mkdirs();
+        if (!tempDir.exists() && !tempDir.mkdirs()) {
+            LOG.warn("Failed to create directory {}", tempDir.getAbsolutePath());
+        }
+
         Files.copy(inFile.toPath(), newFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 
         // animation enabled?
