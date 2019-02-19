@@ -20,7 +20,7 @@ public final class PointGeometry {
     }
 
     public double[] getCoordinates() {
-        return coordinates;
+        return coordinates.clone();
     }
 
     @Override

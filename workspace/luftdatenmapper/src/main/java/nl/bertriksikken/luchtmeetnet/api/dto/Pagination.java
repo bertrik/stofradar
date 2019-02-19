@@ -38,7 +38,7 @@ public final class Pagination {
     }
 
     public int[] getPages() {
-        return pages;
+        return pages.clone();
     }
 
 }

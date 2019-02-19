@@ -10,7 +10,7 @@ import nl.bertriksikken.luftdaten.config.RenderJob;
  */
 public final class Interpolator {
 
-    private final double KM_PER_DEGREE_LAT = 40000.0 / 360.0;
+    private static final double KM_PER_DEGREE_LAT = 40000.0 / 360.0;
 	
 	/**
      * Interpolates values into a grid.

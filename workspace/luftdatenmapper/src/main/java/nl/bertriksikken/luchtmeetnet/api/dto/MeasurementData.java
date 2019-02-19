@@ -26,7 +26,7 @@ public final class MeasurementData {
         this();
         this.value = value;
         this.formula = formula;
-        this.timeStamp = timeStamp;
+        this.timeStamp = new Date(timeStamp.getTime());
     }
 
     @Override
