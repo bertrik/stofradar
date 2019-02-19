@@ -26,11 +26,6 @@ public interface ILuftdatenMapperConfig {
     String getConvertCmd();
 
     /**
-     * @return the path to the imagemagick command for animation
-     */
-    String getAnimateCmd();
-
-    /**
      * @return the path to the directory with intermediate files
      */
     String getIntermediateDir();
