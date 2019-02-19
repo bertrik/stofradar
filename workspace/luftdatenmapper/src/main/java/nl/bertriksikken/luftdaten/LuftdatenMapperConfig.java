@@ -41,7 +41,7 @@ public final class LuftdatenMapperConfig extends BaseConfig implements ILuftdate
     }
 
     @Override
-    public int getLuftdatenTimeout() {
+    public int getLuftdatenTimeoutMs() {
         return Integer.parseInt(get(EConfigItem.LUFTDATEN_TIMEOUT.key));
     }
 

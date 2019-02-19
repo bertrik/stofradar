@@ -13,7 +13,7 @@ public interface ILuftdatenMapperConfig {
     /**
      * @return the luftdaten.info timeout
      */
-    int getLuftdatenTimeout();
+    int getLuftdatenTimeoutMs();
 
     /**
      * @return the path to the imagemagick 'composite' command

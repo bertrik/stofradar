@@ -2,7 +2,7 @@ package nl.bertriksikken.luftdaten.api;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.concurrent.TimeUnit;
+import java.time.Duration;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,10 +28,10 @@ public class LuftDatenDataApi {
      * @param timeout timeout (ms)
      * @return REST interface
      */
-    public static ILuftdatenRestApi newRestClient(String url, int timeout) {
+    public static ILuftdatenRestApi newRestClient(String url, Duration timeout) {
         LOG.info("Creating new REST client for URL '{}' with timeout {}", url, timeout);
-        OkHttpClient client = new OkHttpClient().newBuilder().connectTimeout(timeout, TimeUnit.MILLISECONDS)
-                .writeTimeout(timeout, TimeUnit.MILLISECONDS).readTimeout(timeout, TimeUnit.MILLISECONDS).build();
+        OkHttpClient client = new OkHttpClient().newBuilder().connectTimeout(timeout)
+                .writeTimeout(timeout).readTimeout(timeout).build();
         Retrofit retrofit = new Retrofit.Builder().baseUrl(url).addConverterFactory(JacksonConverterFactory.create())
                 .client(client).build();
         return retrofit.create(ILuftdatenRestApi.class);

@@ -13,6 +13,7 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -135,7 +136,8 @@ public final class LuftdatenMapper {
         File overlayFile = new File(tempDir, jsonFile.getName() + ".png");
 
         // download JSON
-        DataPoints dataPoints = downloadFile(jsonFile, config.getLuftdatenUrl(), config.getLuftdatenTimeout());
+        DataPoints dataPoints = downloadFile(jsonFile, config.getLuftdatenUrl(),
+                Duration.ofMillis(config.getLuftdatenTimeoutMs()));
 
         // convert DataPoints to internal format
         List<SensorValue> rawValues = convertDataPoints(dataPoints, "P1");
@@ -217,10 +219,11 @@ public final class LuftdatenMapper {
      * 
      * @param file the file to download to 
      * @param url the URL to download from
+     * @param timeout the connect/read timeout
      * @return the parsed contents
      * @throws IOException
      */
-    private DataPoints downloadFile(File file, String url, int timeout) throws IOException {
+    private DataPoints downloadFile(File file, String url, Duration timeout) throws IOException {
         ILuftdatenRestApi restApi = LuftDatenDataApi.newRestClient(url, timeout);
         LuftDatenDataApi api = new LuftDatenDataApi(restApi);
         LOG.info("Downloading new dataset to {}", file);
