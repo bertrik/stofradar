@@ -4,10 +4,6 @@ import java.util.Locale;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-/**
- * @author bertrik
- *
- */
 public final class SensorType {
 
     @JsonProperty("id")
