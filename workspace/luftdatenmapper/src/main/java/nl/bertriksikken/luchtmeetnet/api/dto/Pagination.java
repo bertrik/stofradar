@@ -1,10 +1,11 @@
 package nl.bertriksikken.luchtmeetnet.api.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
 public final class Pagination {
+
+    @JsonProperty("current_page")
+    private int currentPage;
 
     @JsonProperty("next_page")
     private int nextPage;
@@ -20,6 +21,10 @@ public final class Pagination {
 
     @JsonProperty("page_list")
     private int[] pages;
+
+    public int getCurrentPage() {
+        return currentPage;
+    }
 
     public int getNextPage() {
         return nextPage;
