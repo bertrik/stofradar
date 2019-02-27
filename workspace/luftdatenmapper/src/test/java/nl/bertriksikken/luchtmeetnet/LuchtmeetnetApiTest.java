@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import nl.bertriksikken.luchtmeetnet.api.ILuchtmeetnetRestApi;
 import nl.bertriksikken.luchtmeetnet.api.LuchtmeetnetApi;
 import nl.bertriksikken.luchtmeetnet.api.dto.MeasurementData;
+import nl.bertriksikken.luchtmeetnet.api.dto.OrganisationData;
 import nl.bertriksikken.luchtmeetnet.api.dto.StationData;
 
 public final class LuchtmeetnetApiTest {
@@ -25,6 +26,13 @@ public final class LuchtmeetnetApiTest {
         ILuchtmeetnetRestApi restApi = LuchtmeetnetApi.newRestClient("https://api.luchtmeetnet.nl/open_api/",
                 Duration.ofSeconds(10));
         LuchtmeetnetApi api = new LuchtmeetnetApi(restApi);
+
+        // get a list of all organisations
+        List<OrganisationData> organisations = api.getOrganisations();
+        LOG.info("Found {} organisations", organisations.size());
+        for (OrganisationData organisation : organisations) {
+            LOG.info("Organisation: {}", organisation);
+        }
 
         // get a list of all stations
         List<String> numbers = api.getStationNumbers();

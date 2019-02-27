@@ -10,6 +10,9 @@ import org.slf4j.LoggerFactory;
 
 import nl.bertriksikken.luchtmeetnet.api.dto.MeasurementData;
 import nl.bertriksikken.luchtmeetnet.api.dto.Measurements;
+import nl.bertriksikken.luchtmeetnet.api.dto.OrganisationData;
+import nl.bertriksikken.luchtmeetnet.api.dto.Organisations;
+import nl.bertriksikken.luchtmeetnet.api.dto.PagedResponse;
 import nl.bertriksikken.luchtmeetnet.api.dto.Station;
 import nl.bertriksikken.luchtmeetnet.api.dto.StationData;
 import nl.bertriksikken.luchtmeetnet.api.dto.Stations;
@@ -56,6 +59,26 @@ public final class LuchtmeetnetApi {
             stations.getData().forEach(s -> list.add(s.getNumber()));
             // next page?
             if (page < stations.getPagination().getLastPage()) {
+                page++;
+            } else {
+                return list;
+            }
+        }
+    }
+    
+    public List<OrganisationData> getOrganisations() throws IOException {
+        int page = 1;
+        List<OrganisationData> list = new ArrayList<>();
+        while (true) {
+            // iterate over all pages
+            Response<Organisations> response = api.getOrganisations(page).execute();
+            if (!response.isSuccessful()) {
+                throw new IOException("Request failed for page " + page);
+            }
+            PagedResponse<OrganisationData> body = response.body();
+            list.addAll(body.getData());
+            // next page?
+            if (page < body.getPagination().getLastPage()) {
                 page++;
             } else {
                 return list;
