@@ -4,17 +4,17 @@ import java.util.Locale;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public final class OrganisationName {
+public final class BilingualText {
 
     @JsonProperty("NL")
-    private String nameNL;
+    private String textNL;
 
     @JsonProperty("EN")
-    private String nameEN;
+    private String textEN;
 
     @Override
     public String toString() {
-        return String.format(Locale.ROOT, "{NL=%s, EN=%s}", nameNL, nameEN);
+        return String.format(Locale.ROOT, "{NL=%s, EN=%s}", textNL, textEN);
     }
 
 }

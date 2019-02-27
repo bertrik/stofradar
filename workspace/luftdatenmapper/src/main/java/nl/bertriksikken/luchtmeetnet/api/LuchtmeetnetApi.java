@@ -8,6 +8,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import nl.bertriksikken.luchtmeetnet.api.dto.Components;
+import nl.bertriksikken.luchtmeetnet.api.dto.ComponentsData;
 import nl.bertriksikken.luchtmeetnet.api.dto.MeasurementData;
 import nl.bertriksikken.luchtmeetnet.api.dto.Measurements;
 import nl.bertriksikken.luchtmeetnet.api.dto.OrganisationData;
@@ -76,6 +78,26 @@ public final class LuchtmeetnetApi {
                 throw new IOException("Request failed for page " + page);
             }
             PagedResponse<OrganisationData> body = response.body();
+            list.addAll(body.getData());
+            // next page?
+            if (page < body.getPagination().getLastPage()) {
+                page++;
+            } else {
+                return list;
+            }
+        }
+    }
+
+    public List<ComponentsData> getComponents() throws IOException {
+        int page = 1;
+        List<ComponentsData> list = new ArrayList<>();
+        while (true) {
+            // iterate over all pages
+            Response<Components> response = api.getComponents(page).execute();
+            if (!response.isSuccessful()) {
+                throw new IOException("Request failed for page " + page);
+            }
+            PagedResponse<ComponentsData> body = response.body();
             list.addAll(body.getData());
             // next page?
             if (page < body.getPagination().getLastPage()) {

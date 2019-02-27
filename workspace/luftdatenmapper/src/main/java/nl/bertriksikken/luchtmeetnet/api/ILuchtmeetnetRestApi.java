@@ -1,5 +1,6 @@
 package nl.bertriksikken.luchtmeetnet.api;
 
+import nl.bertriksikken.luchtmeetnet.api.dto.Components;
 import nl.bertriksikken.luchtmeetnet.api.dto.Measurements;
 import nl.bertriksikken.luchtmeetnet.api.dto.Organisations;
 import nl.bertriksikken.luchtmeetnet.api.dto.Station;
@@ -22,5 +23,8 @@ public interface ILuchtmeetnetRestApi {
 
     @GET("/open_api/organisations")
     Call<Organisations> getOrganisations(@Query("page") int page);
+
+    @GET("/open_api/components")
+    Call<Components> getComponents(@Query("page") int page);
 
 }

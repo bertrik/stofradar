@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import nl.bertriksikken.luchtmeetnet.api.ILuchtmeetnetRestApi;
 import nl.bertriksikken.luchtmeetnet.api.LuchtmeetnetApi;
+import nl.bertriksikken.luchtmeetnet.api.dto.ComponentsData;
 import nl.bertriksikken.luchtmeetnet.api.dto.MeasurementData;
 import nl.bertriksikken.luchtmeetnet.api.dto.OrganisationData;
 import nl.bertriksikken.luchtmeetnet.api.dto.StationData;
@@ -32,6 +33,13 @@ public final class LuchtmeetnetApiTest {
         LOG.info("Found {} organisations", organisations.size());
         for (OrganisationData organisation : organisations) {
             LOG.info("Organisation: {}", organisation);
+        }
+
+        // get a list of all components
+        List<ComponentsData> components = api.getComponents();
+        LOG.info("Found {} components", components.size());
+        for (ComponentsData component : components) {
+            LOG.info("Component: {}", component);
         }
 
         // get a list of all stations
