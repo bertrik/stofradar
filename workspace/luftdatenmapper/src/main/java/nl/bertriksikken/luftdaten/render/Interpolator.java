@@ -21,15 +21,14 @@ public final class Interpolator {
      * @return grid of double values with the interpolated data
      */
     public double[][] interpolate(List<SensorValue> sensorValues, RenderJob job, int w, int h, IShader shader) {
-        Coord size = new Coord(job.getBottomRight().getX() - job.getTopLeft().getX(),
-                job.getTopLeft().getY() - job.getBottomRight().getY());
+        Coord size = new Coord(job.getEast() - job.getWest(), job.getNorth() - job.getSouth());
 
         // interpolate
         double[][] field = new double[w][h];
         for (int x = 0; x < w; x++) {
             for (int y = 0; y < h; y++) {
-                double lon = job.getTopLeft().getX() + (0.5 + x) * size.getX() / w;
-                double lat = job.getTopLeft().getY() - (0.5 + y) * size.getY() / h;
+                double lon = job.getWest() + (0.5 + x) * size.getX() / w;
+                double lat = job.getNorth() - (0.5 + y) * size.getY() / h;
 				Coord pixel = new Coord(lon, lat);
                 double v = shader.calculatePixel(sensorValues, pixel);
 				field[x][y] = v;

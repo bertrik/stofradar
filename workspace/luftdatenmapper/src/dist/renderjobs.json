@@ -2,28 +2,20 @@
   {
     "name": "netherlands",
     "mapfile": "netherlands.png",
-    "topleft": {
-      "lon": 3.3,
-      "lat": 53.7
-    },
-    "botright": {
-      "lon": 7.3,
-      "lat": 50.7
-    },
+    "north": 53.7,
+    "west": 3.3,
+    "south": 50.7,
+    "east": 7.3,
     "subsample": 1,
     "maxdistance": 25.0
   },
   {
     "name": "gouda",
     "mapfile": "gouda.png",
-    "topleft": {
-      "lon": 4.668272,
-      "lat": 52.041162
-    },
-    "botright": {
-      "lon": 4.756411,
-      "lat": 51.996627
-    },
+    "north": 52.041162,
+    "west": 4.668272,
+    "south": 51.996627,
+    "east": 4.756411,
     "subsample": 1,
     "maxdistance": 0.5
   }

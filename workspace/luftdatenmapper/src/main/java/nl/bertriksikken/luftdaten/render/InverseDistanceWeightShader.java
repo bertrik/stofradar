@@ -21,8 +21,7 @@ public class InverseDistanceWeightShader implements IShader {
         this.maxDistanceSquared = Math.pow(job.getMaxDistance(), 2);
 
         // calculate km per degree
-        Coord center = new Coord((job.getTopLeft().getX() + job.getBottomRight().getX()) / 2,
-                (job.getTopLeft().getY() + job.getBottomRight().getY()) / 2);
+        Coord center = new Coord((job.getWest() + job.getEast()) / 2, (job.getNorth() + job.getSouth()) / 2);
         this.aspect = new double[] { KM_PER_DEGREE_LAT * Math.cos(Math.toRadians(center.getY())), KM_PER_DEGREE_LAT };
     }
 

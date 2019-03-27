@@ -12,11 +12,17 @@ public final class RenderJob {
     @JsonProperty("mapfile")
     private String mapFile;
 
-    @JsonProperty("topleft")
-    private Coord topLeft;
+    @JsonProperty("north")
+    private double north;
 
-    @JsonProperty("botright")
-    private Coord bottomRight;
+    @JsonProperty("east")
+    private double east;
+
+    @JsonProperty("south")
+    private double south;
+
+    @JsonProperty("west")
+    private double west;
 
     @JsonProperty("subsample")
     private int subSample;
@@ -28,12 +34,15 @@ public final class RenderJob {
         // jackson constructor
     }
 
-    public RenderJob(String name, String mapFile, Coord topleft, Coord bottomRight, int subSample, double maxDistance) {
+    public RenderJob(String name, String mapFile, double north, double east, double south, double west, int subSample,
+            double maxDistance) {
         this();
         this.name = name;
         this.mapFile = mapFile;
-        this.topLeft = topleft;
-        this.bottomRight = bottomRight;
+        this.north = north;
+        this.east = north;
+        this.south = north;
+        this.west = north;
         this.subSample = subSample;
         this.maxDistance = maxDistance;
     }
@@ -46,12 +55,20 @@ public final class RenderJob {
         return mapFile;
     }
 
-    public Coord getTopLeft() {
-        return topLeft;
+    public double getNorth() {
+        return north;
     }
 
-    public Coord getBottomRight() {
-        return bottomRight;
+    public double getEast() {
+        return east;
+    }
+
+    public double getSouth() {
+        return south;
+    }
+
+    public double getWest() {
+        return west;
     }
 
     public int getSubSample() {
