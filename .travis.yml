@@ -1,4 +1,6 @@
 language: java
+jdk: openjdk11 
+
 before_script: cd workspace/gradle
 
 before_cache:
