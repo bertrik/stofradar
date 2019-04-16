@@ -48,9 +48,9 @@ public final class LuftDatenDataApi {
     public void downloadDust(File file) throws IOException {
         retrofit2.Response<JsonNode> response = api.getAverageDustData().execute();
         if (response.isSuccessful()) {
+            LOG.info("Writing response to file {}", file.getName());
             JsonNode node = response.body();
             mapper.writeValue(file, node);
-            LOG.info("Wrote to file {}", file.getName());
         } else {
             LOG.warn("Download failed!");
         }
