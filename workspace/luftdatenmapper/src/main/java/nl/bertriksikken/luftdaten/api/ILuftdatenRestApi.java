@@ -1,7 +1,5 @@
 package nl.bertriksikken.luftdaten.api;
 
-import com.fasterxml.jackson.databind.JsonNode;
-
 import retrofit2.Call;
 import retrofit2.http.GET;
 
@@ -11,6 +9,6 @@ import retrofit2.http.GET;
 public interface ILuftdatenRestApi {
 
     @GET("/static/v2/data.json")
-    Call<JsonNode> getAverageDustData();
+    Call<String> getAverageDustData();
 
 }
