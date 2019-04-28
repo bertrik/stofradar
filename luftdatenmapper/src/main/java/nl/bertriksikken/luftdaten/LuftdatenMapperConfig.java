@@ -1,5 +1,8 @@
 package nl.bertriksikken.luftdaten;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import nl.bertriksikken.luftdaten.config.BaseConfig;
 
 /**
@@ -12,6 +15,7 @@ public final class LuftdatenMapperConfig extends BaseConfig implements ILuftdate
         CONVERT_CMD("cmd.convert", "c:/cygwin64/bin/convert.exe", "Path to the imagemagick convert command"),
         LUFTDATEN_URL("luftdaten.url", "https://api.luftdaten.info", "luftdaten server URL (empty to disable)"),
         LUFTDATEN_TIMEOUT("luftdaten.timeout", "15000", "luftdaten server timeout (milliseconds)"),
+        LUFTDATEN_BLACKLIST("luftdaten.blacklist", "11697", "Comma-separated list of blacklisted stations"),
         INTERMEDIATE_DIR("intermediate.dir", "tmp", "Path to intermediate file storage"), 
         BASEMAP_PATH("basemap.path", "netherlands.png", "Path to base map"),
         OUTPUT_PATH("output.path", "/home/bertrik/stofradar.nl/fijnstof.png", "Path to output file");
@@ -44,6 +48,18 @@ public final class LuftdatenMapperConfig extends BaseConfig implements ILuftdate
         return Integer.parseInt(get(EConfigItem.LUFTDATEN_TIMEOUT.key));
     }
 
+	@Override
+	public List<Integer> getLuftdatenBlacklist() {
+		String[] items = get(EConfigItem.LUFTDATEN_BLACKLIST.key).trim().split(",");
+		List<Integer> blackList = new ArrayList<>();
+		for (String item : items) {
+			if (!item.isEmpty()) {
+				blackList.add(Integer.parseInt(item));
+			}
+		}
+		return blackList;
+	}
+    
     @Override
     public String getCompositeCmd() {
         return get(EConfigItem.COMPOSITE_CMD.key);

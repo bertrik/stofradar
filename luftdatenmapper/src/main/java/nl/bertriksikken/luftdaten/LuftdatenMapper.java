@@ -41,6 +41,7 @@ import nl.bertriksikken.luftdaten.api.dto.DataPoint;
 import nl.bertriksikken.luftdaten.api.dto.DataPoints;
 import nl.bertriksikken.luftdaten.api.dto.DataValue;
 import nl.bertriksikken.luftdaten.api.dto.Location;
+import nl.bertriksikken.luftdaten.api.dto.Sensor;
 import nl.bertriksikken.luftdaten.config.RenderJob;
 import nl.bertriksikken.luftdaten.config.RenderJobs;
 import nl.bertriksikken.luftdaten.render.ColorMapper;
@@ -73,6 +74,12 @@ public final class LuftdatenMapper {
     private List<SensorValue> filterBySensorValue(List<SensorValue> values, double maxValue) {
         List<SensorValue> filtered = values.stream().filter(v -> v.getValue() < maxValue).collect(Collectors.toList());
         LOG.info("Filtered by sensor value: {} -> {}", values.size(), filtered.size());
+        return filtered;
+    }
+
+    private List<SensorValue> filterBySensorId(List<SensorValue> values, List<Integer> blacklist) {
+        List<SensorValue> filtered = values.stream().filter(v -> !blacklist.contains(v.getId())).collect(Collectors.toList());
+        LOG.info("Filtered by sensor id: {} -> {}", values.size(), filtered.size());
         return filtered;
     }
 
@@ -140,7 +147,10 @@ public final class LuftdatenMapper {
 
         // convert DataPoints to internal format
         List<SensorValue> rawValues = convertDataPoints(dataPoints, "P1");
+        
+        // filter by value and id
         List<SensorValue> filteredValues = filterBySensorValue(rawValues, 500.0);
+        filteredValues = filterBySensorId(filteredValues, config.getLuftdatenBlacklist());
 
         // create overlay
         ColorMapper colorMapper = new ColorMapper(RANGE);
@@ -237,13 +247,15 @@ public final class LuftdatenMapper {
     private List<SensorValue> convertDataPoints(DataPoints dataPoints, String item) {
         List<SensorValue> values = new ArrayList<>();
         for (DataPoint dp : dataPoints) {
+        	Sensor sensor = dp.getSensor();
+        	int id = sensor.getId();
             Location l = dp.getLocation();
             double x = l.getLongitude();
             double y = l.getLatitude();
             DataValue dataValue = dp.getSensorDataValues().getDataValue(item);
             if (dataValue != null) {
                 double v = dataValue.getValue();
-                values.add(new SensorValue(x, y, v));
+                values.add(new SensorValue(id, x, y, v));
             }
         }
         return values;

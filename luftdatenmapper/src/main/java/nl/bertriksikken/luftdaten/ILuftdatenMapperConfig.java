@@ -1,5 +1,7 @@
 package nl.bertriksikken.luftdaten;
 
+import java.util.List;
+
 /**
  * Configuration interface for the application.
  */
@@ -14,7 +16,12 @@ public interface ILuftdatenMapperConfig {
      * @return the luftdaten.info timeout
      */
     int getLuftdatenTimeoutMs();
-
+    
+    /**
+     * @return the list of blacklisted nodes by number
+     */
+    List<Integer> getLuftdatenBlacklist();
+    
     /**
      * @return the path to the imagemagick 'composite' command
      */
