@@ -20,5 +20,3 @@ libraries.retrofit_mock = 'com.squareup.retrofit2:retrofit-mock:2.6.0'
 libraries.junit = 'junit:junit:4.12'
 libraries.mockito = 'org.mockito:mockito-core:2.28.2'
 
-//libraries.mockito = 'org.mockito:mockito-all:1.10.19'
-
