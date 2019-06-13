@@ -1,8 +1,10 @@
 package nl.bertriksikken.luftdaten.api;
 
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.time.Duration;
 
 import org.slf4j.Logger;
@@ -47,8 +49,8 @@ public final class LuftDatenDataApi {
         if (response.isSuccessful()) {
             LOG.info("Writing response to file {}", file.getName());
             String json = response.body();
-            try (FileWriter writer = new FileWriter(file)) {
-                writer.write(json);
+            try (Writer writer = new OutputStreamWriter(new FileOutputStream(file), "UTF-8")) {
+            	writer.write(json);
             }
         } else {
             LOG.warn("Download failed!");
