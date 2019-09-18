@@ -72,7 +72,10 @@ public final class LuftdatenMapper {
     };
 
     private List<SensorValue> filterBySensorValue(List<SensorValue> values, double maxValue) {
-        List<SensorValue> filtered = values.stream().filter(v -> v.getValue() < maxValue).collect(Collectors.toList());
+        List<SensorValue> filtered = values.stream()
+        		.filter(v -> v.getValue() >= 0.0)
+        		.filter(v -> v.getValue() < maxValue)
+        		.collect(Collectors.toList());
         LOG.info("Filtered by sensor value: {} -> {}", values.size(), filtered.size());
         return filtered;
     }
