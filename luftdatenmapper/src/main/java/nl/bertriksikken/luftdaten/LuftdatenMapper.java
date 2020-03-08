@@ -30,6 +30,7 @@ import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
 
+import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -87,6 +88,8 @@ public final class LuftdatenMapper {
     }
 
     public static void main(String[] args) throws IOException {
+    	PropertyConfigurator.configure("log4j.properties");
+
         LuftdatenMapper luftdatenMapper = new LuftdatenMapper();
         LuftdatenMapperConfig config = new LuftdatenMapperConfig();
         File configFile = new File("luftdatenmapper.properties");
