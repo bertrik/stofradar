@@ -19,6 +19,9 @@ public final class Location {
 
     @JsonProperty("country")
     private String country;
+    
+    @JsonProperty("indoor")
+    private int indoor;
 
     public double getLatitude() {
         return latitude;
@@ -36,6 +39,10 @@ public final class Location {
         return country;
     }
 
+    public int getIndoor() {
+    	return indoor;
+    }
+    
     @Override
     public String toString() {
         return String.format(Locale.US, "{%f,%f,%f,%s}", latitude, longitude, altitude, country);

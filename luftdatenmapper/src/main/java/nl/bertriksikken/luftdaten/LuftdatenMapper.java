@@ -86,7 +86,7 @@ public final class LuftdatenMapper {
         LOG.info("Filtered by sensor id: {} -> {}", values.size(), filtered.size());
         return filtered;
     }
-
+    
     public static void main(String[] args) throws IOException {
     	PropertyConfigurator.configure("log4j.properties");
 
@@ -252,18 +252,24 @@ public final class LuftdatenMapper {
      */
     private List<SensorValue> convertDataPoints(DataPoints dataPoints, String item) {
         List<SensorValue> values = new ArrayList<>();
+        int numIndoor = 0;
         for (DataPoint dp : dataPoints) {
         	Sensor sensor = dp.getSensor();
-        	int id = sensor.getId();
             Location l = dp.getLocation();
-            double x = l.getLongitude();
-            double y = l.getLatitude();
+            if (l.getIndoor() != 0) {
+            	numIndoor++;
+            	continue;
+            }
             DataValue dataValue = dp.getSensorDataValues().getDataValue(item);
             if (dataValue != null) {
+            	int id = sensor.getId();
+            	double x = l.getLongitude();
+            	double y = l.getLatitude();
                 double v = dataValue.getValue();
                 values.add(new SensorValue(id, x, y, v));
             }
         }
+        LOG.info("Ignored {} indoor sensors", numIndoor);
         return values;
     }
 
