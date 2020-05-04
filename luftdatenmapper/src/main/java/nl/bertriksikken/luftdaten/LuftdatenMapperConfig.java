@@ -13,7 +13,7 @@ public final class LuftdatenMapperConfig extends BaseConfig implements ILuftdate
 	private enum EConfigItem {
         COMPOSITE_CMD("cmd.composite", "c:/cygwin64/bin/composite.exe", "Path to the imagemagick composite command"),
         CONVERT_CMD("cmd.convert", "c:/cygwin64/bin/convert.exe", "Path to the imagemagick convert command"),
-        LUFTDATEN_URL("luftdaten.url", "https://api.luftdaten.info", "luftdaten server URL (empty to disable)"),
+        LUFTDATEN_URL("luftdaten.url", "https://api.sensor.community", "luftdaten server URL (empty to disable)"),
         LUFTDATEN_TIMEOUT("luftdaten.timeout", "15000", "luftdaten server timeout (milliseconds)"),
         LUFTDATEN_BLACKLIST("luftdaten.blacklist", "11697", "Comma-separated list of blacklisted stations"),
         INTERMEDIATE_DIR("intermediate.dir", "tmp", "Path to intermediate file storage"), 
