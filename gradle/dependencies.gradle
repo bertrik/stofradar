@@ -6,7 +6,7 @@ libraries.slf4j = 'org.slf4j:slf4j-api:1.7.28'
 libraries.slf4jlog4j = 'org.slf4j:slf4j-log4j12:1.7.28'
 
 libraries.jackson = [
-    'com.fasterxml.jackson.core:jackson-databind:2.11.2'
+    'com.fasterxml.jackson.core:jackson-databind:2.11.3'
 ]
 
 libraries.retrofit = [
@@ -18,5 +18,5 @@ libraries.retrofit_mock = 'com.squareup.retrofit2:retrofit-mock:2.8.1'
 
 // test libraries
 libraries.junit = 'junit:junit:4.13'
-libraries.mockito = 'org.mockito:mockito-core:3.5.10'
+libraries.mockito = 'org.mockito:mockito-core:3.5.13'
 
