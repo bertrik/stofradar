@@ -2,10 +2,10 @@
   {
     "name": "netherlands",
     "mapfile": "netherlands.png",
-    "north": 53.7,
-    "west": 3.3,
-    "south": 50.7,
-    "east": 7.3,
+    "north": 53.560406,
+    "west": 3.359403,
+    "south": 50.750938,
+    "east": 7.227496,
     "subsample": 1,
     "maxdistance": 25.0
   },
