@@ -9,8 +9,8 @@ public final class LuftdatenMapperConfigTest {
 
 	@Test
 	public void testBlacklist() {
-		ILuftdatenMapperConfig config = new LuftdatenMapperConfig();
-		List<Integer> blackList = config.getLuftdatenBlacklist();
+		LuftdatenMapperConfig config = new LuftdatenMapperConfig();
+		List<Integer> blackList = config.getLuftdatenConfig().getBlacklist();
 		Assert.assertTrue(blackList.contains(11697));
 	}
 	
