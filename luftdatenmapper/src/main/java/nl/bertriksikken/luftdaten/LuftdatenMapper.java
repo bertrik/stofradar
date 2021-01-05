@@ -218,10 +218,10 @@ public final class LuftdatenMapper {
      * @return values filtered by position
      */
     private List<SensorValue> filterByBoundingBox(List<SensorValue> values, RenderJob job) {
-        double minX = 2 * job.getWest() - job.getEast();
-        double maxX = 2 * job.getEast() - job.getWest();
-        double minY = 2 * job.getSouth() - job.getNorth();
-        double maxY = 2 * job.getNorth() - job.getSouth();
+        double minX = 1.5 * job.getWest() - 0.5 * job.getEast();
+        double maxX = 1.5 * job.getEast() - 0.5 * job.getWest();
+        double minY = 1.5 * job.getSouth() - 0.5 * job.getNorth();
+        double maxY = 1.5 * job.getNorth() - 0.5 * job.getSouth();
         List<SensorValue> filtered = values.stream()
             .filter(v -> (v.getX() > minX))
             .filter(v -> (v.getX() < maxX))
