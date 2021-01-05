@@ -1,6 +1,5 @@
 package nl.bertriksikken.luftdaten.config;
 
-import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 
