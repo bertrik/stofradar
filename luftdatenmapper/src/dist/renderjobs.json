@@ -10,6 +10,16 @@
     "maxdistance": 25.0
   },
   {
+    "name": "belgium",
+    "mapfile": "belgium.png",
+    "north": 51.500039,
+    "west": 2.544059,
+    "south": 49.497586,
+    "east": 6.408459,
+    "subsample": 1,
+    "maxdistance": 25.0
+  },
+  {
     "name": "gouda",
     "mapfile": "gouda.png",
     "north": 52.041162,
