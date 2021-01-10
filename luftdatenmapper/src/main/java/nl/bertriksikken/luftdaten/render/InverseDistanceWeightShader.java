@@ -9,6 +9,7 @@ public class InverseDistanceWeightShader implements IShader {
 
     private static final double KM_PER_DEGREE_LAT = 40075.0 / 360.0;
 
+    private final double minRadiusSquared;
     private final double maxDistanceSquared;
     private final double[] aspect;
 
@@ -18,6 +19,7 @@ public class InverseDistanceWeightShader implements IShader {
      * @param job the render job
      */
     public InverseDistanceWeightShader(RenderJob job) {
+    	this.minRadiusSquared = Math.pow(job.getMinRadius(), 2);
         this.maxDistanceSquared = Math.pow(job.getMaxDistance(), 2);
 
         // calculate km per degree
@@ -29,19 +31,24 @@ public class InverseDistanceWeightShader implements IShader {
     public double calculatePixel(List<SensorValue> sensorValues, Coord coordinate) {
         double weightSum = 0.0;
         double valueSum = 0.0;
-        double closest = Double.MAX_VALUE;
+        double closestDistSquared = Double.MAX_VALUE;
+        double closestDistValue = 0.0;
         for (SensorValue dp : sensorValues) {
             Coord c1 = new Coord(dp.getX(), dp.getY());
             double d2 = distanceSquared(aspect, coordinate, c1);
-            if (d2 < closest) {
-                closest = d2;
-            }
             double w = 1.0 / d2;
             double v = dp.getValue();
             valueSum += (v * w);
             weightSum += w;
+            if (d2 < closestDistSquared) {
+            	closestDistSquared = d2;
+            	closestDistValue = v;
+            }
         }
-        return (closest < maxDistanceSquared) ? valueSum / weightSum : Double.NaN;
+        if (closestDistSquared < minRadiusSquared) {
+        	return -closestDistValue;
+        }
+        return (closestDistSquared < maxDistanceSquared) ? valueSum / weightSum : Double.NaN;
     }
 
     /**

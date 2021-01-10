@@ -27,6 +27,7 @@
     "south": 51.996627,
     "east": 4.756411,
     "subsample": 1,
+    "minRadius": 0.2,
     "maxdistance": 0.5
   }
 ]

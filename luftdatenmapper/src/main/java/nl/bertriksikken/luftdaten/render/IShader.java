@@ -11,7 +11,7 @@ public interface IShader {
      * 
      * @param sensorValues the sensor data
      * @param coordinate the coordinate
-     * @return the value.
+     * @return the value, NaN indicates transparent, negative number indicates opaque value
      */
     double calculatePixel(List<SensorValue> sensorValues, Coord coordinate);
 

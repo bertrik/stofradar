@@ -27,26 +27,14 @@ public final class RenderJob {
     @JsonProperty("subsample")
     private int subSample;
 
+    // the radius of the semi-transparent part around a measurement station
     @JsonProperty("maxdistance")
     private double maxDistance;
-
-    private RenderJob() {
-        // jackson constructor
-    }
-
-    public RenderJob(String name, String mapFile, double north, double east, double south, double west, int subSample,
-            double maxDistance) {
-        this();
-        this.name = name;
-        this.mapFile = mapFile;
-        this.north = north;
-        this.east = north;
-        this.south = north;
-        this.west = north;
-        this.subSample = subSample;
-        this.maxDistance = maxDistance;
-    }
-
+    
+    // the radius of the opaque part around a measurement station
+    @JsonProperty("minRadius")
+    private double minRadius = 0.0;
+    
     public String getName() {
         return name;
     }
@@ -77,6 +65,10 @@ public final class RenderJob {
 
     public double getMaxDistance() {
         return maxDistance;
+    }
+    
+    public double getMinRadius() {
+    	return minRadius;
     }
 
 }

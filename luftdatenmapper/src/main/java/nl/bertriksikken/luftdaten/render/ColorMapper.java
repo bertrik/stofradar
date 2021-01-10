@@ -33,7 +33,18 @@ public final class ColorMapper {
         for (int x = 0; x < values.length; x++) {
             for (int y = 0; y < values[0].length; y++) {
                 Double v = values[x][y];
-                int[] colour = v.isNaN() ? NO_DATA_COLOUR : getColour(range, v);
+                int colour[];
+                if (v.isNaN()) {
+                	// no-data colour
+                	colour = NO_DATA_COLOUR;
+                } else if (v < 0.0) {
+                	// opaque
+                	colour = getColour(range, -v);
+                	colour[3] = 255;
+                } else {
+                	// semi-transparent colour
+                	colour = getColour(range, v);
+                }
                 raster.setPixel(x, y, colour);
             }
         }
