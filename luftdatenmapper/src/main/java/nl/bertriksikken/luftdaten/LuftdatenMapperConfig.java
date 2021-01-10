@@ -2,13 +2,12 @@ package nl.bertriksikken.luftdaten;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import nl.bertriksikken.luftdaten.config.BaseConfig;
 import nl.bertriksikken.luftdaten.config.LuftdatenConfig;
 
 /**
  * Configuration class.
  */
-public final class LuftdatenMapperConfig extends BaseConfig {
+public final class LuftdatenMapperConfig {
 
     @JsonProperty("luftdaten")
 	private LuftdatenConfig luftdatenConfig = new LuftdatenConfig();
