@@ -132,8 +132,8 @@ public final class LuftdatenMapper {
         try {
             Instant now = Instant.now();
             downloadAndProcess(config, now, renderJobs);
-        } catch (Exception e) {
-            LOG.error("Caught top-level exception {}", e.getMessage());
+        } catch (Throwable e) {
+            LOG.error("Caught top-level throwable {}", e.getMessage());
         }
     }
 
