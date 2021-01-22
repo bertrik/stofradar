@@ -17,6 +17,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalField;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -146,19 +147,19 @@ public final class LuftdatenMapper {
 
     private void downloadAndProcess(LuftdatenMapperConfig config, Instant now, List<RenderJob> jobs)
             throws IOException {
-        // get timestamp
-        ZonedDateTime dt = ZonedDateTime.ofInstant(now, ZoneId.of("UTC"));
-        int minute = 5 * (dt.get(ChronoField.MINUTE_OF_HOUR) / 5);
-        dt = dt.withMinute(minute);
+    	// get UTC time rounded to 5 minutes
+        ZonedDateTime utcTime = ZonedDateTime.ofInstant(now, ZoneId.of("UTC"));
+        int minute = 5 * (utcTime.get(ChronoField.MINUTE_OF_HOUR) / 5);
+        utcTime = utcTime.withMinute(minute).truncatedTo(ChronoUnit.MINUTES);
 
         // create temporary name
         File tempDir = new File(config.getIntermediateDir());
         if (!tempDir.exists() && !tempDir.mkdirs()) {
             LOG.warn("Failed to create directory {}", tempDir.getAbsolutePath());
         }
-        String fileName = String.format(Locale.US, "%04d%02d%02d_%02d%02d.json", dt.get(ChronoField.YEAR),
-                dt.get(ChronoField.MONTH_OF_YEAR), dt.get(ChronoField.DAY_OF_MONTH), dt.get(ChronoField.HOUR_OF_DAY),
-                dt.get(ChronoField.MINUTE_OF_HOUR));
+        String fileName = String.format(Locale.US, "%04d%02d%02d_%02d%02d.json", utcTime.get(ChronoField.YEAR),
+                utcTime.get(ChronoField.MONTH_OF_YEAR), utcTime.get(ChronoField.DAY_OF_MONTH), utcTime.get(ChronoField.HOUR_OF_DAY),
+                utcTime.get(ChronoField.MINUTE_OF_HOUR));
         File jsonFile = new File(tempDir, fileName);
         File overlayFile = new File(tempDir, jsonFile.getName() + ".png");
 
@@ -194,8 +195,7 @@ public final class LuftdatenMapper {
                 composite(config.getCompositeCmd(), overlayFile, baseMap, compositeFile);
 
                 // add timestamp to composite
-                LocalDateTime localDateTime = LocalDateTime.ofInstant(now, ZoneId.systemDefault())
-                        .truncatedTo(ChronoUnit.MINUTES);
+                LocalDateTime localDateTime = LocalDateTime.ofInstant(utcTime.toInstant(), ZoneId.systemDefault());
                 String timestampText = localDateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
                 File outputFile = new File(config.getOutputPath(), job.getMapFile());
                 timestamp(config.getConvertCmd(), timestampText, compositeFile, outputFile);
