@@ -17,7 +17,6 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalField;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -67,7 +66,8 @@ public final class LuftdatenMapper {
 
 	private final LuftdatenMapperConfig config;
 	private final LuftDatenDataApi luftDatenApi;
-
+	private final ObjectMapper objectMapper = new ObjectMapper();
+	
     private static final ColorPoint[] RANGE = new ColorPoint[] {
             new ColorPoint(0, new int[] { 0xFF, 0xFF, 0xFF, 0x00 }), // transparent white
             new ColorPoint(25, new int[] { 0x00, 0xFF, 0xFF, 0xC0 }), // cyan
@@ -250,8 +250,7 @@ public final class LuftdatenMapper {
         luftDatenApi.downloadDust(file);
 
         LOG.info("Decoding dataset ...");
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(file, DataPoints.class);
+        return objectMapper.readValue(file, DataPoints.class);
     }
 
     /**
