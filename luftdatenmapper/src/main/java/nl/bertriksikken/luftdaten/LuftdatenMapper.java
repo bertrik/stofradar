@@ -65,6 +65,7 @@ public final class LuftdatenMapper {
     private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
 	private final LuftdatenMapperConfig config;
+	private final LuftDatenDataApi luftDatenApi;
 
     private static final ColorPoint[] RANGE = new ColorPoint[] {
             new ColorPoint(0, new int[] { 0xFF, 0xFF, 0xFF, 0x00 }), // transparent white
@@ -76,6 +77,12 @@ public final class LuftdatenMapper {
 
     public LuftdatenMapper(LuftdatenMapperConfig config) {
     	this.config = config;
+    	
+    	// create luftdaten API once
+		LuftdatenConfig luftdatenConfig = config.getLuftdatenConfig();
+        ILuftdatenRestApi restApi = LuftDatenDataApi.newRestClient(luftdatenConfig.getUrl(), 
+        		Duration.ofSeconds(luftdatenConfig.getTimeoutSec()));
+        luftDatenApi = new LuftDatenDataApi(restApi);
 	}
 
 	private List<SensorValue> filterBySensorValue(List<SensorValue> values, double maxValue) {
@@ -157,8 +164,7 @@ public final class LuftdatenMapper {
 
 		// download JSON
 		LuftdatenConfig luftdatenConfig = config.getLuftdatenConfig();
-		DataPoints dataPoints = downloadFile(jsonFile, luftdatenConfig.getUrl(),
-				Duration.ofSeconds(luftdatenConfig.getTimeoutSec()));
+		DataPoints dataPoints = downloadFile(jsonFile);
 
         // convert DataPoints to internal format
         List<SensorValue> rawValues = convertDataPoints(dataPoints, "P1");
@@ -236,16 +242,12 @@ public final class LuftdatenMapper {
      * Downloads a new JSON dust file.
      * 
      * @param file the file to download to 
-     * @param url the URL to download from
-     * @param timeout the connect/read timeout
      * @return the parsed contents
      * @throws IOException
      */
-    private DataPoints downloadFile(File file, String url, Duration timeout) throws IOException {
-        ILuftdatenRestApi restApi = LuftDatenDataApi.newRestClient(url, timeout);
-        LuftDatenDataApi api = new LuftDatenDataApi(restApi);
+    private DataPoints downloadFile(File file) throws IOException {
         LOG.info("Downloading new dataset to {}", file);
-        api.downloadDust(file);
+        luftDatenApi.downloadDust(file);
 
         LOG.info("Decoding dataset ...");
         ObjectMapper mapper = new ObjectMapper();
