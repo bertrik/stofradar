@@ -69,11 +69,11 @@ public final class LuftdatenMapper {
 	private final ObjectMapper objectMapper = new ObjectMapper();
 	
     private static final ColorPoint[] RANGE = new ColorPoint[] {
-            new ColorPoint(0, new int[] { 0xFF, 0xFF, 0xFF, 0x00 }), // transparent white
-            new ColorPoint(25, new int[] { 0x00, 0xFF, 0xFF, 0xC0 }), // cyan
-            new ColorPoint(50, new int[] { 0xFF, 0xFF, 0x00, 0xC0 }), // yellow
-            new ColorPoint(100, new int[] { 0xFF, 0x00, 0x00, 0xC0 }), // red
-            new ColorPoint(200, new int[] { 0xFF, 0x00, 0xFF, 0xC0 }), // purple
+            new ColorPoint(0, new int[] { 0xFF, 0xFF, 0xFF, 0x80 }), // transparent white
+            new ColorPoint(25, new int[] { 0x00, 0xFF, 0xFF, 0x80 }), // cyan
+            new ColorPoint(50, new int[] { 0xFF, 0xFF, 0x00, 0x80 }), // yellow
+            new ColorPoint(100, new int[] { 0xFF, 0x00, 0x00, 0x80 }), // red
+            new ColorPoint(200, new int[] { 0xFF, 0x00, 0xFF, 0x80 }), // purple
     };
 
     public LuftdatenMapper(LuftdatenMapperConfig config) {
