@@ -7,7 +7,7 @@ import java.awt.image.WritableRaster;
  */
 public final class ColorMapper {
 
-    private static final int[] NO_DATA_COLOUR = { 0x80, 0x80, 0x80, 0x80 };
+    private static final int[] NO_DATA_COLOUR = { 0x80, 0x00, 0x00, 0x00 };
 
     private final ColorPoint[] range;
 
