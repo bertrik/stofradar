@@ -69,11 +69,11 @@ public final class LuftdatenMapper {
 	private final ObjectMapper objectMapper = new ObjectMapper();
 	
     private static final ColorPoint[] RANGE = new ColorPoint[] {
-            new ColorPoint(0, new int[] { 0xFF, 0xFF, 0xFF, 0x80 }), // transparent white
-            new ColorPoint(25, new int[] { 0x00, 0xFF, 0xFF, 0x80 }), // cyan
-            new ColorPoint(50, new int[] { 0xFF, 0xFF, 0x00, 0x80 }), // yellow
-            new ColorPoint(100, new int[] { 0xFF, 0x00, 0x00, 0x80 }), // red
-            new ColorPoint(200, new int[] { 0xFF, 0x00, 0xFF, 0x80 }), // purple
+            new ColorPoint(0, new int[] { 0xFF, 0xFF, 0xFF, 0x00 }), // transparent white
+            new ColorPoint(25, new int[] { 0x00, 0xFF, 0xFF, 0xC0 }), // cyan
+            new ColorPoint(50, new int[] { 0xFF, 0xFF, 0x00, 0xC0 }), // yellow
+            new ColorPoint(100, new int[] { 0xFF, 0x00, 0x00, 0xC0 }), // red
+            new ColorPoint(200, new int[] { 0xFF, 0x00, 0xFF, 0xC0 }), // purple
     };
 
     public LuftdatenMapper(LuftdatenMapperConfig config) {
@@ -301,15 +301,14 @@ public final class LuftdatenMapper {
         int width = mapImage.getWidth() / job.getSubSample();
         int height = mapImage.getHeight() / job.getSubSample();
 
-        // interpolate over grid
-        Interpolator interpolator = new Interpolator();
-        IShader shader = new InverseDistanceWeightShader(job);
-        double[][] field = interpolator.interpolate(sensorValues, job, width, height, shader);
-
-        // convert to color PNG
+        // prepare output file
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         WritableRaster raster = image.getRaster();
-        colorMapper.map(field, raster);
+
+        // interpolate over grid
+        IShader shader = new InverseDistanceWeightShader(job, colorMapper);
+        Interpolator interpolator = new Interpolator(job, shader, width, height);
+        interpolator.interpolate(sensorValues, raster);
 
         // save it
         LOG.info("Writing to {}", pngFile);

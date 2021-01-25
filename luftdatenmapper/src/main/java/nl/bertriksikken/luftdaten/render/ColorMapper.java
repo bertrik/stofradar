@@ -1,13 +1,9 @@
 package nl.bertriksikken.luftdaten.render;
 
-import java.awt.image.WritableRaster;
-
 /**
  * Maps an image consisting of scalar values to an image with RGB values.
  */
 public final class ColorMapper {
-
-    private static final int[] NO_DATA_COLOUR = { 0x80, 0x00, 0x00, 0x00 };
 
     private final ColorPoint[] range;
 
@@ -21,36 +17,7 @@ public final class ColorMapper {
         this.range = range.clone();
     }
 
-    /**
-     * Performs the actual mapping
-     * 
-     * @param values
-     *            the scalar values
-     * @param raster
-     *            the bitmap raster to write to
-     */
-    public void map(double[][] values, WritableRaster raster) {
-        for (int x = 0; x < values.length; x++) {
-            for (int y = 0; y < values[0].length; y++) {
-                Double v = values[x][y];
-                int colour[];
-                if (v.isNaN()) {
-                	// no-data colour
-                	colour = NO_DATA_COLOUR;
-                } else if (v < 0.0) {
-                	// opaque
-                	colour = getColour(range, -v);
-                	colour[3] = 255;
-                } else {
-                	// semi-transparent colour
-                	colour = getColour(range, v);
-                }
-                raster.setPixel(x, y, colour);
-            }
-        }
-    }
-
-    private int[] getColour(ColorPoint[] range, double v) {
+    public int[] getColour(double v) {
         ColorPoint cp = range[0];
         for (int i = 1; i < range.length; i++) {
             ColorPoint next = range[i];

@@ -9,8 +9,9 @@ public class InverseDistanceWeightShader implements IShader {
 
     private static final double KM_PER_DEGREE_LAT = 40075.0 / 360.0;
 
-    private final double minRadiusSquared;
-    private final double maxDistanceSquared;
+    private final double innerRadius;
+    private final double outerRadius;
+    private final ColorMapper mapper;
     private final double[] aspect;
 
     /**
@@ -18,9 +19,10 @@ public class InverseDistanceWeightShader implements IShader {
      * 
      * @param job the render job
      */
-    public InverseDistanceWeightShader(RenderJob job) {
-    	this.minRadiusSquared = Math.pow(job.getMinRadius(), 2);
-        this.maxDistanceSquared = Math.pow(job.getMaxDistance(), 2);
+    public InverseDistanceWeightShader(RenderJob job, ColorMapper mapper) {
+    	this.innerRadius = job.getMinRadius();
+        this.outerRadius = job.getMaxDistance();
+        this.mapper = mapper;
 
         // calculate km per degree
         Coord center = new Coord((job.getWest() + job.getEast()) / 2, (job.getNorth() + job.getSouth()) / 2);
@@ -28,7 +30,7 @@ public class InverseDistanceWeightShader implements IShader {
     }
 
     @Override
-    public double calculatePixel(List<SensorValue> sensorValues, Coord coordinate) {
+    public int[] calculatePixel(List<SensorValue> sensorValues, Coord coordinate) {
         double weightSum = 0.0;
         double valueSum = 0.0;
         double closestDistSquared = Double.MAX_VALUE;
@@ -45,10 +47,22 @@ public class InverseDistanceWeightShader implements IShader {
             	closestDistValue = v;
             }
         }
-        if (closestDistSquared < minRadiusSquared) {
-        	return -closestDistValue;
+        double closest = Math.sqrt(closestDistSquared);
+        double weighted = valueSum / weightSum;
+
+        int[] colour;
+        if (closest < innerRadius) {
+        	// inside inner radius: fully opaque disc 
+        	colour = mapper.getColour(closestDistValue);
+        	colour[3] = 255;
+        } else if (closest < outerRadius) {
+        	// between inner and outer radius: semi-transparent weighted sum
+        	colour = mapper.getColour(weighted);
+        } else {
+        	// else fully transparent
+        	colour = new int[] {0, 0, 0, 0};
         }
-        return (closestDistSquared < maxDistanceSquared) ? valueSum / weightSum : Double.NaN;
+        return colour;
     }
 
     /**
