@@ -6,7 +6,6 @@
     "west": 3.359403,
     "south": 50.750938,
     "east": 7.227496,
-    "subsample": 1,
     "maxdistance": 25.0
   },
   {
@@ -16,7 +15,6 @@
     "west": 2.544059,
     "south": 49.497586,
     "east": 6.408459,
-    "subsample": 1,
     "maxdistance": 25.0
   },
   {
@@ -26,7 +24,6 @@
     "west": 4.668272,
     "south": 51.996627,
     "east": 4.756411,
-    "subsample": 1,
     "minRadius": 0.2,
     "maxdistance": 0.5
   }

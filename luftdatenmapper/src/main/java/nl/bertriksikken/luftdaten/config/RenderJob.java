@@ -24,9 +24,6 @@ public final class RenderJob {
     @JsonProperty("west")
     private double west;
 
-    @JsonProperty("subsample")
-    private int subSample;
-
     // the radius of the semi-transparent part around a measurement station
     @JsonProperty("maxdistance")
     private double maxDistance;
@@ -57,10 +54,6 @@ public final class RenderJob {
 
     public double getWest() {
         return west;
-    }
-
-    public int getSubSample() {
-        return subSample;
     }
 
     public double getMaxDistance() {

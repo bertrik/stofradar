@@ -298,8 +298,8 @@ public final class LuftdatenMapper {
         // parse background file
         File mapFile = new File(job.getMapFile());
         BufferedImage mapImage = ImageIO.read(mapFile);
-        int width = mapImage.getWidth() / job.getSubSample();
-        int height = mapImage.getHeight() / job.getSubSample();
+        int width = mapImage.getWidth();
+        int height = mapImage.getHeight();
 
         // prepare output file
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
