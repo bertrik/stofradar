@@ -6,7 +6,7 @@
     "west": 3.359403,
     "south": 50.750938,
     "east": 7.227496,
-    "maxdistance": 25.0
+    "maxdistance": 15.0
   },
   {
     "name": "belgium",
@@ -15,7 +15,7 @@
     "west": 2.544059,
     "south": 49.497586,
     "east": 6.408459,
-    "maxdistance": 25.0
+    "maxdistance": 15.0
   },
   {
     "name": "gouda",
