@@ -88,15 +88,15 @@ public final class LuftdatenMapper {
 
 	private List<SensorValue> filterBySensorValue(List<SensorValue> values, double maxValue) {
         List<SensorValue> filtered = values.stream()
-        		.filter(v -> v.getValue() >= 0.0)
-        		.filter(v -> v.getValue() < maxValue)
+        		.filter(v -> v.value >= 0.0)
+        		.filter(v -> v.value < maxValue)
         		.collect(Collectors.toList());
         LOG.info("Filtered by sensor value: {} -> {}", values.size(), filtered.size());
         return filtered;
     }
 
     private List<SensorValue> filterBySensorId(List<SensorValue> values, List<Integer> blacklist) {
-        List<SensorValue> filtered = values.stream().filter(v -> !blacklist.contains(v.getId())).collect(Collectors.toList());
+        List<SensorValue> filtered = values.stream().filter(v -> !blacklist.contains(v.id)).collect(Collectors.toList());
         LOG.info("Filtered by sensor id: {} -> {}", values.size(), filtered.size());
         return filtered;
     }
@@ -229,10 +229,10 @@ public final class LuftdatenMapper {
         double minY = 1.5 * job.getSouth() - 0.5 * job.getNorth();
         double maxY = 1.5 * job.getNorth() - 0.5 * job.getSouth();
         List<SensorValue> filtered = values.stream()
-            .filter(v -> (v.getX() > minX))
-            .filter(v -> (v.getX() < maxX))
-            .filter(v -> (v.getY() > minY))
-            .filter(v -> (v.getY() < maxY))
+            .filter(v -> (v.x > minX))
+            .filter(v -> (v.x < maxX))
+            .filter(v -> (v.y > minY))
+            .filter(v -> (v.y < maxY))
             .collect(Collectors.toList());
         LOG.info("Filtered by bounding box: {} -> {}", values.size(), filtered.size());
         return filtered;

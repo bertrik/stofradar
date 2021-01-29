@@ -36,10 +36,10 @@ public class InverseDistanceWeightShader implements IShader {
         double closestDistSquared = Double.MAX_VALUE;
         double closestDistValue = 0.0;
         for (SensorValue dp : sensorValues) {
-            Coord c1 = new Coord(dp.getX(), dp.getY());
+            Coord c1 = new Coord(dp.x, dp.y);
             double d2 = distanceSquared(aspect, coordinate, c1);
             double w = 1.0 / d2;
-            double v = dp.getValue();
+            double v = dp.value;
             valueSum += (v * w);
             weightSum += w;
             if (d2 < closestDistSquared) {
