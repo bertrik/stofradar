@@ -27,11 +27,7 @@ public final class Interpolator {
      * Interpolates values into a grid.
      * 
      * @param sensorValues the input data
-     * @param job the render job
-     * @param w the output width
-     * @param h the output height
-     * @param shader the shader to calculate each pixel
-     * @return grid of double values with the interpolated data
+     * @param raster the raster to write to
      */
     public void interpolate(List<SensorValue> sensorValues, WritableRaster raster) {
         Coord size = new Coord(job.getEast() - job.getWest(), job.getNorth() - job.getSouth());
