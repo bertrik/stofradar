@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -53,7 +55,8 @@ import nl.bertriksikken.luftdaten.render.InverseDistanceWeightShader;
 import nl.bertriksikken.luftdaten.render.SensorValue;
 
 /**
- * Process the luftdaten JSON and produces a CSV with coordinates and weighted dust averages.
+ * Process the luftdaten JSON and produces a CSV with coordinates and weighted
+ * dust averages.
  * 
  * @author bertrik
  *
@@ -64,10 +67,10 @@ public final class LuftdatenMapper {
 
     private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
-	private final LuftdatenMapperConfig config;
-	private final LuftDatenDataApi luftDatenApi;
-	private final ObjectMapper objectMapper = new ObjectMapper();
-	
+    private final LuftdatenMapperConfig config;
+    private final LuftDatenDataApi luftDatenApi;
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
     private static final ColorPoint[] RANGE = new ColorPoint[] {
             new ColorPoint(0, new int[] { 0xFF, 0xFF, 0xFF, 0x00 }), // transparent white
             new ColorPoint(25, new int[] { 0x00, 0xFF, 0xFF, 0xC0 }), // cyan
@@ -77,34 +80,33 @@ public final class LuftdatenMapper {
     };
 
     public LuftdatenMapper(LuftdatenMapperConfig config) {
-    	this.config = config;
-    	
-    	// create luftdaten API once
-		LuftdatenConfig luftdatenConfig = config.getLuftdatenConfig();
-        ILuftdatenRestApi restApi = LuftDatenDataApi.newRestClient(luftdatenConfig.getUrl(), 
-        		Duration.ofSeconds(luftdatenConfig.getTimeoutSec()));
-        luftDatenApi = new LuftDatenDataApi(restApi);
-	}
+        this.config = config;
 
-	private List<SensorValue> filterBySensorValue(List<SensorValue> values, double maxValue) {
-        List<SensorValue> filtered = values.stream()
-        		.filter(v -> v.value >= 0.0)
-        		.filter(v -> v.value < maxValue)
-        		.collect(Collectors.toList());
+        // create luftdaten API once
+        LuftdatenConfig luftdatenConfig = config.getLuftdatenConfig();
+        ILuftdatenRestApi restApi = LuftDatenDataApi.newRestClient(luftdatenConfig.getUrl(),
+                Duration.ofSeconds(luftdatenConfig.getTimeoutSec()));
+        luftDatenApi = new LuftDatenDataApi(restApi);
+    }
+
+    private List<SensorValue> filterBySensorValue(List<SensorValue> values, double maxValue) {
+        List<SensorValue> filtered = values.stream().filter(v -> v.value >= 0.0).filter(v -> v.value < maxValue)
+                .collect(Collectors.toList());
         LOG.info("Filtered by sensor value: {} -> {}", values.size(), filtered.size());
         return filtered;
     }
 
     private List<SensorValue> filterBySensorId(List<SensorValue> values, List<Integer> blacklist) {
-        List<SensorValue> filtered = values.stream().filter(v -> !blacklist.contains(v.id)).collect(Collectors.toList());
+        List<SensorValue> filtered = values.stream().filter(v -> !blacklist.contains(v.id))
+                .collect(Collectors.toList());
         LOG.info("Filtered by sensor id: {} -> {}", values.size(), filtered.size());
         return filtered;
     }
-    
-    public static void main(String[] args) throws IOException {
-    	PropertyConfigurator.configure("log4j.properties");
 
-    	LuftdatenMapperConfig config = readConfig(new File("luftdatenmapper.yaml"));
+    public static void main(String[] args) throws IOException {
+        PropertyConfigurator.configure("log4j.properties");
+
+        LuftdatenMapperConfig config = readConfig(new File("luftdatenmapper.yaml"));
         LuftdatenMapper luftdatenMapper = new LuftdatenMapper(config);
         luftdatenMapper.start();
     }
@@ -120,7 +122,7 @@ public final class LuftdatenMapper {
             return config;
         }
     }
-    
+
     private void start() throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         RenderJobs renderJobs = mapper.readValue(new File("renderjobs.json"), RenderJobs.class);
@@ -136,7 +138,8 @@ public final class LuftdatenMapper {
     }
 
     private void runDownloadAndProcess(LuftdatenMapperConfig config, RenderJobs renderJobs) {
-        // run the main process in a try-catch to protect the thread it runs on from exceptions
+        // run the main process in a try-catch to protect the thread it runs on from
+        // exceptions
         try {
             Instant now = Instant.now();
             downloadAndProcess(config, now, renderJobs);
@@ -147,7 +150,7 @@ public final class LuftdatenMapper {
 
     private void downloadAndProcess(LuftdatenMapperConfig config, Instant now, List<RenderJob> jobs)
             throws IOException {
-    	// get UTC time rounded to 5 minutes
+        // get UTC time rounded to 5 minutes
         ZonedDateTime utcTime = ZonedDateTime.ofInstant(now, ZoneId.of("UTC"));
         int minute = 5 * (utcTime.get(ChronoField.MINUTE_OF_HOUR) / 5);
         utcTime = utcTime.withMinute(minute).truncatedTo(ChronoUnit.MINUTES);
@@ -158,18 +161,18 @@ public final class LuftdatenMapper {
             LOG.warn("Failed to create directory {}", tempDir.getAbsolutePath());
         }
         String fileName = String.format(Locale.US, "%04d%02d%02d_%02d%02d.json", utcTime.get(ChronoField.YEAR),
-                utcTime.get(ChronoField.MONTH_OF_YEAR), utcTime.get(ChronoField.DAY_OF_MONTH), utcTime.get(ChronoField.HOUR_OF_DAY),
-                utcTime.get(ChronoField.MINUTE_OF_HOUR));
+                utcTime.get(ChronoField.MONTH_OF_YEAR), utcTime.get(ChronoField.DAY_OF_MONTH),
+                utcTime.get(ChronoField.HOUR_OF_DAY), utcTime.get(ChronoField.MINUTE_OF_HOUR));
         File jsonFile = new File(tempDir, fileName);
         File overlayFile = new File(tempDir, jsonFile.getName() + ".png");
 
-		// download JSON
-		LuftdatenConfig luftdatenConfig = config.getLuftdatenConfig();
-		DataPoints dataPoints = downloadFile(jsonFile);
+        // download JSON
+        LuftdatenConfig luftdatenConfig = config.getLuftdatenConfig();
+        DataPoints dataPoints = downloadFile(jsonFile);
 
         // convert DataPoints to internal format
         List<SensorValue> rawValues = convertDataPoints(dataPoints, "P1");
-        
+
         // filter by value and id
         List<SensorValue> filteredValues = filterBySensorValue(rawValues, 500.0);
         filteredValues = filterBySensorId(filteredValues, luftdatenConfig.getBlacklist());
@@ -199,6 +202,15 @@ public final class LuftdatenMapper {
                 String timestampText = localDateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
                 File outputFile = new File(config.getOutputPath(), job.getMapFile());
                 timestamp(config.getConvertCmd(), timestampText, compositeFile, outputFile);
+
+                // copy timestamped file into job-specific sub-directory of 'intermediate dir'
+                File jobDir = new File(config.getIntermediateDir(), job.getName());
+                jobDir.mkdirs();
+                String jobName = String.format(Locale.ROOT, "%02d%02d.png", utcTime.getHour(), utcTime.getMinute());
+                File timestampedJobFile = new File(jobDir, jobName);
+                LOG.info("Copying file to {}", timestampedJobFile.getAbsolutePath());
+                Files.copy(outputFile.toPath(), timestampedJobFile.toPath(), StandardCopyOption.COPY_ATTRIBUTES,
+                        StandardCopyOption.REPLACE_EXISTING);
             } catch (IOException e) {
                 LOG.trace("Caught IOException", e);
                 LOG.warn("Caught IOException: {}", e.getMessage());
@@ -216,11 +228,11 @@ public final class LuftdatenMapper {
     }
 
     /**
-     * Filters sensor values by position according to a bounding box.
-     * The size of the bounding box is 3x3 times the size of the render job.
+     * Filters sensor values by position according to a bounding box. The size of
+     * the bounding box is 3x3 times the size of the render job.
      * 
      * @param values the sensor values
-     * @param job the render job
+     * @param job    the render job
      * @return values filtered by position
      */
     private List<SensorValue> filterByBoundingBox(List<SensorValue> values, RenderJob job) {
@@ -228,12 +240,8 @@ public final class LuftdatenMapper {
         double maxX = 1.5 * job.getEast() - 0.5 * job.getWest();
         double minY = 1.5 * job.getSouth() - 0.5 * job.getNorth();
         double maxY = 1.5 * job.getNorth() - 0.5 * job.getSouth();
-        List<SensorValue> filtered = values.stream()
-            .filter(v -> (v.x > minX))
-            .filter(v -> (v.x < maxX))
-            .filter(v -> (v.y > minY))
-            .filter(v -> (v.y < maxY))
-            .collect(Collectors.toList());
+        List<SensorValue> filtered = values.stream().filter(v -> (v.x > minX)).filter(v -> (v.x < maxX))
+                .filter(v -> (v.y > minY)).filter(v -> (v.y < maxY)).collect(Collectors.toList());
         LOG.info("Filtered by bounding box: {} -> {}", values.size(), filtered.size());
         return filtered;
     }
@@ -241,7 +249,7 @@ public final class LuftdatenMapper {
     /**
      * Downloads a new JSON dust file.
      * 
-     * @param file the file to download to 
+     * @param file the file to download to
      * @return the parsed contents
      * @throws IOException
      */
@@ -257,24 +265,24 @@ public final class LuftdatenMapper {
      * Converts from the luftdaten datapoints format to internal format.
      * 
      * @param dataPoints the data points
-     * @param item which item to select (P1 or P2)
+     * @param item       which item to select (P1 or P2)
      * @return list of sensor values
      */
     private List<SensorValue> convertDataPoints(DataPoints dataPoints, String item) {
         List<SensorValue> values = new ArrayList<>();
         int numIndoor = 0;
         for (DataPoint dp : dataPoints) {
-        	Sensor sensor = dp.getSensor();
+            Sensor sensor = dp.getSensor();
             Location l = dp.getLocation();
             if (l.getIndoor() != 0) {
-            	numIndoor++;
-            	continue;
+                numIndoor++;
+                continue;
             }
             DataValue dataValue = dp.getSensorDataValues().getDataValue(item);
             if (dataValue != null) {
-            	int id = sensor.getId();
-            	double x = l.getLongitude();
-            	double y = l.getLatitude();
+                int id = sensor.getId();
+                double x = l.getLongitude();
+                double y = l.getLatitude();
                 double v = dataValue.getValue();
                 values.add(new SensorValue(id, x, y, v));
             }
@@ -287,8 +295,8 @@ public final class LuftdatenMapper {
      * Renders a JSON file to a PNG.
      * 
      * @param sensorValues the data points
-     * @param pngFile the PNG file
-     * @param colorMapper the color mapper
+     * @param pngFile      the PNG file
+     * @param colorMapper  the color mapper
      * @throws IOException
      */
     private void renderDust(List<SensorValue> sensorValues, File pngFile, ColorMapper colorMapper, RenderJob job)
@@ -322,7 +330,7 @@ public final class LuftdatenMapper {
      * @param overlay the dust overlay image
      * @param baseMap the base map image
      * @param outFile the combined image
-     * @throws IOException 
+     * @throws IOException
      */
     private void composite(String command, File overlay, File baseMap, File outFile) throws IOException {
         LOG.info("Compositing {} over {} to {}", overlay, baseMap, outFile);
@@ -390,6 +398,5 @@ public final class LuftdatenMapper {
             LOG.warn("Caught IOException: {}", e.getMessage());
         }
     }
-
 
 }
