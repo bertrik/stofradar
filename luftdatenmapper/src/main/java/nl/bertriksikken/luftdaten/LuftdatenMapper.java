@@ -205,7 +205,9 @@ public final class LuftdatenMapper {
 
                 // copy timestamped file into job-specific sub-directory of 'intermediate dir'
                 File jobDir = new File(config.getIntermediateDir(), job.getName());
-                jobDir.mkdirs();
+                if (!jobDir.exists() && !jobDir.mkdirs()) {
+                    LOG.warn("Could not create directory {}", jobDir.getAbsolutePath());
+                }
                 String jobName = String.format(Locale.ROOT, "%02d%02d.png", utcTime.getHour(), utcTime.getMinute());
                 File timestampedJobFile = new File(jobDir, jobName);
                 LOG.info("Copying file to {}", timestampedJobFile.getAbsolutePath());
