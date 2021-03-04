@@ -211,8 +211,8 @@ public final class LuftdatenMapper {
                 String jobName = String.format(Locale.ROOT, "%02d%02d.png", utcTime.getHour(), utcTime.getMinute());
                 File timestampedJobFile = new File(jobDir, jobName);
                 LOG.info("Copying file to {}", timestampedJobFile.getAbsolutePath());
-                Files.copy(outputFile.toPath(), timestampedJobFile.toPath(), StandardCopyOption.COPY_ATTRIBUTES,
-                        StandardCopyOption.REPLACE_EXISTING);
+                timestampedJobFile.delete();
+                Files.copy(outputFile.toPath(), timestampedJobFile.toPath());
             } catch (IOException e) {
                 LOG.trace("Caught IOException", e);
                 LOG.warn("Caught IOException: {}", e.getMessage());
