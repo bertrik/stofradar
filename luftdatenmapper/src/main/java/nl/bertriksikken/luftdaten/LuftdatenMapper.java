@@ -9,8 +9,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -164,10 +162,21 @@ public final class LuftdatenMapper {
                 utcTime.get(ChronoField.MONTH_OF_YEAR), utcTime.get(ChronoField.DAY_OF_MONTH),
                 utcTime.get(ChronoField.HOUR_OF_DAY), utcTime.get(ChronoField.MINUTE_OF_HOUR));
         File jsonFile = new File(tempDir, fileName);
-        File overlayFile = new File(tempDir, jsonFile.getName() + ".png");
+
+        // delete output files for this time-of-day
+        String pngName = String.format(Locale.ROOT, "%02d%02d.png", utcTime.getHour(), utcTime.getMinute());
+        for (RenderJob job : jobs) {
+            File jobDir = new File(tempDir, job.getName());
+            File outputFile = new File(jobDir, pngName);
+            if (outputFile.exists()) {
+                LOG.info("Deleting file {}", outputFile.getAbsolutePath());
+                if (!outputFile.delete()) {
+                    LOG.warn("Deletion failed");
+                }
+            }
+        }
 
         // download JSON
-        LuftdatenConfig luftdatenConfig = config.getLuftdatenConfig();
         DataPoints dataPoints = downloadFile(jsonFile);
 
         // convert DataPoints to internal format
@@ -175,57 +184,46 @@ public final class LuftdatenMapper {
 
         // filter by value and id
         List<SensorValue> filteredValues = filterBySensorValue(rawValues, 500.0);
+        LuftdatenConfig luftdatenConfig = config.getLuftdatenConfig();
         filteredValues = filterBySensorId(filteredValues, luftdatenConfig.getBlacklist());
-
-        // create overlay
-        ColorMapper colorMapper = new ColorMapper(RANGE);
 
         // render all jobs
         for (RenderJob job : jobs) {
-            // apply bounding box
-            List<SensorValue> boundedValues = filterByBoundingBox(filteredValues, job);
-
-            try {
-                renderDust(boundedValues, overlayFile, colorMapper, job);
-
-                // create composite from background image and overlay
-                File baseMap = new File(job.getMapFile());
-                File compositeFile = new File(tempDir, "composite.png");
-                File dir = compositeFile.getParentFile();
-                if (!dir.exists() && !compositeFile.getParentFile().mkdirs()) {
-                    LOG.warn("Could not create directory {}", dir.getAbsolutePath());
-                }
-                composite(config.getCompositeCmd(), overlayFile, baseMap, compositeFile);
-
-                // add timestamp to composite
-                LocalDateTime localDateTime = LocalDateTime.ofInstant(utcTime.toInstant(), ZoneId.systemDefault());
-                String timestampText = localDateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-                File outputFile = new File(config.getOutputPath(), job.getMapFile());
-                timestamp(config.getConvertCmd(), timestampText, compositeFile, outputFile);
-
-                // copy timestamped file into job-specific sub-directory of 'intermediate dir'
-                File jobDir = new File(config.getIntermediateDir(), job.getName());
-                if (!jobDir.exists() && !jobDir.mkdirs()) {
-                    LOG.warn("Could not create directory {}", jobDir.getAbsolutePath());
-                }
-                String jobName = String.format(Locale.ROOT, "%02d%02d.png", utcTime.getHour(), utcTime.getMinute());
-                File timestampedJobFile = new File(jobDir, jobName);
-                LOG.info("Copying file to {}", timestampedJobFile.getAbsolutePath());
-                timestampedJobFile.delete();
-                Files.copy(outputFile.toPath(), timestampedJobFile.toPath());
-            } catch (IOException e) {
-                LOG.trace("Caught IOException", e);
-                LOG.warn("Caught IOException: {}", e.getMessage());
-            } finally {
-                if (!overlayFile.delete()) {
-                    LOG.warn("Failed to delete overlay file");
-                }
-            }
+            File jobDir = new File(tempDir, job.getName());
+            File outputFile = new File(jobDir, pngName);
+            render(job, jobDir, filteredValues, utcTime, outputFile);
         }
 
         // delete JSON
         if (!jsonFile.delete()) {
             LOG.warn("Failed to delete JSON file");
+        }
+    }
+
+    private void render(RenderJob job, File jobDir, List<SensorValue> filteredValues, ZonedDateTime utcTime,
+            File outputFile) {
+
+        // apply bounding box
+        List<SensorValue> boundedValues = filterByBoundingBox(filteredValues, job);
+
+        try {
+            // create overlay
+            ColorMapper colorMapper = new ColorMapper(RANGE);
+            File overlayFile = new File(jobDir, "overlay.png");
+            renderDust(boundedValues, overlayFile, colorMapper, job);
+
+            // create composite from background image and overlay
+            File baseMap = new File(job.getMapFile());
+            File compositeFile = new File(jobDir, "composite.png");
+            composite(config.getCompositeCmd(), overlayFile, baseMap, compositeFile);
+
+            // add timestamp to composite
+            LocalDateTime localDateTime = LocalDateTime.ofInstant(utcTime.toInstant(), ZoneId.systemDefault());
+            String timestampText = localDateTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+            timestamp(config.getConvertCmd(), timestampText, compositeFile, outputFile);
+        } catch (IOException e) {
+            LOG.trace("Caught IOException", e);
+            LOG.warn("Caught IOException: {}", e.getMessage());
         }
     }
 
