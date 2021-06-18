@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -190,8 +192,11 @@ public final class LuftdatenMapper {
         // render all jobs
         for (RenderJob job : jobs) {
             File jobDir = new File(tempDir, job.getName());
-            File outputFile = new File(jobDir, pngName);
+            File outputFile = new File(config.getOutputPath(), job.getName() + ".png");
             render(job, jobDir, filteredValues, utcTime, outputFile);
+            // copy file for animation
+            File animationFile = new File(jobDir, pngName);
+            Files.copy(outputFile.toPath(), animationFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
         }
 
         // delete JSON
