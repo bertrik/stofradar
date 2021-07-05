@@ -20,10 +20,10 @@
   {
     "name": "gouda",
     "mapfile": "gouda.png",
-    "north": 52.041,
-    "west": 4.666,
-    "south": 51.995,
-    "east": 4.759,
+    "north": 52.0412,
+    "west": 4.6646,
+    "south": 51.9952,
+    "east": 4.7578,
     "minRadius": 0.2,
     "maxdistance": 0.5
   }
