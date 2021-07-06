@@ -26,5 +26,15 @@
     "east": 4.7578,
     "minRadius": 0.2,
     "maxdistance": 0.5
+  },
+  {
+    "name": "nieuwerkerk",
+    "mapfile": "nieuwerkerk.png",
+    "north": 51.9795,
+    "west": 4.5908,
+    "south": 51.9551,
+    "east": 4.6302,
+    "minRadius": 0.2,
+    "maxdistance": 0.5
   }
 ]
