@@ -1,5 +1,7 @@
 package nl.bertriksikken.luftdaten;
 
+import java.time.Duration;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import nl.bertriksikken.luftdaten.config.LuftdatenConfig;
@@ -11,6 +13,9 @@ public final class LuftdatenMapperConfig {
 
     @JsonProperty("luftdaten")
 	private LuftdatenConfig luftdatenConfig = new LuftdatenConfig();
+
+    @JsonProperty("keepingDurationMinutes")
+    private int keepingDurationMinutes = 60;
 
     @JsonProperty("compositeCmd")
     private String compositeCmd = "c:/cygwin64/bin/composite.exe";
@@ -57,6 +62,10 @@ public final class LuftdatenMapperConfig {
      */
     public String getOutputPath() {
     	return outputPath;
+    }
+
+    public Duration getKeepingDuration() {
+        return Duration.ofMinutes(keepingDurationMinutes);
     }
     
 

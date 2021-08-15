@@ -190,7 +190,7 @@ public final class LuftdatenMapper {
         
         // update list of sensor values, expiring old data
         sensorValues.forEach(v -> sensorValueMap .put(v.id, v));
-        Instant expiryTime = now.minusSeconds(3600);
+        Instant expiryTime = now.minus(config.getKeepingDuration());
         sensorValueMap.entrySet().removeIf(e -> e.getValue().time.isBefore(expiryTime));
         List<SensorValue> rawValues = new ArrayList<>(sensorValueMap.values());
 
