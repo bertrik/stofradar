@@ -21,8 +21,10 @@ import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -70,6 +72,8 @@ public final class LuftdatenMapper {
     private final LuftdatenMapperConfig config;
     private final LuftDatenDataApi luftDatenApi;
     private final ObjectMapper objectMapper = new ObjectMapper();
+    // map from id to sensor value
+    private final Map<Integer, SensorValue> sensorValueMap = new HashMap<>();
 
     private static final ColorPoint[] RANGE = new ColorPoint[] {
             new ColorPoint(0, new int[] { 0xFF, 0xFF, 0xFF, 0x00 }), // transparent white
@@ -182,7 +186,13 @@ public final class LuftdatenMapper {
         DataPoints dataPoints = downloadFile(jsonFile);
 
         // convert DataPoints to internal format
-        List<SensorValue> rawValues = convertDataPoints(dataPoints, "P1");
+        List<SensorValue> sensorValues = convertDataPoints(dataPoints, "P1", now);
+        
+        // update list of sensor values, expiring old data
+        sensorValues.forEach(v -> sensorValueMap .put(v.id, v));
+        Instant expiryTime = now.minusSeconds(3600);
+        sensorValueMap.entrySet().removeIf(e -> e.getValue().time.isBefore(expiryTime));
+        List<SensorValue> rawValues = new ArrayList<>(sensorValueMap.values());
 
         // filter by value and id
         List<SensorValue> filteredValues = filterBySensorValue(rawValues, 500.0);
@@ -273,7 +283,7 @@ public final class LuftdatenMapper {
      * @param item       which item to select (P1 or P2)
      * @return list of sensor values
      */
-    private List<SensorValue> convertDataPoints(DataPoints dataPoints, String item) {
+    private List<SensorValue> convertDataPoints(DataPoints dataPoints, String item, Instant instant) {
         List<SensorValue> values = new ArrayList<>();
         int numIndoor = 0;
         for (DataPoint dp : dataPoints) {
@@ -289,7 +299,7 @@ public final class LuftdatenMapper {
                 double x = l.getLongitude();
                 double y = l.getLatitude();
                 double v = dataValue.getValue();
-                values.add(new SensorValue(id, x, y, v));
+                values.add(new SensorValue(id, x, y, v, instant));
             }
         }
         LOG.info("Ignored {} indoor sensors", numIndoor);
