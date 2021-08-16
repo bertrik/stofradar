@@ -202,6 +202,9 @@ public final class LuftdatenMapper {
         // render all jobs
         for (RenderJob job : jobs) {
             File jobDir = new File(tempDir, job.getName());
+            if (jobDir.mkdirs()) {
+                LOG.info("Created directory {}", jobDir);
+            }
             File outputFile = new File(config.getOutputPath(), job.getName() + ".png");
             render(job, jobDir, filteredValues, utcTime, outputFile);
             // copy file for animation
