@@ -40,10 +40,10 @@
   {
     "name": "stanthonis",
     "mapfile": "stanthonis.png",
-    "north": 51.6943,
-    "west": 5.7291,
-    "south": 51.5558,
-    "east": 5.9521,
+    "north": 51.8073,
+    "west": 5.6429,
+    "south": 51.4664,
+    "east": 6.1235,
     "minRadius": 0.1,
     "maxdistance": 0.5
   }
