@@ -1,6 +1,7 @@
 package nl.bertriksikken.luftdaten.api.dto;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public final class SensorDataValues extends ArrayList<DataValue> {
 
@@ -8,6 +9,19 @@ public final class SensorDataValues extends ArrayList<DataValue> {
      * Mandatory serial id.
      */
     private static final long serialVersionUID = 1L;
+    
+    private SensorDataValues() {
+        // mandatory no-arg Jackson constructor
+    }
+    
+    /**
+     * Constructor
+     * @param values initial data values
+     */
+    SensorDataValues(List<DataValue> values) {
+        this();
+        addAll(values);
+    }
 
     /**
      * Extracts a certain data value.

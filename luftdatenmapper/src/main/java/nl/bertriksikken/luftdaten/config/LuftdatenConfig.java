@@ -1,6 +1,7 @@
 package nl.bertriksikken.luftdaten.config;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -34,7 +35,7 @@ public final class LuftdatenConfig {
      * @return the list of blacklisted nodes by number
      */
     public List<Integer> getBlacklist() {
-    	return blacklist;
+    	return Collections.unmodifiableList(blacklist);
     }
 
 }

@@ -8,7 +8,8 @@ public final class RenderJobs extends ArrayList<RenderJob> {
     private static final long serialVersionUID = 1L;
 
     public RenderJobs(Collection<RenderJob> jobs) {
-        super(jobs);
+        this();
+        addAll(jobs);
     }
 
     /**

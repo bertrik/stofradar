@@ -21,7 +21,7 @@ public final class DataPoint {
     private Sensor sensor;
 
     public SensorDataValues getSensorDataValues() {
-        return sensorDataValues;
+        return new SensorDataValues(sensorDataValues);
     }
 
     public Location getLocation() {
