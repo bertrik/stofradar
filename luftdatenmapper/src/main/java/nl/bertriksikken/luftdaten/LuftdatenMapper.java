@@ -128,8 +128,7 @@ public final class LuftdatenMapper {
     }
 
     private void start() throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        RenderJobs renderJobs = mapper.readValue(new File("renderjobs.json"), RenderJobs.class);
+        RenderJobs renderJobs = objectMapper.readValue(new File("renderjobs.json"), RenderJobs.class);
         Instant now = Instant.now();
 
         // schedule immediate job for instant feedback
