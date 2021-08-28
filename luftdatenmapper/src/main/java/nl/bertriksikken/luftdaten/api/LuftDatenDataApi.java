@@ -10,6 +10,7 @@ import java.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import nl.bertriksikken.luftdaten.config.LuftdatenConfig;
 import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 import retrofit2.converter.scalars.ScalarsConverterFactory;
@@ -21,13 +22,22 @@ public final class LuftDatenDataApi {
     private final ILuftdatenRestApi api;
 
     /**
+     * Constructor.
+     * 
+     * @param api the REST API
+     */
+    LuftDatenDataApi(ILuftdatenRestApi api) {
+        this.api = api;
+    }
+
+    /**
      * Creates a REST interface.
      * 
-     * @param url the base URL
+     * @param url     the base URL
      * @param timeout timeout (ms)
      * @return REST interface
      */
-    public static ILuftdatenRestApi newRestClient(String url, Duration timeout) {
+    ILuftdatenRestApi newRestClient(String url, Duration timeout) {
         LOG.info("Creating new REST client for URL '{}' with timeout {}", url, timeout);
         OkHttpClient client = new OkHttpClient().newBuilder().callTimeout(timeout).build();
         Retrofit retrofit = new Retrofit.Builder().baseUrl(url).addConverterFactory(ScalarsConverterFactory.create())
@@ -35,13 +45,14 @@ public final class LuftDatenDataApi {
         return retrofit.create(ILuftdatenRestApi.class);
     }
 
-    /**
-     * Constructor.
-     * 
-     * @param api the REST API
-     */
-    public LuftDatenDataApi(ILuftdatenRestApi api) {
-        this.api = api;
+    public static LuftDatenDataApi create(LuftdatenConfig config) {
+        LOG.info("Creating new REST client for URL '{}' with timeout {}", config.getUrl(), config.getTimeoutSec());
+        OkHttpClient client = new OkHttpClient().newBuilder().callTimeout(Duration.ofSeconds(config.getTimeoutSec()))
+                .build();
+        Retrofit retrofit = new Retrofit.Builder().baseUrl(config.getUrl())
+                .addConverterFactory(ScalarsConverterFactory.create()).client(client).build();
+        ILuftdatenRestApi restApi = retrofit.create(ILuftdatenRestApi.class);
+        return new LuftDatenDataApi(restApi);
     }
 
     public void downloadDust(File file) throws IOException {
@@ -50,7 +61,7 @@ public final class LuftDatenDataApi {
             LOG.info("Writing response to file {}", file.getName());
             String json = response.body();
             try (Writer writer = new OutputStreamWriter(new FileOutputStream(file), "UTF-8")) {
-            	writer.write(json);
+                writer.write(json);
             }
         } else {
             LOG.warn("Download failed!");
