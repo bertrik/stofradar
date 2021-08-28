@@ -20,6 +20,8 @@ import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -99,6 +101,20 @@ public final class LuftdatenMapper {
         List<SensorValue> filtered = values.stream().filter(v -> !blacklist.contains(v.id))
                 .collect(Collectors.toList());
         LOG.info("Filtered by sensor id: {} -> {}", values.size(), filtered.size());
+        return filtered;
+    }
+
+    private List<SensorValue> filterByPercentile(List<SensorValue> rawValues, double perc) {
+        List<SensorValue> copy = new ArrayList<>(rawValues);
+        Collections.sort(copy, new Comparator<SensorValue>() {
+            @Override
+            public int compare(SensorValue o1, SensorValue o2) {
+                return Double.valueOf(o1.value).compareTo(o2.value);
+            }
+        });
+        int newSize = (int)((1 - perc) * rawValues.size());
+        List<SensorValue> filtered = copy.subList(0, newSize);
+        LOG.info("Filtered by percentile filter: {} -> {}", rawValues.size(), filtered.size());
         return filtered;
     }
 
@@ -187,9 +203,12 @@ public final class LuftdatenMapper {
         Instant expiryTime = now.minus(config.getKeepingDuration());
         sensorValueMap.entrySet().removeIf(e -> e.getValue().time.isBefore(expiryTime));
         List<SensorValue> rawValues = new ArrayList<>(sensorValueMap.values());
+        
+        // remove top percentile of measurements
+        List<SensorValue> filteredValues = filterByPercentile(rawValues, 0.01);
 
         // filter by value and id
-        List<SensorValue> filteredValues = filterBySensorValue(rawValues, 500.0);
+        filteredValues = filterBySensorValue(filteredValues, 1000.0);
         LuftdatenConfig luftdatenConfig = config.getLuftdatenConfig();
         filteredValues = filterBySensorId(filteredValues, luftdatenConfig.getBlacklist());
 
