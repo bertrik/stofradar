@@ -106,12 +106,7 @@ public final class LuftdatenMapper {
 
     private List<SensorValue> filterByPercentile(List<SensorValue> rawValues, double perc) {
         List<SensorValue> copy = new ArrayList<>(rawValues);
-        Collections.sort(copy, new Comparator<SensorValue>() {
-            @Override
-            public int compare(SensorValue o1, SensorValue o2) {
-                return Double.valueOf(o1.value).compareTo(o2.value);
-            }
-        });
+        Collections.sort(copy, (v1, v2) -> Double.compare(v1.value, v2.value));
         int newSize = (int)((1 - perc) * rawValues.size());
         List<SensorValue> filtered = copy.subList(0, newSize);
         LOG.info("Filtered by percentile filter: {} -> {}", rawValues.size(), filtered.size());
