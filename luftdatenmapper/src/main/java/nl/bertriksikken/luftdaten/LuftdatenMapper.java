@@ -87,9 +87,8 @@ public final class LuftdatenMapper {
         luftDatenApi = LuftDatenDataApi.create(config.getLuftdatenConfig());
     }
 
-    private List<SensorValue> filterBySensorValue(List<SensorValue> values, double maxValue) {
-        List<SensorValue> filtered = values.stream().filter(v -> v.value >= 0.0).filter(v -> v.value < maxValue)
-                .collect(Collectors.toList());
+    private List<SensorValue> filterBySensorValue(List<SensorValue> values) {
+        List<SensorValue> filtered = values.stream().filter(v -> v.value >= 0.0).collect(Collectors.toList());
         LOG.info("Filtered by sensor value: {} -> {}", values.size(), filtered.size());
         return filtered;
     }
@@ -203,7 +202,7 @@ public final class LuftdatenMapper {
         List<SensorValue> filteredValues = filterByPercentile(rawValues, 0.01);
 
         // filter by value and id
-        filteredValues = filterBySensorValue(filteredValues, 1000.0);
+        filteredValues = filterBySensorValue(filteredValues);
         LuftdatenConfig luftdatenConfig = config.getLuftdatenConfig();
         filteredValues = filterBySensorId(filteredValues, luftdatenConfig.getBlacklist());
 
