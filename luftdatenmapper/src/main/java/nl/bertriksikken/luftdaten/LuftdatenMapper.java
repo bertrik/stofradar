@@ -72,12 +72,24 @@ public final class LuftdatenMapper {
     // map from id to sensor value
     private final Map<Integer, SensorValue> sensorValueMap = new HashMap<>();
 
-    private static final ColorPoint[] RANGE = new ColorPoint[] {
-            new ColorPoint(0, new int[] { 0x00, 0x00, 0xFF, 0x00 }), // transparent blue
-            new ColorPoint(25, new int[] { 0x00, 0x80, 0x80, 0xC0 }), // cyan
-            new ColorPoint(50, new int[] { 0xFF, 0xFF, 0x00, 0xC0 }), // yellow
-            new ColorPoint(100, new int[] { 0xFF, 0x00, 0x00, 0xC0 }), // red
-            new ColorPoint(200, new int[] { 0xFF, 0x00, 0xFF, 0xC0 }), // purple
+    // color range according https://www.luchtmeetnet.nl/informatie/luchtkwaliteit/luchtkwaliteitsindex-(lki)
+    private static final ColorPoint[] RANGE_PM2_5 = new ColorPoint[] {
+            // good
+            new ColorPoint(0, new int[] { 0, 100, 255, 0x00 }), 
+            new ColorPoint(10, new int[] { 0, 175, 255, 0x60 }),
+            new ColorPoint(15, new int[] { 150, 200, 255, 0xC0 }),
+            // not so good
+            new ColorPoint(20, new int[] { 255, 255, 200, 0xC0 }), 
+            new ColorPoint(30, new int[] { 255, 255, 150, 0xC0 }),
+            new ColorPoint(40, new int[] { 255, 255, 0, 0xC0 }),
+            // insufficient
+            new ColorPoint(50, new int[] { 255, 200, 0, 0xC0 }), 
+            new ColorPoint(70, new int[] { 255, 150, 0, 0xC0 }),
+            // bad
+            new ColorPoint(90, new int[] { 255, 75, 0, 0xC0 }), 
+            new ColorPoint(100, new int[] { 255, 25, 0, 0xC0 }),
+            // very bad
+            new ColorPoint(140, new int[] { 164, 58, 217, 0xC0 })
     };
 
     LuftdatenMapper(LuftdatenMapperConfig config) {
@@ -190,7 +202,7 @@ public final class LuftdatenMapper {
         DataPoints dataPoints = downloadFile(jsonFile);
 
         // convert DataPoints to internal format
-        List<SensorValue> sensorValues = convertDataPoints(dataPoints, "P1", now);
+        List<SensorValue> sensorValues = convertDataPoints(dataPoints, "P2", now);
 
         // update list of sensor values, expiring old data
         sensorValues.forEach(v -> sensorValueMap.put(v.id, v));
@@ -233,7 +245,7 @@ public final class LuftdatenMapper {
 
         try {
             // create overlay
-            ColorMapper colorMapper = new ColorMapper(RANGE);
+            ColorMapper colorMapper = new ColorMapper(RANGE_PM2_5);
             File overlayFile = new File(jobDir, "overlay.png");
             renderDust(boundedValues, overlayFile, colorMapper, job);
 
