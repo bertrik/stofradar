@@ -21,7 +21,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -107,7 +106,7 @@ public final class LuftdatenMapper {
     private List<SensorValue> filterByPercentile(List<SensorValue> rawValues, double perc) {
         List<SensorValue> copy = new ArrayList<>(rawValues);
         Collections.sort(copy, (v1, v2) -> Double.compare(v1.value, v2.value));
-        int newSize = (int)((1 - perc) * rawValues.size());
+        int newSize = (int) ((1 - perc) * rawValues.size());
         List<SensorValue> filtered = copy.subList(0, newSize);
         LOG.info("Filtered by percentile filter: {} -> {}", rawValues.size(), filtered.size());
         return filtered;
@@ -138,15 +137,15 @@ public final class LuftdatenMapper {
         Instant now = Instant.now();
 
         // schedule immediate job for instant feedback
-        executor.submit(() -> runDownloadAndProcess(config, renderJobs));
+        executor.submit(() -> runDownloadAndProcess(config, renderJobs, 0));
 
         // schedule periodic job
         long initialDelay = 300L - (now.getEpochSecond() % 300L);
-        executor.scheduleAtFixedRate(() -> runDownloadAndProcess(config, renderJobs), initialDelay, 300L,
+        executor.scheduleAtFixedRate(() -> runDownloadAndProcess(config, renderJobs, 2), initialDelay, 300L,
                 TimeUnit.SECONDS);
     }
 
-    private void runDownloadAndProcess(LuftdatenMapperConfig config, RenderJobs renderJobs) {
+    private void runDownloadAndProcess(LuftdatenMapperConfig config, RenderJobs renderJobs, int retries) {
         // run the main process in a try-catch to protect the thread it runs on from
         // exceptions
         try {
@@ -154,6 +153,10 @@ public final class LuftdatenMapper {
             downloadAndProcess(config, now, renderJobs);
         } catch (Throwable e) {
             LOG.error("Caught top-level throwable", e);
+            if (retries > 0) {
+                LOG.error("Retrying in 30 seconds, retries left: {}", retries);
+                executor.schedule(() -> runDownloadAndProcess(config, renderJobs, retries - 1), 30L, TimeUnit.SECONDS);
+            }
         }
     }
 
@@ -192,13 +195,13 @@ public final class LuftdatenMapper {
 
         // convert DataPoints to internal format
         List<SensorValue> sensorValues = convertDataPoints(dataPoints, "P1", now);
-        
+
         // update list of sensor values, expiring old data
-        sensorValues.forEach(v -> sensorValueMap .put(v.id, v));
+        sensorValues.forEach(v -> sensorValueMap.put(v.id, v));
         Instant expiryTime = now.minus(config.getKeepingDuration());
         sensorValueMap.entrySet().removeIf(e -> e.getValue().time.isBefore(expiryTime));
         List<SensorValue> rawValues = new ArrayList<>(sensorValueMap.values());
-        
+
         // remove top percentile of measurements
         List<SensorValue> filteredValues = filterByPercentile(rawValues, 0.01);
 
