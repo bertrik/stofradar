@@ -58,8 +58,6 @@ import nl.bertriksikken.luftdaten.render.SensorValue;
 /**
  * Process the luftdaten JSON and produces a CSV with coordinates and weighted
  * dust averages.
- * 
- * @author bertrik
  *
  */
 public final class LuftdatenMapper {
@@ -82,7 +80,7 @@ public final class LuftdatenMapper {
             new ColorPoint(200, new int[] { 0xFF, 0x00, 0xFF, 0xC0 }), // purple
     };
 
-    public LuftdatenMapper(LuftdatenMapperConfig config) {
+    LuftdatenMapper(LuftdatenMapperConfig config) {
         this.config = config;
 
         // create luftdaten API once
@@ -137,31 +135,30 @@ public final class LuftdatenMapper {
         Instant now = Instant.now();
 
         // schedule immediate job for instant feedback
-        executor.submit(() -> runDownloadAndProcess(config, renderJobs, 0));
+        executor.submit(() -> runDownloadAndProcess(renderJobs, 0));
 
         // schedule periodic job
         long initialDelay = 300L - (now.getEpochSecond() % 300L);
-        executor.scheduleAtFixedRate(() -> runDownloadAndProcess(config, renderJobs, 2), initialDelay, 300L,
+        executor.scheduleAtFixedRate(() -> runDownloadAndProcess(renderJobs, 2), initialDelay, 300L,
                 TimeUnit.SECONDS);
     }
 
-    private void runDownloadAndProcess(LuftdatenMapperConfig config, RenderJobs renderJobs, int retries) {
+    private void runDownloadAndProcess(RenderJobs renderJobs, int retries) {
         // run the main process in a try-catch to protect the thread it runs on from
         // exceptions
         try {
             Instant now = Instant.now();
-            downloadAndProcess(config, now, renderJobs);
+            downloadAndProcess(now, renderJobs);
         } catch (Throwable e) {
             LOG.error("Caught top-level throwable", e);
             if (retries > 0) {
                 LOG.error("Retrying in 30 seconds, retries left: {}", retries);
-                executor.schedule(() -> runDownloadAndProcess(config, renderJobs, retries - 1), 30L, TimeUnit.SECONDS);
+                executor.schedule(() -> runDownloadAndProcess(renderJobs, retries - 1), 30L, TimeUnit.SECONDS);
             }
         }
     }
 
-    private void downloadAndProcess(LuftdatenMapperConfig config, Instant now, List<RenderJob> jobs)
-            throws IOException {
+    private void downloadAndProcess(Instant now, List<RenderJob> jobs) throws IOException {
         // get UTC time rounded to 5 minutes
         ZonedDateTime utcTime = ZonedDateTime.ofInstant(now, ZoneId.of("UTC"));
         int minute = 5 * (utcTime.get(ChronoField.MINUTE_OF_HOUR) / 5);
