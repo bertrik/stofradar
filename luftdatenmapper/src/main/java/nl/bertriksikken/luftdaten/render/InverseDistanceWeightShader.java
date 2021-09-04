@@ -2,7 +2,6 @@ package nl.bertriksikken.luftdaten.render;
 
 import java.util.List;
 
-import nl.bertriksikken.luftdaten.config.Coord;
 import nl.bertriksikken.luftdaten.config.RenderJob;
 
 public class InverseDistanceWeightShader implements IShader {

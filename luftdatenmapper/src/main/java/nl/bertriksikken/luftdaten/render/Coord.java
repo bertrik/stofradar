@@ -1,4 +1,4 @@
-package nl.bertriksikken.luftdaten.config;
+package nl.bertriksikken.luftdaten.render;
 
 import java.util.Locale;
 

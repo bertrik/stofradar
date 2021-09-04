@@ -3,7 +3,6 @@ package nl.bertriksikken.luftdaten.render;
 import java.awt.image.WritableRaster;
 import java.util.List;
 
-import nl.bertriksikken.luftdaten.config.Coord;
 import nl.bertriksikken.luftdaten.config.RenderJob;
 
 /**

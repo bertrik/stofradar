@@ -2,8 +2,6 @@ package nl.bertriksikken.luftdaten.render;
 
 import java.util.List;
 
-import nl.bertriksikken.luftdaten.config.Coord;
-
 public interface IShader {
 
     /**

@@ -1,67 +1,83 @@
 package nl.bertriksikken.luftdaten.config;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
-@JsonPropertyOrder({ "name", "mapfile", "topleft", "botright", "subsample" })
 public final class RenderJob {
 
     @JsonProperty("name")
-    private String name;
+    private final String name;
 
-    @JsonProperty("mapfile")
-    private String mapFile;
+    @JsonProperty("map")
+    private final String map;
 
     @JsonProperty("north")
-    private double north;
-
-    @JsonProperty("east")
-    private double east;
-
-    @JsonProperty("south")
-    private double south;
+    private final double north;
 
     @JsonProperty("west")
-    private double west;
+    private final double west;
+    
+    @JsonProperty("south")
+    private final double south;
 
-    // the radius of the semi-transparent part around a measurement station
-    @JsonProperty("maxdistance")
-    private double maxDistance;
+    @JsonProperty("east")
+    private final double east;
     
-    // the radius of the opaque part around a measurement station
+    // the radius of the opaque part around a measurement station (km)
     @JsonProperty("minRadius")
-    private double minRadius = 0.0;
+    private final double minRadius;
     
+    // the radius of the semi-transparent part around a measurement station (km)
+    @JsonProperty("maxDistance")
+    private final double maxDistance;
+
+    // jackson constructor
+    @SuppressWarnings("unused")
+    private RenderJob() {
+        this("name", "background.png", 53.560406, 3.359403, 50.750938, 7.227496, 1.0, 10.0);
+    }
+
+    RenderJob(String name, String map, double north, double west, double south, double east, double minRadius,
+            double maxDistance) {
+        this.name = name;
+        this.map = map;
+        this.north = north;
+        this.east = east;
+        this.south = south;
+        this.west = west;
+        this.minRadius = minRadius;
+        this.maxDistance = maxDistance;
+    }
+
     public String getName() {
         return name;
     }
 
     public String getMapFile() {
-        return mapFile;
+        return map;
     }
 
     public double getNorth() {
         return north;
     }
 
-    public double getEast() {
-        return east;
+    public double getWest() {
+        return west;
     }
 
     public double getSouth() {
         return south;
     }
 
-    public double getWest() {
-        return west;
+    public double getEast() {
+        return east;
+    }
+    
+    public double getMinRadius() {
+        return minRadius;
     }
 
     public double getMaxDistance() {
         return maxDistance;
-    }
-    
-    public double getMinRadius() {
-    	return minRadius;
     }
 
 }

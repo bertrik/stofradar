@@ -36,6 +36,8 @@ import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
@@ -46,8 +48,8 @@ import nl.bertriksikken.luftdaten.api.dto.DataValue;
 import nl.bertriksikken.luftdaten.api.dto.Location;
 import nl.bertriksikken.luftdaten.api.dto.Sensor;
 import nl.bertriksikken.luftdaten.config.LuftdatenConfig;
+import nl.bertriksikken.luftdaten.config.LuftdatenMapperConfig;
 import nl.bertriksikken.luftdaten.config.RenderJob;
-import nl.bertriksikken.luftdaten.config.RenderJobs;
 import nl.bertriksikken.luftdaten.render.ColorMapper;
 import nl.bertriksikken.luftdaten.render.ColorPoint;
 import nl.bertriksikken.luftdaten.render.IShader;
@@ -131,6 +133,7 @@ public final class LuftdatenMapper {
 
     private static LuftdatenMapperConfig readConfig(File file) throws IOException {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+        mapper.setVisibility(PropertyAccessor.ALL, Visibility.NONE);
         try (FileInputStream fis = new FileInputStream(file)) {
             return mapper.readValue(fis, LuftdatenMapperConfig.class);
         } catch (IOException e) {
@@ -142,34 +145,33 @@ public final class LuftdatenMapper {
     }
 
     private void start() throws IOException {
-        RenderJobs renderJobs = objectMapper.readValue(new File("renderjobs.json"), RenderJobs.class);
         Instant now = Instant.now();
 
         // schedule immediate job for instant feedback
-        executor.submit(() -> runDownloadAndProcess(renderJobs, 0));
+        executor.submit(() -> runDownloadAndProcess(0));
 
         // schedule periodic job
         long initialDelay = 300L - (now.getEpochSecond() % 300L);
-        executor.scheduleAtFixedRate(() -> runDownloadAndProcess(renderJobs, 2), initialDelay, 300L,
+        executor.scheduleAtFixedRate(() -> runDownloadAndProcess(2), initialDelay, 300L,
                 TimeUnit.SECONDS);
     }
 
-    private void runDownloadAndProcess(RenderJobs renderJobs, int retries) {
+    private void runDownloadAndProcess(int retries) {
         // run the main process in a try-catch to protect the thread it runs on from
         // exceptions
         try {
             Instant now = Instant.now();
-            downloadAndProcess(now, renderJobs);
+            downloadAndProcess(now);
         } catch (Throwable e) {
             LOG.error("Caught top-level throwable", e);
             if (retries > 0) {
                 LOG.error("Retrying in 30 seconds, retries left: {}", retries);
-                executor.schedule(() -> runDownloadAndProcess(renderJobs, retries - 1), 30L, TimeUnit.SECONDS);
+                executor.schedule(() -> runDownloadAndProcess(retries - 1), 30L, TimeUnit.SECONDS);
             }
         }
     }
 
-    private void downloadAndProcess(Instant now, List<RenderJob> jobs) throws IOException {
+    private void downloadAndProcess(Instant now) throws IOException {
         // get UTC time rounded to 5 minutes
         ZonedDateTime utcTime = ZonedDateTime.ofInstant(now, ZoneId.of("UTC"));
         int minute = 5 * (utcTime.get(ChronoField.MINUTE_OF_HOUR) / 5);
@@ -187,7 +189,7 @@ public final class LuftdatenMapper {
 
         // delete output files for this time-of-day
         String pngName = String.format(Locale.ROOT, "%02d%02d.png", utcTime.getHour(), utcTime.getMinute());
-        for (RenderJob job : jobs) {
+        for (RenderJob job : config.getRenderJobs()) {
             File jobDir = new File(tempDir, job.getName());
             File outputFile = new File(jobDir, pngName);
             if (outputFile.exists()) {
@@ -219,7 +221,7 @@ public final class LuftdatenMapper {
         filteredValues = filterBySensorId(filteredValues, luftdatenConfig.getBlacklist());
 
         // render all jobs
-        for (RenderJob job : jobs) {
+        for (RenderJob job : config.getRenderJobs()) {
             File jobDir = new File(tempDir, job.getName());
             if (jobDir.mkdirs()) {
                 LOG.info("Created directory {}", jobDir);
