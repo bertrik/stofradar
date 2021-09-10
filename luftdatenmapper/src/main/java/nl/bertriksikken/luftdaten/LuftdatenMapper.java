@@ -5,6 +5,7 @@ import java.awt.image.WritableRaster;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -38,6 +39,7 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
@@ -65,6 +67,7 @@ import nl.bertriksikken.luftdaten.render.SensorValue;
 public final class LuftdatenMapper {
 
     private static final Logger LOG = LoggerFactory.getLogger(LuftdatenMapper.class);
+    private static final File SENSOR_VALUE_CACHE_FILE = new File("sensorvaluecache.json");
 
     private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
@@ -145,15 +148,40 @@ public final class LuftdatenMapper {
     }
 
     private void start() throws IOException {
-        Instant now = Instant.now();
-
+        // restore cache
+        objectMapper.findAndRegisterModules();
+        restoreSensorValues();
+        
         // schedule immediate job for instant feedback
         executor.submit(() -> runDownloadAndProcess(0));
 
         // schedule periodic job
+        Instant now = Instant.now();
         long initialDelay = 300L - (now.getEpochSecond() % 300L);
         executor.scheduleAtFixedRate(() -> runDownloadAndProcess(2), initialDelay, 300L,
                 TimeUnit.SECONDS);
+    }
+    
+    private void persistSensorValues() {
+        List<SensorValue> values = new ArrayList<>(sensorValueMap.values());
+        LOG.info("Persisting {} sensor value to cache", values.size());
+        try (FileOutputStream fos = new FileOutputStream(SENSOR_VALUE_CACHE_FILE)) {
+            objectMapper.writeValue(fos, values);
+            LOG.info("Persisting done");
+        } catch (Throwable e) {
+            LOG.warn("Could not persist sensor values", e);
+        }
+    }
+    
+    private void restoreSensorValues() {
+        LOG.info("Restoring sensor values from cache");
+        try (FileInputStream fos = new FileInputStream(SENSOR_VALUE_CACHE_FILE)) {
+            List<SensorValue> values = objectMapper.readValue(fos, new TypeReference<List<SensorValue>>(){});
+            values.forEach(v -> sensorValueMap.put(v.id, v));
+            LOG.info("Restored {} sensor values from cache", values.size());
+        } catch (Throwable e) {
+            LOG.warn("Could not restore sensor values", e);
+        }
     }
 
     private void runDownloadAndProcess(int retries) {
@@ -211,7 +239,7 @@ public final class LuftdatenMapper {
         Instant expiryTime = now.minus(config.getKeepingDuration());
         sensorValueMap.entrySet().removeIf(e -> e.getValue().time.isBefore(expiryTime));
         List<SensorValue> rawValues = new ArrayList<>(sensorValueMap.values());
-
+        
         // remove top percentile of measurements
         List<SensorValue> filteredValues = filterByPercentile(rawValues, 0.01);
 
@@ -219,6 +247,9 @@ public final class LuftdatenMapper {
         filteredValues = filterBySensorValue(filteredValues);
         LuftdatenConfig luftdatenConfig = config.getLuftdatenConfig();
         filteredValues = filterBySensorId(filteredValues, luftdatenConfig.getBlacklist());
+
+        // persist
+        persistSensorValues();
 
         // render all jobs
         for (RenderJob job : config.getRenderJobs()) {
