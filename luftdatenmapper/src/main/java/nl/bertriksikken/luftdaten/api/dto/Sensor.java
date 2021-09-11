@@ -24,7 +24,7 @@ public final class Sensor {
 
     @Override
     public String toString() {
-        return String.format(Locale.US, "{%d,%s}", id, sensorType);
+        return String.format(Locale.ROOT, "{%d,%s}", id, sensorType);
     }
 
 }

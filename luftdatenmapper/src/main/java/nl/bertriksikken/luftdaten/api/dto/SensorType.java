@@ -40,7 +40,7 @@ public final class SensorType {
 
     @Override
     public String toString() {
-        return String.format(Locale.US, "{%d,%s,%s}", id, name, manufacturer);
+        return String.format(Locale.ROOT, "{%d,%s,%s}", id, name, manufacturer);
     }
 
 }

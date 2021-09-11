@@ -210,7 +210,7 @@ public final class LuftdatenMapper {
         if (!tempDir.exists() && !tempDir.mkdirs()) {
             LOG.warn("Failed to create directory {}", tempDir.getAbsolutePath());
         }
-        String fileName = String.format(Locale.US, "%04d%02d%02d_%02d%02d.json", utcTime.get(ChronoField.YEAR),
+        String fileName = String.format(Locale.ROOT, "%04d%02d%02d_%02d%02d.json", utcTime.get(ChronoField.YEAR),
                 utcTime.get(ChronoField.MONTH_OF_YEAR), utcTime.get(ChronoField.DAY_OF_MONTH),
                 utcTime.get(ChronoField.HOUR_OF_DAY), utcTime.get(ChronoField.MINUTE_OF_HOUR));
         File jsonFile = new File(tempDir, fileName);
@@ -407,7 +407,7 @@ public final class LuftdatenMapper {
 
         // parse background file
         BufferedImage mapImage = ImageIO.read(baseMap);
-        String composeArg = String.format(Locale.US, "%dx%d", mapImage.getWidth(), mapImage.getHeight());
+        String composeArg = String.format(Locale.ROOT, "%dx%d", mapImage.getWidth(), mapImage.getHeight());
 
         List<String> arguments = new ArrayList<>();
         arguments.add(command);

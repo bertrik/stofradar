@@ -45,7 +45,7 @@ public final class Location {
     
     @Override
     public String toString() {
-        return String.format(Locale.US, "{%f,%f,%f,%s}", latitude, longitude, altitude, country);
+        return String.format(Locale.ROOT, "{%f,%f,%f,%s}", latitude, longitude, altitude, country);
     }
 
 }

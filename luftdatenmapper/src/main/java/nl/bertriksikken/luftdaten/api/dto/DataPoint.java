@@ -34,6 +34,6 @@ public final class DataPoint {
 
     @Override
     public String toString() {
-        return String.format(Locale.US, "{%s,%s,%s}", location, sensor, sensorDataValues);
+        return String.format(Locale.ROOT, "{%s,%s,%s}", location, sensor, sensorDataValues);
     }
 }

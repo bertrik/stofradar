@@ -24,7 +24,7 @@ public final class DataValue {
 
     @Override
     public String toString() {
-        return String.format(Locale.US, "{%s=%f}", valueType, value);
+        return String.format(Locale.ROOT, "{%s=%f}", valueType, value);
     }
 
 }
