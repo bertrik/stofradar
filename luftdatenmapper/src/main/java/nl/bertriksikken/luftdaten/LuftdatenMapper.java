@@ -99,9 +99,8 @@ public final class LuftdatenMapper {
 
     LuftdatenMapper(LuftdatenMapperConfig config) {
         this.config = config;
-
-        // create luftdaten API once
         luftDatenApi = LuftDatenDataApi.create(config.getLuftdatenConfig());
+        objectMapper.findAndRegisterModules();
     }
 
     private List<SensorValue> filterBySensorValue(List<SensorValue> values) {
@@ -149,7 +148,6 @@ public final class LuftdatenMapper {
 
     private void start() throws IOException {
         // restore cache
-        objectMapper.findAndRegisterModules();
         restoreSensorValues();
         
         // schedule immediate job for instant feedback
