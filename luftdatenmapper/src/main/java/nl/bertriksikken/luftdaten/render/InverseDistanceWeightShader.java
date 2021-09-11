@@ -4,7 +4,7 @@ import java.util.List;
 
 import nl.bertriksikken.luftdaten.config.RenderJob;
 
-public class InverseDistanceWeightShader implements IShader {
+public final class InverseDistanceWeightShader implements IShader {
 
     private static final double KM_PER_DEGREE_LAT = 40075.0 / 360.0;
 

@@ -4,7 +4,7 @@ import java.util.Locale;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public final class Coord {
+final class Coord {
 
     @JsonProperty("lon")
     private double x;
@@ -15,7 +15,7 @@ public final class Coord {
         // jackson constructor
     }
 
-    public Coord(double x, double y) {
+    Coord(double x, double y) {
         this();
         this.x = x;
         this.y = y;
