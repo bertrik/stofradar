@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 
 import org.slf4j.Logger;
@@ -60,7 +61,7 @@ public final class LuftDatenDataApi {
         if (response.isSuccessful()) {
             LOG.info("Writing response to file {}", file.getName());
             String json = response.body();
-            try (Writer writer = new OutputStreamWriter(new FileOutputStream(file), "UTF-8")) {
+            try (Writer writer = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8)) {
                 writer.write(json);
             }
         } else {
