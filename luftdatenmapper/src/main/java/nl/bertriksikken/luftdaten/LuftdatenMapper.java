@@ -162,9 +162,8 @@ public final class LuftdatenMapper {
                 TimeUnit.SECONDS);
     }
     
-    private void persistSensorValues() {
-        List<SensorValue> values = new ArrayList<>(sensorValueMap.values());
-        LOG.info("Persisting {} sensor value to cache", values.size());
+    private void persistSensorValues(List<SensorValue> values) {
+        LOG.info("Persisting {} sensor values to cache", values.size());
         try (FileOutputStream fos = new FileOutputStream(SENSOR_VALUE_CACHE_FILE)) {
             objectMapper.writeValue(fos, values);
             LOG.info("Persisting done");
@@ -240,6 +239,9 @@ public final class LuftdatenMapper {
         sensorValueMap.entrySet().removeIf(e -> e.getValue().time.isBefore(expiryTime));
         List<SensorValue> rawValues = new ArrayList<>(sensorValueMap.values());
         
+        // store cached value
+        persistSensorValues(rawValues);
+        
         // remove top percentile of measurements
         List<SensorValue> filteredValues = filterByPercentile(rawValues, 0.01);
 
@@ -247,9 +249,6 @@ public final class LuftdatenMapper {
         filteredValues = filterBySensorValue(filteredValues);
         LuftdatenConfig luftdatenConfig = config.getLuftdatenConfig();
         filteredValues = filterBySensorId(filteredValues, luftdatenConfig.getBlacklist());
-
-        // persist
-        persistSensorValues();
 
         // render all jobs
         for (RenderJob job : config.getRenderJobs()) {
