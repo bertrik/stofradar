@@ -286,7 +286,7 @@ public final class LuftdatenMapper {
 
             // add timestamp to composite
             LocalDateTime localDateTime = LocalDateTime.ofInstant(utcTime.toInstant(), ZoneId.systemDefault());
-            String timestampText = localDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:MM"));
+            String timestampText = localDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
             timestamp(config.getConvertCmd(), timestampText, compositeFile, outputFile);
         } catch (IOException e) {
             LOG.trace("Caught IOException", e);
