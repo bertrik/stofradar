@@ -1,9 +1,10 @@
 ---
 luftdaten:
   url: "https://api.sensor.community"
-  timeout: 20
+  timeout: 30
   blacklist:
   - 11697
+  - 35376
 keepingDurationMinutes: 60
 renderJobs:
 - name: "netherlands"
