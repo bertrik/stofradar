@@ -2,6 +2,7 @@
 
 import argparse
 import os
+import re
 import subprocess
 
 from pathlib import Path
@@ -10,9 +11,9 @@ def build_cmd_list(dirpath):
     paths = sorted(Path(dirpath).iterdir(), key=os.path.getmtime)
     cmdlist = [];
     for p in paths:
-        if p.name.endswith(".png"):
+        if re.match("[0-9]{4}\.png", p.name):
             cmdlist.append(f"file {p.name}")
-            cmdlist.append("duration 0.1")
+            cmdlist.append("duration 0.08")
     return cmdlist
 
 
