@@ -229,24 +229,25 @@ public final class LuftdatenMapper {
         DataPoints dataPoints = downloadFile(jsonFile);
 
         // convert DataPoints to internal format
-        List<SensorValue> sensorValues = convertDataPoints(dataPoints, "P2", now);
+        List<SensorValue> pmValues = convertDataPoints(dataPoints, "P2", now);
+        List<SensorValue> rhValues = convertDataPoints(dataPoints, "humidity", now);
 
         // update list of sensor values, expiring old data
-        sensorValues.forEach(v -> sensorValueMap.put(v.id, v));
+        pmValues.forEach(v -> sensorValueMap.put(v.id, v));
         Instant expiryTime = now.minus(config.getKeepingDuration());
         sensorValueMap.entrySet().removeIf(e -> e.getValue().time.isBefore(expiryTime));
-        List<SensorValue> rawValues = new ArrayList<>(sensorValueMap.values());
+        pmValues = new ArrayList<>(sensorValueMap.values());
         
         // store cached value
-        persistSensorValues(rawValues);
+        persistSensorValues(pmValues);
         
         // remove top percentile of measurements
-        List<SensorValue> filteredValues = filterByPercentile(rawValues, 0.01);
+        pmValues = filterByPercentile(pmValues, 0.01);
 
         // filter by value and id
-        filteredValues = filterBySensorValue(filteredValues);
+        pmValues = filterBySensorValue(pmValues);
         LuftdatenConfig luftdatenConfig = config.getLuftdatenConfig();
-        filteredValues = filterBySensorId(filteredValues, luftdatenConfig.getBlacklist());
+        pmValues = filterBySensorId(pmValues, luftdatenConfig.getBlacklist());
 
         // render all jobs
         for (RenderJob job : config.getRenderJobs()) {
@@ -255,7 +256,7 @@ public final class LuftdatenMapper {
                 LOG.info("Created directory {}", jobDir);
             }
             File outputFile = new File(config.getOutputPath(), job.getName() + ".png");
-            render(job, jobDir, filteredValues, utcTime, outputFile);
+            render(job, jobDir, pmValues, rhValues, utcTime, outputFile);
             // copy file for animation
             File animationFile = new File(jobDir, pngName);
             Files.copy(outputFile.toPath(), animationFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
@@ -267,17 +268,22 @@ public final class LuftdatenMapper {
         }
     }
 
-    private void render(RenderJob job, File jobDir, List<SensorValue> filteredValues, ZonedDateTime utcTime,
-            File outputFile) {
+    private void render(RenderJob job, File jobDir, List<SensorValue> pmValues, List<SensorValue> rhValues,
+            ZonedDateTime utcTime, File outputFile) {
 
         // apply bounding box
-        List<SensorValue> boundedValues = filterByBoundingBox(filteredValues, job);
+        pmValues = filterByBoundingBox(pmValues, job, 2.0);
+        rhValues = filterByBoundingBox(rhValues, job, 1.0);
 
+        // calculate median humidity
+        double medianRh = calculateMedian(rhValues);
+        LOG.info("Median humidity = {} %", String.format(Locale.ROOT, "%.2f", medianRh));
+        
+        ColorMapper colorMapper = new ColorMapper(RANGE_PM2_5);
         try {
             // create overlay
-            ColorMapper colorMapper = new ColorMapper(RANGE_PM2_5);
             File overlayFile = new File(jobDir, "overlay.png");
-            renderDust(boundedValues, overlayFile, colorMapper, job);
+            renderDust(pmValues, overlayFile, colorMapper, job);
 
             // create composite from background image and overlay
             File baseMap = new File(job.getMapFile());
@@ -294,19 +300,34 @@ public final class LuftdatenMapper {
         }
     }
 
+    private double calculateMedian(List<SensorValue> values) {
+        List<SensorValue> copy = new ArrayList<>(values);
+        Collections.sort(copy, (v1, v2) -> Double.compare(v1.value, v2.value));
+        if (copy.isEmpty()) {
+            return Double.NaN;
+        }
+        double left = copy.get((copy.size() - 1 ) / 2).value;
+        double right = copy.get(copy.size() / 2).value;
+        return (left + right) / 2;
+    }
+    
     /**
-     * Filters sensor values by position according to a bounding box. The size of
-     * the bounding box is 3x3 times the size of the render job.
+     * Filters sensor values by position according to a bounding box.
      * 
      * @param values the sensor values
      * @param job    the render job
+     * @param area   the area multiplier
      * @return values filtered by position
      */
-    private List<SensorValue> filterByBoundingBox(List<SensorValue> values, RenderJob job) {
-        double minX = 1.5 * job.getWest() - 0.5 * job.getEast();
-        double maxX = 1.5 * job.getEast() - 0.5 * job.getWest();
-        double minY = 1.5 * job.getSouth() - 0.5 * job.getNorth();
-        double maxY = 1.5 * job.getNorth() - 0.5 * job.getSouth();
+    private List<SensorValue> filterByBoundingBox(List<SensorValue> values, RenderJob job, double area) {
+        double rangeX = area * (job.getEast() - job.getWest());
+        double rangeY = area * (job.getNorth() - job.getSouth());
+        double midX = (job.getWest() + job.getEast()) / 2;
+        double midY = (job.getNorth() + job.getSouth()) / 2;
+        double minX = midX - rangeX / 2;
+        double maxX = midX + rangeX / 2;
+        double minY = midY - rangeY / 2;
+        double maxY = midY + rangeY / 2;
         List<SensorValue> filtered = values.stream().filter(v -> (v.x > minX)).filter(v -> (v.x < maxX))
                 .filter(v -> (v.y > minY)).filter(v -> (v.y < maxY)).collect(Collectors.toList());
         LOG.info("Filtered by bounding box: {} -> {}", values.size(), filtered.size());
