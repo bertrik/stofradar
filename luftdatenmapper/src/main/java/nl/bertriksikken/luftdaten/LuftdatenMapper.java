@@ -229,8 +229,8 @@ public final class LuftdatenMapper {
         DataPoints dataPoints = downloadFile(jsonFile);
 
         // convert DataPoints to internal format
-        List<SensorValue> pmValues = convertDataPoints(dataPoints, "P2", now);
-        List<SensorValue> rhValues = convertDataPoints(dataPoints, "humidity", now);
+        List<SensorValue> pmValues = convertDataPoints(dataPoints, "", "P2", now);
+        List<SensorValue> rhValues = convertDataPoints(dataPoints, "BME280", "humidity", now);
 
         // update list of sensor values, expiring old data
         pmValues.forEach(v -> sensorValueMap.put(v.id, v));
@@ -355,9 +355,10 @@ public final class LuftdatenMapper {
      * 
      * @param dataPoints the data points
      * @param item       which item to select (P1 or P2)
+     * @param now the current time
      * @return list of sensor values
      */
-    private List<SensorValue> convertDataPoints(DataPoints dataPoints, String item, Instant instant) {
+    private List<SensorValue> convertDataPoints(DataPoints dataPoints, String sensorType, String item, Instant now) {
         List<SensorValue> values = new ArrayList<>();
         int numIndoor = 0;
         for (DataPoint dp : dataPoints) {
@@ -368,12 +369,14 @@ public final class LuftdatenMapper {
                 continue;
             }
             DataValue dataValue = dp.getSensorDataValues().getDataValue(item);
-            if (dataValue != null) {
-                int id = sensor.getId();
-                double x = l.getLongitude();
-                double y = l.getLatitude();
-                double v = dataValue.getValue();
-                values.add(new SensorValue(id, x, y, v, instant));
+            if (sensorType.isEmpty() || sensorType.equals(sensor.getSensorType().getName())) {
+                if (dataValue != null) {
+                    int id = sensor.getId();
+                    double x = l.getLongitude();
+                    double y = l.getLatitude();
+                    double v = dataValue.getValue();
+                    values.add(new SensorValue(id, x, y, v, now));
+                }
             }
         }
         LOG.info("Collected {} sensors of type '{}' (ignored {} indoor)", values.size(), item, numIndoor);
