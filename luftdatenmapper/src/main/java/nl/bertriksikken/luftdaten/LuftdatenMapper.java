@@ -293,7 +293,7 @@ public final class LuftdatenMapper {
             // add timestamp to composite
             LocalDateTime localDateTime = LocalDateTime.ofInstant(utcTime.toInstant(), ZoneId.systemDefault());
             String timestampText = localDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
-            String stampText = String.format(Locale.ROOT, "%s\nRV: %.0f %%", timestampText, medianRh);
+            String stampText = String.format(Locale.ROOT, "%s%nRV: %.1f %%", timestampText, medianRh);
             timestamp(config.getConvertCmd(), stampText, compositeFile, outputFile);
         } catch (IOException e) {
             LOG.trace("Caught IOException", e);
