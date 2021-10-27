@@ -5,6 +5,7 @@ luftdaten:
   blacklist:
   - 11697
   - 35376
+  - 30788
 keepingDurationMinutes: 60
 renderJobs:
 - name: "netherlands"
