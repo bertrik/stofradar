@@ -128,7 +128,7 @@ public final class LuftdatenMapper {
     public static void main(String[] args) throws IOException {
         PropertyConfigurator.configure("log4j.properties");
 
-        LuftdatenMapperConfig config = readConfig(new File("luftdatenmapper.yaml"));
+        LuftdatenMapperConfig config = readConfig(new File("stofradar.yaml"));
         LuftdatenMapper luftdatenMapper = new LuftdatenMapper(config);
         luftdatenMapper.start();
     }
