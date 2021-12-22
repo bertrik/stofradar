@@ -1,2 +1,2 @@
-# luftdatenmapper
-Visualization of the luftdaten.info data onto a map of the Netherlands
+# stofradar
+Visualization of the sensor.community particulate matter data onto a map.
