@@ -1,6 +1,6 @@
 apply plugin: "application"
 
-mainClassName = 'nl.bertriksikken.luftdaten.LuftdatenMapper'
+mainClassName = 'nl.bertriksikken.stofradar.LuftdatenMapper'
 
 dependencies {
     implementation libraries.slf4jlog4j
