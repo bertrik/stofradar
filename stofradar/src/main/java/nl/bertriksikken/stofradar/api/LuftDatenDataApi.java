@@ -1,4 +1,4 @@
-package nl.bertriksikken.luftdaten.api;
+package nl.bertriksikken.stofradar.api;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -11,7 +11,7 @@ import java.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import nl.bertriksikken.luftdaten.config.LuftdatenConfig;
+import nl.bertriksikken.stofradar.config.LuftdatenConfig;
 import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 import retrofit2.converter.scalars.ScalarsConverterFactory;

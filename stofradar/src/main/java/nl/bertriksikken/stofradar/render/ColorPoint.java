@@ -1,4 +1,4 @@
-package nl.bertriksikken.luftdaten.render;
+package nl.bertriksikken.stofradar.render;
 
 /**
  * A color point in a color range.

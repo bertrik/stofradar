@@ -1,4 +1,4 @@
-package nl.bertriksikken.luftdaten.render;
+package nl.bertriksikken.stofradar.render;
 
 /**
  * Maps an image consisting of scalar values to an image with RGB values.

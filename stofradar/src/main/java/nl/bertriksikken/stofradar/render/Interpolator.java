@@ -1,9 +1,9 @@
-package nl.bertriksikken.luftdaten.render;
+package nl.bertriksikken.stofradar.render;
 
 import java.awt.image.WritableRaster;
 import java.util.List;
 
-import nl.bertriksikken.luftdaten.config.RenderJob;
+import nl.bertriksikken.stofradar.config.RenderJob;
 
 /**
  * Interpolates dust values on a (lat,lon) grid in between sensors.  

@@ -1,8 +1,8 @@
-package nl.bertriksikken.luftdaten.render;
+package nl.bertriksikken.stofradar.render;
 
 import java.util.List;
 
-import nl.bertriksikken.luftdaten.config.RenderJob;
+import nl.bertriksikken.stofradar.config.RenderJob;
 
 public final class InverseDistanceWeightShader implements IShader {
 

@@ -1,4 +1,4 @@
-package nl.bertriksikken.luftdaten;
+package nl.bertriksikken.stofradar;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
@@ -43,21 +43,21 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
-import nl.bertriksikken.luftdaten.api.LuftDatenDataApi;
-import nl.bertriksikken.luftdaten.api.dto.DataPoint;
-import nl.bertriksikken.luftdaten.api.dto.DataPoints;
-import nl.bertriksikken.luftdaten.api.dto.DataValue;
-import nl.bertriksikken.luftdaten.api.dto.Location;
-import nl.bertriksikken.luftdaten.api.dto.Sensor;
-import nl.bertriksikken.luftdaten.config.LuftdatenConfig;
-import nl.bertriksikken.luftdaten.config.LuftdatenMapperConfig;
-import nl.bertriksikken.luftdaten.config.RenderJob;
-import nl.bertriksikken.luftdaten.render.ColorMapper;
-import nl.bertriksikken.luftdaten.render.ColorPoint;
-import nl.bertriksikken.luftdaten.render.IShader;
-import nl.bertriksikken.luftdaten.render.Interpolator;
-import nl.bertriksikken.luftdaten.render.InverseDistanceWeightShader;
-import nl.bertriksikken.luftdaten.render.SensorValue;
+import nl.bertriksikken.stofradar.api.LuftDatenDataApi;
+import nl.bertriksikken.stofradar.api.dto.DataPoint;
+import nl.bertriksikken.stofradar.api.dto.DataPoints;
+import nl.bertriksikken.stofradar.api.dto.DataValue;
+import nl.bertriksikken.stofradar.api.dto.Location;
+import nl.bertriksikken.stofradar.api.dto.Sensor;
+import nl.bertriksikken.stofradar.config.LuftdatenConfig;
+import nl.bertriksikken.stofradar.config.LuftdatenMapperConfig;
+import nl.bertriksikken.stofradar.config.RenderJob;
+import nl.bertriksikken.stofradar.render.ColorMapper;
+import nl.bertriksikken.stofradar.render.ColorPoint;
+import nl.bertriksikken.stofradar.render.IShader;
+import nl.bertriksikken.stofradar.render.Interpolator;
+import nl.bertriksikken.stofradar.render.InverseDistanceWeightShader;
+import nl.bertriksikken.stofradar.render.SensorValue;
 
 /**
  * Process the luftdaten JSON and produces a CSV with coordinates and weighted

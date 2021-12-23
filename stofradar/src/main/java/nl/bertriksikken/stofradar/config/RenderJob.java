@@ -1,4 +1,4 @@
-package nl.bertriksikken.luftdaten.config;
+package nl.bertriksikken.stofradar.config;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

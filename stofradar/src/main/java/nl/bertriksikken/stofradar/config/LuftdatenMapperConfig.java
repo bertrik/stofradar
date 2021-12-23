@@ -1,4 +1,4 @@
-package nl.bertriksikken.luftdaten.config;
+package nl.bertriksikken.stofradar.config;
 
 import java.time.Duration;
 import java.util.ArrayList;

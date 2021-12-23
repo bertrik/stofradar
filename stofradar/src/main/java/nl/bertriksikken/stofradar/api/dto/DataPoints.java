@@ -1,4 +1,4 @@
-package nl.bertriksikken.luftdaten.api.dto;
+package nl.bertriksikken.stofradar.api.dto;
 
 import java.util.ArrayList;
 

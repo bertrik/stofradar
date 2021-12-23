@@ -1,4 +1,4 @@
-package nl.bertriksikken.luftdaten.config;
+package nl.bertriksikken.stofradar.config;
 
 import java.util.Arrays;
 import java.util.Collections;

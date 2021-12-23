@@ -1,4 +1,4 @@
-package nl.bertriksikken.luftdaten.api;
+package nl.bertriksikken.stofradar.api;
 
 import retrofit2.Call;
 import retrofit2.http.GET;

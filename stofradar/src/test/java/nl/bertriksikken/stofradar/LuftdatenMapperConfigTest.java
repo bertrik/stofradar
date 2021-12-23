@@ -1,11 +1,11 @@
-package nl.bertriksikken.luftdaten;
+package nl.bertriksikken.stofradar;
 
 import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-import nl.bertriksikken.luftdaten.config.LuftdatenMapperConfig;
+import nl.bertriksikken.stofradar.config.LuftdatenMapperConfig;
 
 public final class LuftdatenMapperConfigTest {
 
