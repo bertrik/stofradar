@@ -43,13 +43,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
-import nl.bertriksikken.stofradar.api.LuftDatenDataApi;
-import nl.bertriksikken.stofradar.api.dto.DataPoint;
-import nl.bertriksikken.stofradar.api.dto.DataPoints;
-import nl.bertriksikken.stofradar.api.dto.DataValue;
-import nl.bertriksikken.stofradar.api.dto.Location;
-import nl.bertriksikken.stofradar.api.dto.Sensor;
-import nl.bertriksikken.stofradar.config.LuftdatenConfig;
 import nl.bertriksikken.stofradar.config.LuftdatenMapperConfig;
 import nl.bertriksikken.stofradar.config.RenderJob;
 import nl.bertriksikken.stofradar.render.ColorMapper;
@@ -58,6 +51,13 @@ import nl.bertriksikken.stofradar.render.IShader;
 import nl.bertriksikken.stofradar.render.Interpolator;
 import nl.bertriksikken.stofradar.render.InverseDistanceWeightShader;
 import nl.bertriksikken.stofradar.render.SensorValue;
+import nl.bertriksikken.stofradar.senscom.SensComConfig;
+import nl.bertriksikken.stofradar.senscom.SensComDataApi;
+import nl.bertriksikken.stofradar.senscom.dto.DataPoint;
+import nl.bertriksikken.stofradar.senscom.dto.DataPoints;
+import nl.bertriksikken.stofradar.senscom.dto.DataValue;
+import nl.bertriksikken.stofradar.senscom.dto.Location;
+import nl.bertriksikken.stofradar.senscom.dto.Sensor;
 
 /**
  * Process the luftdaten JSON and produces a CSV with coordinates and weighted
@@ -72,7 +72,7 @@ public final class LuftdatenMapper {
     private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
     private final LuftdatenMapperConfig config;
-    private final LuftDatenDataApi luftDatenApi;
+    private final SensComDataApi luftDatenApi;
     private final ObjectMapper objectMapper = new ObjectMapper();
     // map from id to sensor value
     private final Map<Integer, SensorValue> sensorValueMap = new HashMap<>();
@@ -99,7 +99,7 @@ public final class LuftdatenMapper {
 
     LuftdatenMapper(LuftdatenMapperConfig config) {
         this.config = config;
-        luftDatenApi = LuftDatenDataApi.create(config.getLuftdatenConfig());
+        luftDatenApi = SensComDataApi.create(config.getSensComConfig());
         objectMapper.findAndRegisterModules();
     }
 
@@ -246,7 +246,7 @@ public final class LuftdatenMapper {
 
         // filter by value and id
         pmValues = filterBySensorValue(pmValues);
-        LuftdatenConfig luftdatenConfig = config.getLuftdatenConfig();
+        SensComConfig luftdatenConfig = config.getSensComConfig();
         pmValues = filterBySensorId(pmValues, luftdatenConfig.getBlacklist());
 
         // render all jobs

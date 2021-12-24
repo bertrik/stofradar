@@ -1,4 +1,4 @@
-package nl.bertriksikken.stofradar.api;
+package nl.bertriksikken.stofradar.senscom;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -11,23 +11,22 @@ import java.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import nl.bertriksikken.stofradar.config.LuftdatenConfig;
 import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 import retrofit2.converter.scalars.ScalarsConverterFactory;
 
-public final class LuftDatenDataApi {
+public final class SensComDataApi {
 
-    private static final Logger LOG = LoggerFactory.getLogger(LuftDatenDataApi.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SensComDataApi.class);
 
-    private final ILuftdatenRestApi api;
+    private final ISensComRestApi api;
 
     /**
      * Constructor.
      * 
      * @param api the REST API
      */
-    LuftDatenDataApi(ILuftdatenRestApi api) {
+    SensComDataApi(ISensComRestApi api) {
         this.api = api;
     }
 
@@ -38,22 +37,22 @@ public final class LuftDatenDataApi {
      * @param timeout timeout (ms)
      * @return REST interface
      */
-    ILuftdatenRestApi newRestClient(String url, Duration timeout) {
+    ISensComRestApi newRestClient(String url, Duration timeout) {
         LOG.info("Creating new REST client for URL '{}' with timeout {}", url, timeout);
         OkHttpClient client = new OkHttpClient().newBuilder().callTimeout(timeout).build();
         Retrofit retrofit = new Retrofit.Builder().baseUrl(url).addConverterFactory(ScalarsConverterFactory.create())
                 .client(client).build();
-        return retrofit.create(ILuftdatenRestApi.class);
+        return retrofit.create(ISensComRestApi.class);
     }
 
-    public static LuftDatenDataApi create(LuftdatenConfig config) {
+    public static SensComDataApi create(SensComConfig config) {
         LOG.info("Creating new REST client for URL '{}' with timeout {}", config.getUrl(), config.getTimeoutSec());
         OkHttpClient client = new OkHttpClient().newBuilder().callTimeout(Duration.ofSeconds(config.getTimeoutSec()))
                 .build();
         Retrofit retrofit = new Retrofit.Builder().baseUrl(config.getUrl())
                 .addConverterFactory(ScalarsConverterFactory.create()).client(client).build();
-        ILuftdatenRestApi restApi = retrofit.create(ILuftdatenRestApi.class);
-        return new LuftDatenDataApi(restApi);
+        ISensComRestApi restApi = retrofit.create(ISensComRestApi.class);
+        return new SensComDataApi(restApi);
     }
 
     public void downloadDust(File file) throws IOException {

@@ -1,4 +1,4 @@
-package nl.bertriksikken.stofradar.config;
+package nl.bertriksikken.stofradar.senscom;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonAutoDetect(fieldVisibility = Visibility.NONE)
-public final class LuftdatenConfig {
+public final class SensComConfig {
 
     @JsonProperty("url")
     private String url = "https://api.sensor.community";

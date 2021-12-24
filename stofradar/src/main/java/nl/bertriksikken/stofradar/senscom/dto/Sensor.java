@@ -1,4 +1,4 @@
-package nl.bertriksikken.stofradar.api.dto;
+package nl.bertriksikken.stofradar.senscom.dto;
 
 import java.util.Locale;
 

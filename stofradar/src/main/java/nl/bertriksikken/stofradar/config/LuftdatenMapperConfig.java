@@ -7,13 +7,15 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import nl.bertriksikken.stofradar.senscom.SensComConfig;
+
 /**
  * Configuration class.
  */
 public final class LuftdatenMapperConfig {
 
-    @JsonProperty("luftdaten")
-    private final LuftdatenConfig luftdatenConfig = new LuftdatenConfig();
+    @JsonProperty("sensCom")
+    private final SensComConfig sensComConfig = new SensComConfig();
 
     @JsonProperty("keepingDurationMinutes")
     private final int keepingDurationMinutes = 60;
@@ -39,10 +41,10 @@ public final class LuftdatenMapperConfig {
     }
 
     /**
-     * @return the luftdaten configuration
+     * @return the sensor.community configuration
      */
-    public LuftdatenConfig getLuftdatenConfig() {
-        return luftdatenConfig;
+    public SensComConfig getSensComConfig() {
+        return sensComConfig;
     }
     
     public Duration getKeepingDuration() {
