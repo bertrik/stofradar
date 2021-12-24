@@ -5,6 +5,7 @@ mainClassName = 'nl.bertriksikken.stofradar.LuftdatenMapper'
 dependencies {
     implementation libraries.slf4jlog4j
     
+    implementation libraries.guava
     implementation libraries.retrofit
 	implementation libraries.jackson
 }

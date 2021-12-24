@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import nl.bertriksikken.stofradar.samenmeten.csv.SamenmetenCsvConfig;
 import nl.bertriksikken.stofradar.senscom.SensComConfig;
 
 /**
@@ -16,6 +17,9 @@ public final class LuftdatenMapperConfig {
 
     @JsonProperty("sensCom")
     private final SensComConfig sensComConfig = new SensComConfig();
+
+    @JsonProperty("samenmeten")
+    private final SamenmetenCsvConfig samenmetenConfig = new SamenmetenCsvConfig();
 
     @JsonProperty("keepingDurationMinutes")
     private final int keepingDurationMinutes = 60;
@@ -81,6 +85,10 @@ public final class LuftdatenMapperConfig {
      */
     public String getOutputPath() {
         return outputPath;
+    }
+
+    public SamenmetenCsvConfig getSamenmetenCsvConfig() {
+        return samenmetenConfig;
     }
 
 }

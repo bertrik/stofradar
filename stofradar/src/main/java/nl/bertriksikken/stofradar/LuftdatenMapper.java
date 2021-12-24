@@ -51,6 +51,9 @@ import nl.bertriksikken.stofradar.render.IShader;
 import nl.bertriksikken.stofradar.render.Interpolator;
 import nl.bertriksikken.stofradar.render.InverseDistanceWeightShader;
 import nl.bertriksikken.stofradar.render.SensorValue;
+import nl.bertriksikken.stofradar.samenmeten.csv.SamenmetenCsvDownloader;
+import nl.bertriksikken.stofradar.samenmeten.csv.SamenmetenCsvLuchtEntry;
+import nl.bertriksikken.stofradar.samenmeten.csv.SamenmetenCsvLuchtParser;
 import nl.bertriksikken.stofradar.senscom.SensComConfig;
 import nl.bertriksikken.stofradar.senscom.SensComDataApi;
 import nl.bertriksikken.stofradar.senscom.dto.DataPoint;
@@ -75,32 +78,31 @@ public final class LuftdatenMapper {
     private final SensComDataApi luftDatenApi;
     private final ObjectMapper objectMapper = new ObjectMapper();
     // map from id to sensor value
-    private final Map<Integer, SensorValue> sensorValueMap = new HashMap<>();
+    private final Map<String, SensorValue> sensorValueMap = new HashMap<>();
+    private final SamenmetenCsvLuchtParser samenmetenParser = new SamenmetenCsvLuchtParser();
+    private final SamenmetenCsvDownloader samenmetenDownloader;
 
-    // color range according https://www.luchtmeetnet.nl/informatie/luchtkwaliteit/luchtkwaliteitsindex-(lki)
+    // color range according
+    // https://www.luchtmeetnet.nl/informatie/luchtkwaliteit/luchtkwaliteitsindex-(lki)
     private static final ColorPoint[] RANGE_PM2_5 = new ColorPoint[] {
             // good
-            new ColorPoint(0, new int[] { 0, 100, 255, 0x00 }), 
-            new ColorPoint(10, new int[] { 0, 175, 255, 0x60 }),
+            new ColorPoint(0, new int[] { 0, 100, 255, 0x00 }), new ColorPoint(10, new int[] { 0, 175, 255, 0x60 }),
             new ColorPoint(15, new int[] { 150, 200, 255, 0xC0 }),
             // not so good
-            new ColorPoint(20, new int[] { 255, 255, 200, 0xC0 }), 
-            new ColorPoint(30, new int[] { 255, 255, 150, 0xC0 }),
-            new ColorPoint(40, new int[] { 255, 255, 0, 0xC0 }),
+            new ColorPoint(20, new int[] { 255, 255, 200, 0xC0 }),
+            new ColorPoint(30, new int[] { 255, 255, 150, 0xC0 }), new ColorPoint(40, new int[] { 255, 255, 0, 0xC0 }),
             // insufficient
-            new ColorPoint(50, new int[] { 255, 200, 0, 0xC0 }), 
-            new ColorPoint(70, new int[] { 255, 150, 0, 0xC0 }),
+            new ColorPoint(50, new int[] { 255, 200, 0, 0xC0 }), new ColorPoint(70, new int[] { 255, 150, 0, 0xC0 }),
             // bad
-            new ColorPoint(90, new int[] { 255, 75, 0, 0xC0 }), 
-            new ColorPoint(100, new int[] { 255, 25, 0, 0xC0 }),
+            new ColorPoint(90, new int[] { 255, 75, 0, 0xC0 }), new ColorPoint(100, new int[] { 255, 25, 0, 0xC0 }),
             // very bad
-            new ColorPoint(140, new int[] { 164, 58, 217, 0xC0 })
-    };
+            new ColorPoint(140, new int[] { 164, 58, 217, 0xC0 }) };
 
     LuftdatenMapper(LuftdatenMapperConfig config) {
         this.config = config;
-        luftDatenApi = SensComDataApi.create(config.getSensComConfig());
         objectMapper.findAndRegisterModules();
+        luftDatenApi = SensComDataApi.create(config.getSensComConfig());
+        samenmetenDownloader = SamenmetenCsvDownloader.create(config.getSamenmetenCsvConfig());
     }
 
     private List<SensorValue> filterBySensorValue(List<SensorValue> values) {
@@ -109,7 +111,7 @@ public final class LuftdatenMapper {
         return filtered;
     }
 
-    private List<SensorValue> filterBySensorId(List<SensorValue> values, List<Integer> blacklist) {
+    private List<SensorValue> filterBySensorId(List<SensorValue> values, List<String> blacklist) {
         List<SensorValue> filtered = values.stream().filter(v -> !blacklist.contains(v.id))
                 .collect(Collectors.toList());
         LOG.info("Filtered by sensor id: {} -> {}", values.size(), filtered.size());
@@ -149,17 +151,16 @@ public final class LuftdatenMapper {
     private void start() throws IOException {
         // restore cache
         restoreSensorValues();
-        
+
         // schedule immediate job for instant feedback
         executor.submit(() -> runDownloadAndProcess(0));
 
         // schedule periodic job
         Instant now = Instant.now();
         long initialDelay = 300L - (now.getEpochSecond() % 300L);
-        executor.scheduleAtFixedRate(() -> runDownloadAndProcess(2), initialDelay, 300L,
-                TimeUnit.SECONDS);
+        executor.scheduleAtFixedRate(() -> runDownloadAndProcess(2), initialDelay, 300L, TimeUnit.SECONDS);
     }
-    
+
     private void persistSensorValues(List<SensorValue> values) {
         LOG.info("Persisting {} sensor values to cache", values.size());
         try (FileOutputStream fos = new FileOutputStream(SENSOR_VALUE_CACHE_FILE)) {
@@ -169,11 +170,12 @@ public final class LuftdatenMapper {
             LOG.warn("Could not persist sensor values", e);
         }
     }
-    
+
     private void restoreSensorValues() {
         LOG.info("Restoring sensor values from cache");
         try (FileInputStream fos = new FileInputStream(SENSOR_VALUE_CACHE_FILE)) {
-            List<SensorValue> values = objectMapper.readValue(fos, new TypeReference<List<SensorValue>>(){});
+            List<SensorValue> values = objectMapper.readValue(fos, new TypeReference<List<SensorValue>>() {
+            });
             values.forEach(v -> sensorValueMap.put(v.id, v));
             LOG.info("Restored {} sensor values from cache", values.size());
         } catch (Throwable e) {
@@ -225,22 +227,32 @@ public final class LuftdatenMapper {
             }
         }
 
-        // download JSON
+        // download data from sensor.community
         DataPoints dataPoints = downloadFile(jsonFile);
-
         // convert DataPoints to internal format
         List<SensorValue> pmValues = convertDataPoints(dataPoints, "", "P2", now);
         List<SensorValue> rhValues = convertDataPoints(dataPoints, "BME280", "humidity", now);
+
+        // download PM2.5 data from RIVM samenmeten
+        try {
+            String samenmetenLucht = samenmetenDownloader.downloadDataFromFile("lucht");
+            List<SamenmetenCsvLuchtEntry> samenmetenEntries = samenmetenParser.parse(samenmetenLucht);
+            List<SensorValue> samenmetenValues = convertSamenmeten(samenmetenEntries, now);
+            LOG.info("Collected {} PM2.5 values from samenmeten", samenmetenValues.size());
+            pmValues.addAll(samenmetenValues);
+        } catch (IOException e) {
+            LOG.warn("Failed to download samenmeten data: {}", e.getMessage());
+        }
 
         // update list of sensor values, expiring old data
         pmValues.forEach(v -> sensorValueMap.put(v.id, v));
         Instant expiryTime = now.minus(config.getKeepingDuration());
         sensorValueMap.entrySet().removeIf(e -> e.getValue().time.isBefore(expiryTime));
         pmValues = new ArrayList<>(sensorValueMap.values());
-        
+
         // store cached value
         persistSensorValues(pmValues);
-        
+
         // remove top percentile of measurements
         pmValues = filterByPercentile(pmValues, 0.01);
 
@@ -268,6 +280,19 @@ public final class LuftdatenMapper {
         }
     }
 
+    private List<SensorValue> convertSamenmeten(List<SamenmetenCsvLuchtEntry> entries, Instant now) {
+        List<SensorValue> values = new ArrayList<>();
+        for (SamenmetenCsvLuchtEntry entry : entries) {
+            double pm2_5 = entry.getPm2_5();
+            if (!entry.getProject().equals("Luftdaten") && entry.hasValidLocation() && Double.isFinite(pm2_5)) {
+                SensorValue value = new SensorValue(entry.getLocationCode(), entry.getLongitude(), entry.getLatitude(),
+                        pm2_5, now);
+                values.add(value);
+            }
+        }
+        return values;
+    }
+
     private void render(RenderJob job, File jobDir, List<SensorValue> pmValues, List<SensorValue> rhValues,
             ZonedDateTime utcTime, File outputFile) {
 
@@ -278,7 +303,7 @@ public final class LuftdatenMapper {
         // calculate median humidity
         double medianRh = calculateMedian(rhValues);
         LOG.info("Median humidity = {} %", String.format(Locale.ROOT, "%.2f", medianRh));
-        
+
         ColorMapper colorMapper = new ColorMapper(RANGE_PM2_5);
         try {
             // create overlay
@@ -307,11 +332,11 @@ public final class LuftdatenMapper {
         if (copy.isEmpty()) {
             return Double.NaN;
         }
-        double left = copy.get((copy.size() - 1 ) / 2).value;
+        double left = copy.get((copy.size() - 1) / 2).value;
         double right = copy.get(copy.size() / 2).value;
         return (left + right) / 2;
     }
-    
+
     /**
      * Filters sensor values by position according to a bounding box.
      * 
@@ -355,7 +380,7 @@ public final class LuftdatenMapper {
      * 
      * @param dataPoints the data points
      * @param item       which item to select (P1 or P2)
-     * @param now the current time
+     * @param now        the current time
      * @return list of sensor values
      */
     private List<SensorValue> convertDataPoints(DataPoints dataPoints, String sensorType, String item, Instant now) {
@@ -371,7 +396,7 @@ public final class LuftdatenMapper {
             DataValue dataValue = dp.getSensorDataValues().getDataValue(item);
             if (sensorType.isEmpty() || sensorType.equals(sensor.getSensorType().getName())) {
                 if (dataValue != null) {
-                    int id = sensor.getId();
+                    String id = Integer.toString(sensor.getId());
                     double x = l.getLongitude();
                     double y = l.getLatitude();
                     double v = dataValue.getValue();

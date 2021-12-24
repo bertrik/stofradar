@@ -18,7 +18,7 @@ public final class SensComConfig {
 	private long timeoutSec = 20;
 
     @JsonProperty("blacklist")
-    private List<Integer> blacklist = Arrays.asList(11697);
+    private List<String> blacklist = Arrays.asList("11697");
 
 	/**
      * @return the base luftdaten.info URL
@@ -37,7 +37,7 @@ public final class SensComConfig {
     /**
      * @return the list of blacklisted nodes by number
      */
-    public List<Integer> getBlacklist() {
+    public List<String> getBlacklist() {
     	return Collections.unmodifiableList(blacklist);
     }
 
