@@ -1,5 +1,5 @@
 ---
-luftdaten:
+sensCom:
   url: "https://api.sensor.community"
   timeout: 30
   blacklist:
