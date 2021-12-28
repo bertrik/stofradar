@@ -43,7 +43,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
-import nl.bertriksikken.stofradar.config.LuftdatenMapperConfig;
+import nl.bertriksikken.stofradar.config.ParticulateMapperConfig;
 import nl.bertriksikken.stofradar.config.RenderJob;
 import nl.bertriksikken.stofradar.render.ColorMapper;
 import nl.bertriksikken.stofradar.render.ColorPoint;
@@ -63,19 +63,19 @@ import nl.bertriksikken.stofradar.senscom.dto.Location;
 import nl.bertriksikken.stofradar.senscom.dto.Sensor;
 
 /**
- * Process the luftdaten JSON and produces a CSV with coordinates and weighted
+ * Process the sensor.community JSON and produces a CSV with coordinates and weighted
  * dust averages.
  *
  */
-public final class LuftdatenMapper {
+public final class ParticulateMapper {
 
-    private static final Logger LOG = LoggerFactory.getLogger(LuftdatenMapper.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ParticulateMapper.class);
     private static final File SENSOR_VALUE_CACHE_FILE = new File("sensorvaluecache.json");
 
     private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
-    private final LuftdatenMapperConfig config;
-    private final SensComDataApi luftDatenApi;
+    private final ParticulateMapperConfig config;
+    private final SensComDataApi sensComDataApi;
     private final ObjectMapper objectMapper = new ObjectMapper();
     // map from id to sensor value
     private final Map<String, SensorValue> sensorValueMap = new HashMap<>();
@@ -98,10 +98,10 @@ public final class LuftdatenMapper {
             // very bad
             new ColorPoint(140, new int[] { 164, 58, 217, 0xC0 }) };
 
-    LuftdatenMapper(LuftdatenMapperConfig config) {
+    ParticulateMapper(ParticulateMapperConfig config) {
         this.config = config;
         objectMapper.findAndRegisterModules();
-        luftDatenApi = SensComDataApi.create(config.getSensComConfig());
+        sensComDataApi = SensComDataApi.create(config.getSensComConfig());
         samenmetenDownloader = SamenmetenCsvDownloader.create(config.getSamenmetenCsvConfig());
     }
 
@@ -130,19 +130,19 @@ public final class LuftdatenMapper {
     public static void main(String[] args) throws IOException {
         PropertyConfigurator.configure("log4j.properties");
 
-        LuftdatenMapperConfig config = readConfig(new File("stofradar.yaml"));
-        LuftdatenMapper luftdatenMapper = new LuftdatenMapper(config);
-        luftdatenMapper.start();
+        ParticulateMapperConfig config = readConfig(new File("stofradar.yaml"));
+        ParticulateMapper particulateMapper = new ParticulateMapper(config);
+        particulateMapper.start();
     }
 
-    private static LuftdatenMapperConfig readConfig(File file) throws IOException {
+    private static ParticulateMapperConfig readConfig(File file) throws IOException {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         mapper.setVisibility(PropertyAccessor.ALL, Visibility.NONE);
         try (FileInputStream fis = new FileInputStream(file)) {
-            return mapper.readValue(fis, LuftdatenMapperConfig.class);
+            return mapper.readValue(fis, ParticulateMapperConfig.class);
         } catch (IOException e) {
             LOG.warn("Failed to load config {}, writing defaults", file.getAbsoluteFile());
-            LuftdatenMapperConfig config = new LuftdatenMapperConfig();
+            ParticulateMapperConfig config = new ParticulateMapperConfig();
             mapper.writeValue(file, config);
             return config;
         }
@@ -258,8 +258,8 @@ public final class LuftdatenMapper {
 
         // filter by value and id
         pmValues = filterBySensorValue(pmValues);
-        SensComConfig luftdatenConfig = config.getSensComConfig();
-        pmValues = filterBySensorId(pmValues, luftdatenConfig.getBlacklist());
+        SensComConfig sensComConfig = config.getSensComConfig();
+        pmValues = filterBySensorId(pmValues, sensComConfig.getBlacklist());
 
         // render all jobs
         for (RenderJob job : config.getRenderJobs()) {
@@ -369,14 +369,14 @@ public final class LuftdatenMapper {
      */
     private DataPoints downloadFile(File file) throws IOException {
         LOG.info("Downloading new dataset to {}", file);
-        luftDatenApi.downloadDust(file);
+        sensComDataApi.downloadDust(file);
 
         LOG.info("Decoding dataset ...");
         return objectMapper.readValue(file, DataPoints.class);
     }
 
     /**
-     * Converts from the luftdaten datapoints format to internal format.
+     * Converts from the sensor.community datapoints format to internal format.
      * 
      * @param dataPoints the data points
      * @param item       which item to select (P1 or P2)

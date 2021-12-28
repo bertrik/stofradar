@@ -21,14 +21,14 @@ public final class SensComConfig {
     private List<String> blacklist = Arrays.asList("11697");
 
 	/**
-     * @return the base luftdaten.info URL
+     * @return the base sensor.community API URL
      */
     public String getUrl() {
     	return url;
     }
     
     /**
-     * @return the luftdaten.info timeout
+     * @return the sensor.community timeout
      */
     public long getTimeoutSec() {
     	return timeoutSec;

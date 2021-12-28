@@ -13,7 +13,7 @@ import nl.bertriksikken.stofradar.senscom.SensComConfig;
 /**
  * Configuration class.
  */
-public final class LuftdatenMapperConfig {
+public final class ParticulateMapperConfig {
 
     @JsonProperty("sensCom")
     private final SensComConfig sensComConfig = new SensComConfig();
@@ -39,7 +39,7 @@ public final class LuftdatenMapperConfig {
     @JsonProperty("outputPath")
     private final String outputPath = "/home/bertrik/stofradar.nl/www";
 
-    public LuftdatenMapperConfig() {
+    public ParticulateMapperConfig() {
         renderJobs.add(
                 new RenderJob("netherlands", "netherlands.png", 53.560406, 3.359403, 50.750938, 7.227496, 1.0, 10.0));
     }
