@@ -1,5 +1,6 @@
 package nl.bertriksikken.stofradar.senscom.dto;
 
+import java.util.ArrayList;
 import java.util.Locale;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -19,7 +20,7 @@ public final class DataPoint {
 
     @JsonProperty("sensor")
     private Sensor sensor;
-
+    
     public SensorDataValues getSensorDataValues() {
         return new SensorDataValues(sensorDataValues);
     }
@@ -36,4 +37,14 @@ public final class DataPoint {
     public String toString() {
         return String.format(Locale.ROOT, "{%s,%s,%s}", location, sensor, sensorDataValues);
     }
+    
+    /**
+     * This is the top-level element at
+     * http://api.luftdaten.info/static/v2/data.dust.min.json
+     */
+    public static final class DataPoints extends ArrayList<DataPoint> {
+        private static final long serialVersionUID = 3877029198019218794L;
+        
+    }
+
 }
