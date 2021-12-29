@@ -57,7 +57,7 @@ import nl.bertriksikken.stofradar.samenmeten.csv.SamenmetenCsvLuchtParser;
 import nl.bertriksikken.stofradar.senscom.SensComConfig;
 import nl.bertriksikken.stofradar.senscom.SensComDataApi;
 import nl.bertriksikken.stofradar.senscom.dto.DataPoint;
-import nl.bertriksikken.stofradar.senscom.dto.DataPoints;
+import nl.bertriksikken.stofradar.senscom.dto.DataPoint.DataPoints;
 import nl.bertriksikken.stofradar.senscom.dto.DataValue;
 import nl.bertriksikken.stofradar.senscom.dto.Location;
 import nl.bertriksikken.stofradar.senscom.dto.Sensor;
@@ -388,17 +388,17 @@ public final class ParticulateMapper {
         int numIndoor = 0;
         for (DataPoint dp : dataPoints) {
             Sensor sensor = dp.getSensor();
-            Location l = dp.getLocation();
-            if (l.getIndoor() != 0) {
-                numIndoor++;
-                continue;
-            }
-            DataValue dataValue = dp.getSensorDataValues().getDataValue(item);
             if (sensorType.isEmpty() || sensorType.equals(sensor.getSensorType().getName())) {
+                Location location = dp.getLocation();
+                if (location.getIndoor() != 0) {
+                    numIndoor++;
+                    continue;
+                }
+                DataValue dataValue = dp.getSensorDataValues().getDataValue(item);
                 if (dataValue != null) {
                     String id = Integer.toString(sensor.getId());
-                    double x = l.getLongitude();
-                    double y = l.getLatitude();
+                    double x = location.getLongitude();
+                    double y = location.getLatitude();
                     double v = dataValue.getValue();
                     values.add(new SensorValue(id, x, y, v, now));
                 }
