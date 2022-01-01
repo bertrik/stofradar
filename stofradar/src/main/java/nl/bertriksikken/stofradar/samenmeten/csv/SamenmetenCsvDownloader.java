@@ -1,6 +1,9 @@
 package nl.bertriksikken.stofradar.samenmeten.csv;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +13,9 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.scalars.ScalarsConverterFactory;
 
+/**
+ * Downloads data from the unofficial samenmeten CSV API and parses it into lines.
+ */
 public final class SamenmetenCsvDownloader {
     
     private static final Logger LOG = LoggerFactory.getLogger(SamenmetenCsvDownloader.class);
@@ -29,10 +35,16 @@ public final class SamenmetenCsvDownloader {
         ISamenmetenCsvRestApi restApi = retrofit.create(ISamenmetenCsvRestApi.class);
         return new SamenmetenCsvDownloader(restApi);
     }
-    
-    public String downloadDataFromFile(String compartiment) throws IOException {
+
+    public List<String> downloadDataFromFile(String compartiment) throws IOException {
+        List<String> result = new ArrayList<>();
         Response<String> response = restApi.getDataFromFile(compartiment).execute();
-        return response.body();
+        if (response.isSuccessful()) {
+            try (Scanner scanner = new Scanner(response.body()).useDelimiter(";")) {
+                scanner.forEachRemaining(result::add);
+            }
+        }
+        return result;
     }
 
 }

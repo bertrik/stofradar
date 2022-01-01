@@ -14,14 +14,13 @@ public final class RunSamenmetenCsvTest {
     public static void main(String[] args) throws IOException {
         SamenmetenCsvConfig config = new SamenmetenCsvConfig();
         SamenmetenCsvDownloader downloader = SamenmetenCsvDownloader.create(config);
-        String data = downloader.downloadDataFromFile("lucht");
+        List<String> lines = downloader.downloadDataFromFile("lucht");
+        LOG.info("Got {} total entries", lines.size());
 
-        SamenmetenCsvLuchtParser parser = new SamenmetenCsvLuchtParser();
-        List<SamenmetenCsvLuchtEntry> items = parser.parse(data);
-        LOG.info("Got {} total entries", items.size());
-
-        // exclude luftdaten
-        List<SamenmetenCsvLuchtEntry> nonLuftdaten = items.stream().filter(entry -> isInteresting(entry))
+        // convert and filter out luftdaten entries
+        List<SamenmetenCsvLuchtEntry> entries = lines.stream().map(line -> SamenmetenCsvLuchtEntry.parse(line))
+                .collect(Collectors.toList());
+        List<SamenmetenCsvLuchtEntry> nonLuftdaten = entries.stream().filter(entry -> isInteresting(entry))
                 .collect(Collectors.toList());
         LOG.info("Got {} total interesting entries", nonLuftdaten.size());
     }

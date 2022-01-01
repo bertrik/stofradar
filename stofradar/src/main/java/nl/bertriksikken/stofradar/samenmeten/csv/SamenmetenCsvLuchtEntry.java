@@ -44,6 +44,12 @@ public final class SamenmetenCsvLuchtEntry {
         return Double.isFinite(latitude) && Double.isFinite(longitude);
     }
 
+    /**
+     * Parses one line of the Samenmeten CSV-like structure.
+     * 
+     * @param line the line, excluding the line delimiter ";"
+     * @return a parsed SamenmetenCsvLuchtEntry, or null if it could not be parsed
+     */
     public static SamenmetenCsvLuchtEntry parse(String line) {
         try {
             List<String> items = Splitter.on(", ").trimResults().splitToList(line);
@@ -51,17 +57,15 @@ public final class SamenmetenCsvLuchtEntry {
                 return null;
             }
             String timestamp = items.get(0);
-            String locationName = items.get(1);
-            String locationCode = items.get(2);
+            String locName = items.get(1);
+            String locCode = items.get(2);
             String project = items.get(3);
-            JsonNode node;
-            node = MAPPER.readTree(items.get(4));
+            JsonNode node = MAPPER.readTree(items.get(4));
             double longitude = parseDouble(node.at("/coordinates/0").asText());
             double latitude = parseDouble(node.at("/coordinates/1").asText());
             double pm10 = parseDouble(items.get(5));
             double pm2_5 = parseDouble(items.get(6));
-            return new SamenmetenCsvLuchtEntry(timestamp, locationName, locationCode, project, latitude, longitude,
-                    pm10, pm2_5);
+            return new SamenmetenCsvLuchtEntry(timestamp, locName, locCode, project, latitude, longitude, pm10, pm2_5);
         } catch (JsonProcessingException e) {
             LOG.warn("Failed to parse CSV line '{}'", line);
             return null;

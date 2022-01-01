@@ -53,7 +53,6 @@ import nl.bertriksikken.stofradar.render.InverseDistanceWeightShader;
 import nl.bertriksikken.stofradar.render.SensorValue;
 import nl.bertriksikken.stofradar.samenmeten.csv.SamenmetenCsvDownloader;
 import nl.bertriksikken.stofradar.samenmeten.csv.SamenmetenCsvLuchtEntry;
-import nl.bertriksikken.stofradar.samenmeten.csv.SamenmetenCsvLuchtParser;
 import nl.bertriksikken.stofradar.senscom.SensComConfig;
 import nl.bertriksikken.stofradar.senscom.SensComDataApi;
 import nl.bertriksikken.stofradar.senscom.dto.DataPoint;
@@ -63,8 +62,8 @@ import nl.bertriksikken.stofradar.senscom.dto.Location;
 import nl.bertriksikken.stofradar.senscom.dto.Sensor;
 
 /**
- * Process the sensor.community JSON and produces a CSV with coordinates and weighted
- * dust averages.
+ * Process the sensor.community JSON and produces a CSV with coordinates and
+ * weighted dust averages.
  *
  */
 public final class ParticulateMapper {
@@ -79,7 +78,6 @@ public final class ParticulateMapper {
     private final ObjectMapper objectMapper = new ObjectMapper();
     // map from id to sensor value
     private final Map<String, SensorValue> sensorValueMap = new HashMap<>();
-    private final SamenmetenCsvLuchtParser samenmetenParser = new SamenmetenCsvLuchtParser();
     private final SamenmetenCsvDownloader samenmetenDownloader;
 
     // color range according
@@ -235,9 +233,8 @@ public final class ParticulateMapper {
 
         // download PM2.5 data from RIVM samenmeten
         try {
-            String samenmetenLucht = samenmetenDownloader.downloadDataFromFile("lucht");
-            List<SamenmetenCsvLuchtEntry> samenmetenEntries = samenmetenParser.parse(samenmetenLucht);
-            List<SensorValue> samenmetenValues = convertSamenmeten(samenmetenEntries, now);
+            List<String> samenmetenLines = samenmetenDownloader.downloadDataFromFile("lucht");
+            List<SensorValue> samenmetenValues = convertSamenmeten(samenmetenLines, now);
             LOG.info("Collected {} PM2.5 values from samenmeten", samenmetenValues.size());
             pmValues.addAll(samenmetenValues);
         } catch (IOException e) {
@@ -280,13 +277,14 @@ public final class ParticulateMapper {
         }
     }
 
-    private List<SensorValue> convertSamenmeten(List<SamenmetenCsvLuchtEntry> entries, Instant now) {
+    private List<SensorValue> convertSamenmeten(List<String> lines, Instant now) {
         List<SensorValue> values = new ArrayList<>();
-        for (SamenmetenCsvLuchtEntry entry : entries) {
-            double pm2_5 = entry.getPm2_5();
-            if (!entry.getProject().equals("Luftdaten") && entry.hasValidLocation() && Double.isFinite(pm2_5)) {
+        for (String line : lines) {
+            SamenmetenCsvLuchtEntry entry = SamenmetenCsvLuchtEntry.parse(line);
+            if ((entry != null) && !entry.getProject().equals("Luftdaten") && entry.hasValidLocation()
+                    && Double.isFinite(entry.getPm2_5())) {
                 SensorValue value = new SensorValue(entry.getLocationCode(), entry.getLongitude(), entry.getLatitude(),
-                        pm2_5, now);
+                        entry.getPm2_5(), now);
                 values.add(value);
             }
         }
