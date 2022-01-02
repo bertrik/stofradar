@@ -12,6 +12,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -234,6 +235,8 @@ public final class ParticulateMapper {
         // download PM2.5 data from RIVM samenmeten
         try {
             List<String> samenmetenLines = samenmetenDownloader.downloadDataFromFile("lucht");
+            File file = new File("lucht.csv");
+            Files.write(file.toPath(), samenmetenLines, StandardOpenOption.CREATE, StandardOpenOption.WRITE);
             List<SensorValue> samenmetenValues = convertSamenmeten(samenmetenLines, now);
             LOG.info("Collected {} PM2.5 values from samenmeten", samenmetenValues.size());
             pmValues.addAll(samenmetenValues);
