@@ -40,6 +40,12 @@ renderJobs:
   east: 6.1235
   minRadius: 0.3
   maxDistance: 1.0
+- name: "delft"
+  map: "delft.png"
+  north: 52.0437
+  west: 4.2923
+  south: 51.9716
+  east: 4.4093
 compositeCmd: "/usr/bin/composite"
 convertCmd: "/usr/bin/convert"
 intermediateDir: "tmp"
