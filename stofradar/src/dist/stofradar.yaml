@@ -46,6 +46,8 @@ renderJobs:
   west: 4.2923
   south: 51.9716
   east: 4.4093
+  minRadius: 0.3
+  maxDistance: 0.1
 compositeCmd: "/usr/bin/composite"
 convertCmd: "/usr/bin/convert"
 intermediateDir: "tmp"
