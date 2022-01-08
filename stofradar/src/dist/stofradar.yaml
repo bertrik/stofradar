@@ -14,40 +14,40 @@ renderJobs:
   west: 3.359403
   south: 50.750938
   east: 7.227496
-  maxDistance: 10.0
-  minRadius: 1.0
+  innerRadius: 1.0
+  outerRadius: 10.0
 - name: "gouda"
   map: "gouda.png"
   north: 52.0412
   west: 4.6646
   south: 51.9952
   east: 4.7578
-  maxDistance: 0.3
-  minRadius: 0.1
+  innerRadius: 0.1
+  outerRadius: 0.3
 - name: "nieuwerkerk"
   map: "nieuwerkerk.png"
   north: 51.9795
   west: 4.5908
   south: 51.9551
   east: 4.6302
-  minRadius: 0.05
-  maxDistance: 0.2
+  innerRadius: 0.05
+  outerRadius: 0.2
 - name: "stanthonis"
   map: "stanthonis.png"
   north: 51.8073
   west: 5.6429
   south: 51.4664
   east: 6.1235
-  minRadius: 0.3
-  maxDistance: 1.0
+  innerRadius: 0.3
+  outerRadius: 1.0
 - name: "delft"
   map: "delft.png"
   north: 52.0437
   west: 4.2923
   south: 51.9716
   east: 4.4093
-  minRadius: 0.3
-  maxDistance: 0.1
+  innerRadius: 0.1
+  outerRadius: 0.3
 compositeCmd: "/usr/bin/composite"
 convertCmd: "/usr/bin/convert"
 intermediateDir: "tmp"

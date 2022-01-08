@@ -23,12 +23,12 @@ public final class RenderJob {
     private final double east;
     
     // the radius of the opaque part around a measurement station (km)
-    @JsonProperty("minRadius")
-    private final double minRadius;
+    @JsonProperty("innerRadius")
+    private final double innerRadius;
     
     // the radius of the semi-transparent part around a measurement station (km)
-    @JsonProperty("maxDistance")
-    private final double maxDistance;
+    @JsonProperty("outerRadius")
+    private final double outerRadius;
 
     // jackson constructor
     @SuppressWarnings("unused")
@@ -36,16 +36,16 @@ public final class RenderJob {
         this("name", "background.png", 53.560406, 3.359403, 50.750938, 7.227496, 1.0, 10.0);
     }
 
-    RenderJob(String name, String map, double north, double west, double south, double east, double minRadius,
-            double maxDistance) {
+    RenderJob(String name, String map, double north, double west, double south, double east, double innerRadius,
+            double outerRadius) {
         this.name = name;
         this.map = map;
         this.north = north;
         this.east = east;
         this.south = south;
         this.west = west;
-        this.minRadius = minRadius;
-        this.maxDistance = maxDistance;
+        this.innerRadius = innerRadius;
+        this.outerRadius = outerRadius;
     }
 
     public String getName() {
@@ -72,12 +72,12 @@ public final class RenderJob {
         return east;
     }
     
-    public double getMinRadius() {
-        return minRadius;
+    public double getInnerRadius() {
+        return innerRadius;
     }
 
-    public double getMaxDistance() {
-        return maxDistance;
+    public double getOuterRadius() {
+        return outerRadius;
     }
 
 }

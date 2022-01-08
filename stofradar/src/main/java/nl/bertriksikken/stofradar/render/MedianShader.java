@@ -16,8 +16,8 @@ public final class MedianShader implements IShader {
     private final double[] aspect;
 
     public MedianShader(RenderJob job, ColorMapper mapper) {
-        this.innerRadiusSquared = Math.pow(job.getMinRadius(), 2.0);
-        this.maxDistanceSquared = Math.pow(job.getMaxDistance(), 2.0);
+        this.innerRadiusSquared = Math.pow(job.getInnerRadius(), 2.0);
+        this.maxDistanceSquared = Math.pow(job.getOuterRadius(), 2.0);
         this.mapper = mapper;
         
         // calculate km per degree

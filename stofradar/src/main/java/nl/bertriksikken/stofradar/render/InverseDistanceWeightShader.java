@@ -19,8 +19,8 @@ public final class InverseDistanceWeightShader implements IShader {
      * @param job the render job
      */
     public InverseDistanceWeightShader(RenderJob job, ColorMapper mapper) {
-    	this.innerRadius = job.getMinRadius();
-        this.outerRadius = job.getMaxDistance();
+    	this.innerRadius = job.getInnerRadius();
+        this.outerRadius = job.getOuterRadius();
         this.mapper = mapper;
 
         // calculate km per degree
