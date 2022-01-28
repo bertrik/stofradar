@@ -3,7 +3,7 @@ ext {
 
     jacksonVersion = '2.13.1'
     retrofitVersion = '2.9.0'
-    slf4jVersion = '1.7.33'
+    slf4jVersion = '1.7.35'
 }
 
 libraries.slf4j = "org.slf4j:slf4j-api:${slf4jVersion}"
@@ -14,6 +14,7 @@ libraries.guava = 'com.google.guava:guava:23.0'
 libraries.jackson = [
     "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}",
     "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:${jacksonVersion}",
+    "com.fasterxml.jackson.dataformat:jackson-dataformat-csv:${jacksonVersion}",
     "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jacksonVersion}"
 ]
 
@@ -26,5 +27,5 @@ libraries.retrofit_mock = 'com.squareup.retrofit2:retrofit-mock:2.8.1'
 
 // test libraries
 libraries.junit = 'junit:junit:4.13.2'
-libraries.mockito = 'org.mockito:mockito-core:4.2.0'
+libraries.mockito = 'org.mockito:mockito-core:4.3.1'
 
