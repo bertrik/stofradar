@@ -21,7 +21,7 @@ public final class SamenmetenCsvWriter {
 
     private final CsvMapper csvMapper;
 
-    SamenmetenCsvWriter() {
+    public SamenmetenCsvWriter() {
         this.csvMapper = new CsvMapper();
     }
 

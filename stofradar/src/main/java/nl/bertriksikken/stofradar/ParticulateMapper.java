@@ -12,7 +12,6 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.nio.file.StandardOpenOption;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -54,6 +53,7 @@ import nl.bertriksikken.stofradar.render.InverseDistanceWeightShader;
 import nl.bertriksikken.stofradar.render.SensorValue;
 import nl.bertriksikken.stofradar.samenmeten.csv.SamenmetenCsvDownloader;
 import nl.bertriksikken.stofradar.samenmeten.csv.SamenmetenCsvLuchtEntry;
+import nl.bertriksikken.stofradar.samenmeten.csv.SamenmetenCsvWriter;
 import nl.bertriksikken.stofradar.senscom.SensComConfig;
 import nl.bertriksikken.stofradar.senscom.SensComDataApi;
 import nl.bertriksikken.stofradar.senscom.dto.DataPoint;
@@ -80,6 +80,7 @@ public final class ParticulateMapper {
     // map from id to sensor value
     private final Map<String, SensorValue> sensorValueMap = new HashMap<>();
     private final SamenmetenCsvDownloader samenmetenDownloader;
+    private final SamenmetenCsvWriter csvWriter = new SamenmetenCsvWriter();
 
     // color range according
     // https://www.luchtmeetnet.nl/informatie/luchtkwaliteit/luchtkwaliteitsindex-(lki)
@@ -234,12 +235,16 @@ public final class ParticulateMapper {
 
         // download PM2.5 data from RIVM samenmeten
         try {
+            // download lucht
             List<String> samenmetenLines = samenmetenDownloader.downloadDataFromFile("lucht");
-            File file = new File("lucht.csv");
-            Files.write(file.toPath(), samenmetenLines, StandardOpenOption.CREATE, StandardOpenOption.WRITE);
+            List<SamenmetenCsvLuchtEntry> luchtEntries = samenmetenLines.stream()
+                    .map(line -> SamenmetenCsvLuchtEntry.parse(line)).collect(Collectors.toList());
+            // save to intermediate file
+            csvWriter.write(new File("lucht.csv"), luchtEntries);
+            // add to collection
             List<SensorValue> samenmetenValues = convertSamenmeten(samenmetenLines, now);
-            LOG.info("Collected {} PM2.5 values from samenmeten", samenmetenValues.size());
             pmValues.addAll(samenmetenValues);
+            LOG.info("Collected {} PM2.5 values from samenmeten", samenmetenValues.size());
         } catch (IOException e) {
             LOG.warn("Failed to download samenmeten data: {}", e.getMessage());
         }
