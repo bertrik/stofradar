@@ -7,7 +7,7 @@ dependencies {
     
     implementation libraries.guava
     implementation libraries.retrofit
-	implementation libraries.jackson
+    implementation libraries.jackson
 }
 
 // fix scripts executable bit and line endings
