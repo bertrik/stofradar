@@ -4,6 +4,7 @@ ext {
     jacksonVersion = '2.13.2'
     retrofitVersion = '2.9.0'
     slf4jVersion = '1.7.36'
+    jerseyVersion = '2.34'
 }
 
 libraries.slf4j = "org.slf4j:slf4j-api:${slf4jVersion}"
@@ -24,6 +25,18 @@ libraries.retrofit = [
     "com.squareup.retrofit2:converter-scalars:${retrofitVersion}"
 ]
 libraries.retrofit_mock = 'com.squareup.retrofit2:retrofit-mock:2.8.1'
+
+libraries.jersey_server = [
+    "org.glassfish.jersey.core:jersey-server:${jerseyVersion}",
+    "org.glassfish.jersey.media:jersey-media-json-jackson:${jerseyVersion}",
+    "org.glassfish.jersey.containers:jersey-container-servlet:${jerseyVersion}",
+    "org.glassfish.jersey.inject:jersey-hk2:${jerseyVersion}",
+
+    "org.eclipse.jetty:jetty-server:9.4.40.v20210413",
+    "org.eclipse.jetty:jetty-servlet:9.4.40.v20210413"
+]
+
+libraries.jaxwsrs_api = 'javax.ws.rs:javax.ws.rs-api:2.1.1'
 
 // test libraries
 libraries.junit = 'junit:junit:4.13.2'

@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import nl.bertriksikken.stofradar.restapi.PmRestApiConfig;
 import nl.bertriksikken.stofradar.samenmeten.csv.SamenmetenCsvConfig;
 import nl.bertriksikken.stofradar.senscom.SensComConfig;
 
@@ -39,6 +40,9 @@ public final class ParticulateMapperConfig {
     @JsonProperty("outputPath")
     private final String outputPath = "/home/bertrik/stofradar.nl/www";
 
+    @JsonProperty("pmRestApi")
+    private final PmRestApiConfig pmRestApiConfig = new PmRestApiConfig();
+
     public ParticulateMapperConfig() {
         renderJobs.add(
                 new RenderJob("netherlands", "netherlands.png", 53.560406, 3.359403, 50.750938, 7.227496, 1.0, 10.0));
@@ -50,7 +54,7 @@ public final class ParticulateMapperConfig {
     public SensComConfig getSensComConfig() {
         return sensComConfig;
     }
-    
+
     public Duration getKeepingDuration() {
         return Duration.ofMinutes(keepingDurationMinutes);
     }
@@ -89,6 +93,10 @@ public final class ParticulateMapperConfig {
 
     public SamenmetenCsvConfig getSamenmetenCsvConfig() {
         return samenmetenConfig;
+    }
+
+    public PmRestApiConfig getPmRestApiConfig() {
+        return pmRestApiConfig;
     }
 
 }

@@ -22,10 +22,10 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -51,6 +51,7 @@ import nl.bertriksikken.stofradar.render.IShader;
 import nl.bertriksikken.stofradar.render.Interpolator;
 import nl.bertriksikken.stofradar.render.InverseDistanceWeightShader;
 import nl.bertriksikken.stofradar.render.SensorValue;
+import nl.bertriksikken.stofradar.restapi.PmRestApiHandler;
 import nl.bertriksikken.stofradar.samenmeten.csv.SamenmetenCsvDownloader;
 import nl.bertriksikken.stofradar.samenmeten.csv.SamenmetenCsvLuchtEntry;
 import nl.bertriksikken.stofradar.samenmeten.csv.SamenmetenCsvWriter;
@@ -78,8 +79,9 @@ public final class ParticulateMapper {
     private final SensComDataApi sensComDataApi;
     private final ObjectMapper objectMapper = new ObjectMapper();
     // map from id to sensor value
-    private final Map<String, SensorValue> sensorValueMap = new HashMap<>();
+    private final Map<String, SensorValue> sensorValueMap = new ConcurrentHashMap<>();
     private final SamenmetenCsvDownloader samenmetenDownloader;
+    private final PmRestApiHandler pmRestApiHandler;
     private final SamenmetenCsvWriter csvWriter = new SamenmetenCsvWriter();
 
     // color range according
@@ -103,6 +105,7 @@ public final class ParticulateMapper {
         objectMapper.findAndRegisterModules();
         sensComDataApi = SensComDataApi.create(config.getSensComConfig());
         samenmetenDownloader = SamenmetenCsvDownloader.create(config.getSamenmetenCsvConfig());
+        pmRestApiHandler = new PmRestApiHandler(config.getPmRestApiConfig(), sensorValueMap);
     }
 
     private List<SensorValue> filterBySensorValue(List<SensorValue> values) {
@@ -151,6 +154,9 @@ public final class ParticulateMapper {
     private void start() throws IOException {
         // restore cache
         restoreSensorValues();
+
+        // start REST API
+        pmRestApiHandler.start();
 
         // schedule immediate job for instant feedback
         executor.submit(() -> runDownloadAndProcess(0));
