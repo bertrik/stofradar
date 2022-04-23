@@ -2,6 +2,7 @@ package nl.bertriksikken.stofradar.restapi;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -14,6 +15,7 @@ public interface IPmRestApi {
 
     @GET
     @Path("/{lat}/{lon}")
-    PmResult getPm(@PathParam("lat") double latitude, @PathParam("lon") double longitude);
+    PmResult getPm(@HeaderParam("User-Agent") String userAgent, @PathParam("lat") double latitude,
+            @PathParam("lon") double longitude);
 
 }

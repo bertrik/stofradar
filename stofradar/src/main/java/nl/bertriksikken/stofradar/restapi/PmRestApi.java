@@ -26,7 +26,7 @@ public final class PmRestApi implements IPmRestApi {
     }
 
     @Override
-    public PmResult getPm(double latitude, double longitude) {
+    public PmResult getPm(String userAgent, double latitude, double longitude) {
         // take a snapshot of values
         List<SensorValue> values = new ArrayList<>(dataStore.values());
 
@@ -39,7 +39,7 @@ public final class PmRestApi implements IPmRestApi {
 
         // calculate inverse distance weighted value
         double value = calculateIDW(values);
-        LOG.info("Calculated PM {} for {}/{} using {} sensors", value, latitude, longitude, values.size());
+        LOG.info("Calculated PM {} for location {}/{} for user {}", value, latitude, longitude, userAgent);
 
         return new PmResult(value);
     }
