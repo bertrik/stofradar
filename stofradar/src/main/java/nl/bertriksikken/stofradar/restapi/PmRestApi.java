@@ -39,7 +39,7 @@ public final class PmRestApi implements IPmRestApi {
 
         // calculate inverse distance weighted value
         double value = calculateIDW(values);
-        LOG.info("Calculated {} for {}/{} using approx {} sensors", value, latitude, longitude, values.size());
+        LOG.info("Calculated PM {} for {}/{} using {} sensors", value, latitude, longitude, values.size());
 
         return new PmResult(value);
     }
@@ -53,20 +53,17 @@ public final class PmRestApi implements IPmRestApi {
     private double calculateIDW(List<SensorValue> values) {
         double sum_pm = 0.0;
         double sum_w = 0.0;
-        double maxd2 = maxd * maxd;
         for (SensorValue value : values) {
             double d2 = (value.x * value.x) + (value.y * value.y);
-            if (d2 < maxd2) {
-                if (d2 > 0.0) {
-                    double w = 1.0 / d2;
-                    sum_pm += w * value.value;
-                    sum_w += w;
-                } else {
-                    return value.value;
-                }
+            if (d2 > 0.0) {
+                double w = 1.0 / d2;
+                sum_pm += w * value.value;
+                sum_w += w;
+            } else {
+                return value.value;
             }
         }
-        return (sum_w > 0.0) ? sum_pm / sum_w : 0.0;
+        return sum_pm / sum_w;
     }
 
 }
