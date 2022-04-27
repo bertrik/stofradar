@@ -58,7 +58,6 @@ import nl.bertriksikken.stofradar.samenmeten.csv.SamenmetenCsvWriter;
 import nl.bertriksikken.stofradar.senscom.SensComConfig;
 import nl.bertriksikken.stofradar.senscom.SensComDataApi;
 import nl.bertriksikken.stofradar.senscom.dto.DataPoint;
-import nl.bertriksikken.stofradar.senscom.dto.DataPoint.DataPoints;
 import nl.bertriksikken.stofradar.senscom.dto.DataValue;
 import nl.bertriksikken.stofradar.senscom.dto.Location;
 import nl.bertriksikken.stofradar.senscom.dto.Sensor;
@@ -103,7 +102,7 @@ public final class ParticulateMapper {
     ParticulateMapper(ParticulateMapperConfig config) {
         this.config = config;
         objectMapper.findAndRegisterModules();
-        sensComDataApi = SensComDataApi.create(config.getSensComConfig());
+        sensComDataApi = SensComDataApi.create(config.getSensComConfig(), objectMapper);
         samenmetenDownloader = SamenmetenCsvDownloader.create(config.getSamenmetenCsvConfig());
         pmRestApiHandler = new PmRestApiHandler(config.getPmRestApiConfig(), sensorValueMap);
     }
@@ -215,10 +214,6 @@ public final class ParticulateMapper {
         if (!tempDir.exists() && !tempDir.mkdirs()) {
             LOG.warn("Failed to create directory {}", tempDir.getAbsolutePath());
         }
-        String fileName = String.format(Locale.ROOT, "%04d%02d%02d_%02d%02d.json", utcTime.get(ChronoField.YEAR),
-                utcTime.get(ChronoField.MONTH_OF_YEAR), utcTime.get(ChronoField.DAY_OF_MONTH),
-                utcTime.get(ChronoField.HOUR_OF_DAY), utcTime.get(ChronoField.MINUTE_OF_HOUR));
-        File jsonFile = new File(tempDir, fileName);
 
         // delete output files for this time-of-day
         String pngName = String.format(Locale.ROOT, "%02d%02d.png", utcTime.getHour(), utcTime.getMinute());
@@ -234,7 +229,8 @@ public final class ParticulateMapper {
         }
 
         // download data from sensor.community
-        DataPoints dataPoints = downloadFile(jsonFile);
+        List<DataPoint> dataPoints = sensComDataApi.downloadDust();
+
         // convert DataPoints to internal format
         List<SensorValue> pmValues = convertDataPoints(dataPoints, "", "P2", now);
         List<SensorValue> rhValues = convertDataPoints(dataPoints, "BME280", "humidity", now);
@@ -283,11 +279,6 @@ public final class ParticulateMapper {
             // copy file for animation
             File animationFile = new File(jobDir, pngName);
             Files.copy(outputFile.toPath(), animationFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-        }
-
-        // delete JSON
-        if (!jsonFile.delete()) {
-            LOG.warn("Failed to delete JSON file");
         }
     }
 
@@ -373,21 +364,6 @@ public final class ParticulateMapper {
     }
 
     /**
-     * Downloads a new JSON dust file.
-     * 
-     * @param file the file to download to
-     * @return the parsed contents
-     * @throws IOException
-     */
-    private DataPoints downloadFile(File file) throws IOException {
-        LOG.info("Downloading new dataset to {}", file);
-        sensComDataApi.downloadDust(file);
-
-        LOG.info("Decoding dataset ...");
-        return objectMapper.readValue(file, DataPoints.class);
-    }
-
-    /**
      * Converts from the sensor.community datapoints format to internal format.
      * 
      * @param dataPoints the data points
@@ -395,7 +371,8 @@ public final class ParticulateMapper {
      * @param now        the current time
      * @return list of sensor values
      */
-    private List<SensorValue> convertDataPoints(DataPoints dataPoints, String sensorType, String item, Instant now) {
+    private List<SensorValue> convertDataPoints(
+            List<DataPoint> dataPoints, String sensorType, String item, Instant now) {
         List<SensorValue> values = new ArrayList<>();
         int numIndoor = 0;
         for (DataPoint dp : dataPoints) {
