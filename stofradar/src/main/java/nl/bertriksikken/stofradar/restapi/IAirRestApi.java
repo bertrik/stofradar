@@ -8,14 +8,14 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-@Path("/pm")
+@Path("/air")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-public interface IPmRestApi {
+public interface IAirRestApi {
 
     @GET
     @Path("/{lat}/{lon}")
-    PmResult getPm(@HeaderParam("User-Agent") String userAgent, @PathParam("lat") double latitude,
+    AirResult getAir(@HeaderParam("User-Agent") String userAgent, @PathParam("lat") double latitude,
             @PathParam("lon") double longitude);
 
 }

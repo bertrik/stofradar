@@ -12,9 +12,9 @@ import org.slf4j.LoggerFactory;
 
 import nl.bertriksikken.stofradar.render.SensorValue;
 
-public final class PmRestApi implements IPmRestApi {
+public final class AirRestApi implements IAirRestApi {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PmRestApi.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AirRestApi.class);
     private static final double KM_PER_DEGREE_LAT = 40075.0 / 360.0;
 
     private static double maxd = 10;
@@ -26,7 +26,7 @@ public final class PmRestApi implements IPmRestApi {
     }
 
     @Override
-    public PmResult getPm(String userAgent, double latitude, double longitude) {
+    public AirResult getAir(String userAgent, double latitude, double longitude) {
         // take a snapshot of values
         List<SensorValue> values = new ArrayList<>(dataStore.values());
 
@@ -41,7 +41,7 @@ public final class PmRestApi implements IPmRestApi {
         double value = calculateIDW(values);
         LOG.info("Calculated PM {} for location {}/{} for user {}", value, latitude, longitude, userAgent);
 
-        return new PmResult(value);
+        return new AirResult(value);
     }
 
     private List<SensorValue> convertToKm(Collection<SensorValue> values, double latitude, double longitude) {

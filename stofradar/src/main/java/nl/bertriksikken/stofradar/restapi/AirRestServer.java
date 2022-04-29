@@ -15,19 +15,19 @@ import org.slf4j.LoggerFactory;
 
 import nl.bertriksikken.stofradar.render.SensorValue;
 
-public final class PmRestApiHandler {
+public final class AirRestServer {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PmRestApiHandler.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AirRestServer.class);
 
     private final Server server;
 
-    public PmRestApiHandler(PmRestApiConfig config, Map<String, SensorValue> map) {
-        PmRestApi.initialize(config.getMaxDistance(), map);
-        this.server = createRestServer(config.getPort(), config.getPath(), PmRestApi.class);
+    public AirRestServer(AirRestApiConfig config, Map<String, SensorValue> map) {
+        AirRestApi.initialize(config.getMaxDistance(), map);
+        this.server = createRestServer(config.getPort(), config.getPath(), AirRestApi.class);
     }
 
     public void start() throws IOException {
-        LOG.info("Starting PM REST server");
+        LOG.info("Starting Air REST server");
         try {
             server.start();
         } catch (Exception e) {
@@ -36,7 +36,7 @@ public final class PmRestApiHandler {
     }
 
     public void stop() {
-        LOG.info("Stopping PM REST server");
+        LOG.info("Stopping Air REST server");
         try {
             server.stop();
         } catch (Exception e) {
@@ -46,7 +46,7 @@ public final class PmRestApiHandler {
     }
 
     private Server createRestServer(int port, String contextPath, Class<?> clazz) {
-        LOG.info("Setting up PM API REST service on {}", port);
+        LOG.info("Setting up Air REST service on {}", port);
         Server server = new Server(port);
 
         // setup context

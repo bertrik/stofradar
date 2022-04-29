@@ -51,7 +51,7 @@ import nl.bertriksikken.stofradar.render.IShader;
 import nl.bertriksikken.stofradar.render.Interpolator;
 import nl.bertriksikken.stofradar.render.InverseDistanceWeightShader;
 import nl.bertriksikken.stofradar.render.SensorValue;
-import nl.bertriksikken.stofradar.restapi.PmRestApiHandler;
+import nl.bertriksikken.stofradar.restapi.AirRestServer;
 import nl.bertriksikken.stofradar.samenmeten.csv.SamenmetenCsvDownloader;
 import nl.bertriksikken.stofradar.samenmeten.csv.SamenmetenCsvLuchtEntry;
 import nl.bertriksikken.stofradar.samenmeten.csv.SamenmetenCsvWriter;
@@ -80,7 +80,7 @@ public final class ParticulateMapper {
     // map from id to sensor value
     private final Map<String, SensorValue> sensorValueMap = new ConcurrentHashMap<>();
     private final SamenmetenCsvDownloader samenmetenDownloader;
-    private final PmRestApiHandler pmRestApiHandler;
+    private final AirRestServer pmRestApiHandler;
     private final SamenmetenCsvWriter csvWriter = new SamenmetenCsvWriter();
 
     // color range according
@@ -104,7 +104,7 @@ public final class ParticulateMapper {
         objectMapper.findAndRegisterModules();
         sensComDataApi = SensComDataApi.create(config.getSensComConfig(), objectMapper);
         samenmetenDownloader = SamenmetenCsvDownloader.create(config.getSamenmetenCsvConfig());
-        pmRestApiHandler = new PmRestApiHandler(config.getPmRestApiConfig(), sensorValueMap);
+        pmRestApiHandler = new AirRestServer(config.getPmRestApiConfig(), sensorValueMap);
     }
 
     private List<SensorValue> filterBySensorValue(List<SensorValue> values) {

@@ -2,7 +2,7 @@ package nl.bertriksikken.stofradar.restapi;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public final class PmRestApiConfig {
+public final class AirRestApiConfig {
 
     @JsonProperty("port")
     private int port = 9000;
