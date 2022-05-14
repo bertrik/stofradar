@@ -1,5 +1,9 @@
 package nl.bertriksikken.stofradar.senscom.dto;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -11,6 +15,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public final class DataPoint {
 
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+            .withZone(ZoneId.of("UTC"));
+    
+    @JsonProperty("timestamp")
+    private String timestamp;
+    
     @JsonProperty("sensordatavalues")
     private SensorDataValues sensorDataValues;
 
@@ -19,6 +29,10 @@ public final class DataPoint {
 
     @JsonProperty("sensor")
     private Sensor sensor;
+    
+    public Instant getTimestamp() {
+        return ZonedDateTime.parse(timestamp, DATE_FORMATTER).toInstant();
+    }
     
     public SensorDataValues getSensorDataValues() {
         return new SensorDataValues(sensorDataValues);
