@@ -56,6 +56,14 @@ renderJobs:
   east: 4.4093
   innerRadius: 0.1
   outerRadius: 0.3
+- name: "amersfoort"
+  map: "amersfoort.png"
+  north: 52.2109
+  west: 5.3172
+  south: 52.1197
+  east: 5.4659
+  innerRadius: 0.1
+  outerRadius: 0.3
 compositeCmd: "/usr/bin/composite"
 convertCmd: "/usr/bin/convert"
 intermediateDir: "tmp"
