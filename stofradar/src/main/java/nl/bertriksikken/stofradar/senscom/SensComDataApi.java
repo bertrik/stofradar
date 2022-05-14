@@ -8,12 +8,10 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import nl.bertriksikken.stofradar.senscom.dto.DataPoint;
 import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
+import retrofit2.converter.jackson.JacksonConverterFactory;
 import retrofit2.converter.scalars.ScalarsConverterFactory;
 
 public final class SensComDataApi {
@@ -21,16 +19,14 @@ public final class SensComDataApi {
     private static final Logger LOG = LoggerFactory.getLogger(SensComDataApi.class);
 
     private final ISensComRestApi api;
-    private final ObjectMapper mapper;
 
     /**
      * Constructor.
      * 
      * @param api the REST API
      */
-    SensComDataApi(ISensComRestApi api, ObjectMapper mapper) {
+    SensComDataApi(ISensComRestApi api) {
         this.api = api;
-        this.mapper = mapper;
     }
 
     /**
@@ -48,25 +44,25 @@ public final class SensComDataApi {
         return retrofit.create(ISensComRestApi.class);
     }
 
-    public static SensComDataApi create(SensComConfig config, ObjectMapper mapper) {
+    public static SensComDataApi create(SensComConfig config) {
         LOG.info("Creating new REST client for URL '{}' with timeout {}", config.getUrl(), config.getTimeoutSec());
         OkHttpClient client = new OkHttpClient().newBuilder().callTimeout(Duration.ofSeconds(config.getTimeoutSec()))
                 .build();
         Retrofit retrofit = new Retrofit.Builder().baseUrl(config.getUrl())
-                .addConverterFactory(ScalarsConverterFactory.create()).client(client).build();
+                .addConverterFactory(JacksonConverterFactory.create()).client(client).build();
         ISensComRestApi restApi = retrofit.create(ISensComRestApi.class);
-        return new SensComDataApi(restApi, mapper);
+        return new SensComDataApi(restApi);
     }
 
     public List<DataPoint> downloadDust() throws IOException {
-        retrofit2.Response<String> response = api.getAverageDustData().execute();
+        List<DataPoint> entries = new ArrayList<>();
+        retrofit2.Response<List<DataPoint>> response = api.getAverageDustData().execute();
         if (response.isSuccessful()) {
-            String json = response.body();
-            return mapper.readValue(json, new TypeReference<List<DataPoint>>() {});
+            entries.addAll(response.body());
         } else {
             LOG.warn("Download failed!");
-            return new ArrayList<>();
         }
+        return entries;
     }
 
 }
