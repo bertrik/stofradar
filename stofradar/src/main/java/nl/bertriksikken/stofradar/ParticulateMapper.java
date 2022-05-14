@@ -232,8 +232,8 @@ public final class ParticulateMapper {
         List<DataPoint> dataPoints = sensComDataApi.downloadDust();
 
         // convert DataPoints to internal format
-        List<SensorValue> pmValues = convertDataPoints(dataPoints, "", "P2", now);
-        List<SensorValue> rhValues = convertDataPoints(dataPoints, "BME280", "humidity", now);
+        List<SensorValue> pmValues = convertDataPoints(dataPoints, "", "P2");
+        List<SensorValue> rhValues = convertDataPoints(dataPoints, "BME280", "humidity");
 
         // download PM2.5 data from RIVM samenmeten
         try {
@@ -244,7 +244,7 @@ public final class ParticulateMapper {
             // save to intermediate file
             csvWriter.write(new File("lucht.csv"), luchtEntries);
             // add to collection
-            List<SensorValue> samenmetenValues = convertSamenmeten(samenmetenLines, now);
+            List<SensorValue> samenmetenValues = convertSamenmeten(samenmetenLines);
             pmValues.addAll(samenmetenValues);
             LOG.info("Collected {} PM2.5 values from samenmeten", samenmetenValues.size());
         } catch (IOException e) {
@@ -282,14 +282,14 @@ public final class ParticulateMapper {
         }
     }
 
-    private List<SensorValue> convertSamenmeten(List<String> lines, Instant now) {
+    private List<SensorValue> convertSamenmeten(List<String> lines) {
         List<SensorValue> values = new ArrayList<>();
         for (String line : lines) {
             SamenmetenCsvLuchtEntry entry = SamenmetenCsvLuchtEntry.parse(line);
             if ((entry != null) && !entry.getProject().equals("Luftdaten") && entry.hasValidLocation()
                     && Double.isFinite(entry.getPm2_5())) {
                 SensorValue value = new SensorValue(entry.getLocationCode(), entry.getLongitude(), entry.getLatitude(),
-                        entry.getPm2_5(), now);
+                        entry.getPm2_5(), entry.getTimestamp());
                 values.add(value);
             }
         }
@@ -368,11 +368,10 @@ public final class ParticulateMapper {
      * 
      * @param dataPoints the data points
      * @param item       which item to select (P1 or P2)
-     * @param now        the current time
      * @return list of sensor values
      */
     private List<SensorValue> convertDataPoints(
-            List<DataPoint> dataPoints, String sensorType, String item, Instant now) {
+            List<DataPoint> dataPoints, String sensorType, String item) {
         List<SensorValue> values = new ArrayList<>();
         int numIndoor = 0;
         for (DataPoint dp : dataPoints) {
@@ -389,7 +388,7 @@ public final class ParticulateMapper {
                     double x = location.getLongitude();
                     double y = location.getLatitude();
                     double v = dataValue.getValue();
-                    values.add(new SensorValue(id, x, y, v, now));
+                    values.add(new SensorValue(id, x, y, v, dp.getTimestamp()));
                 }
             }
         }
