@@ -1,5 +1,9 @@
 package nl.bertriksikken.stofradar.samenmeten.csv;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -22,6 +26,9 @@ import com.google.common.base.Splitter;
         "temperature", "humidity", "pressure" })
 @JsonAutoDetect(getterVisibility = Visibility.NONE)
 public final class SamenmetenCsvLuchtEntry {
+
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+            .withZone(ZoneId.of("UTC"));
 
     private static final Logger LOG = LoggerFactory.getLogger(SamenmetenCsvLuchtEntry.class);
     private static final ObjectMapper MAPPER = new ObjectMapper();
@@ -112,8 +119,8 @@ public final class SamenmetenCsvLuchtEntry {
         return null;
     }
 
-    public String getTimestamp() {
-        return timestamp;
+    public Instant getTimestamp() {
+        return ZonedDateTime.parse(timestamp, DATE_FORMATTER).toInstant();
     }
 
     public String getLocationName() {
