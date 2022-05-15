@@ -244,7 +244,7 @@ public final class ParticulateMapper {
             // save to intermediate file
             csvWriter.write(new File("lucht.csv"), luchtEntries);
             // add to collection
-            List<SensorValue> samenmetenValues = convertSamenmeten(samenmetenLines);
+            List<SensorValue> samenmetenValues = convertSamenmeten(samenmetenLines, now);
             pmValues.addAll(samenmetenValues);
             LOG.info("Collected {} PM2.5 values from samenmeten", samenmetenValues.size());
         } catch (IOException e) {
@@ -282,14 +282,14 @@ public final class ParticulateMapper {
         }
     }
 
-    private List<SensorValue> convertSamenmeten(List<String> lines) {
+    private List<SensorValue> convertSamenmeten(List<String> lines, Instant timestamp) {
         List<SensorValue> values = new ArrayList<>();
         for (String line : lines) {
             SamenmetenCsvLuchtEntry entry = SamenmetenCsvLuchtEntry.parse(line);
             if ((entry != null) && !entry.getProject().equals("Luftdaten") && entry.hasValidLocation()
                     && Double.isFinite(entry.getPm2_5())) {
                 SensorValue value = new SensorValue(entry.getLocationCode(), entry.getLongitude(), entry.getLatitude(),
-                        entry.getPm2_5(), entry.getTimestamp());
+                        entry.getPm2_5(), timestamp);
                 values.add(value);
             }
         }
