@@ -13,8 +13,6 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import okhttp3.OkHttpClient;
 import retrofit2.Response;
 import retrofit2.Retrofit;
@@ -25,21 +23,19 @@ public final class MeetjestadDownloader {
     private static final Logger LOG = LoggerFactory.getLogger(MeetjestadDownloader.class);
 
     private final IMeetjestadRestApi restApi;
-    private final ObjectMapper objectMapper;
 
-    public MeetjestadDownloader(IMeetjestadRestApi restApi, ObjectMapper mapper) {
+    public MeetjestadDownloader(IMeetjestadRestApi restApi) {
         this.restApi = restApi;
-        this.objectMapper = mapper;
     }
 
-    public static MeetjestadDownloader create(MeetjestadConfig config, ObjectMapper mapper) {
+    public static MeetjestadDownloader create(MeetjestadConfig config) {
         LOG.info("Creating new REST client for URL '{}' with timeout {}", config.getUrl(), config.getTimeoutSec());
         OkHttpClient client = new OkHttpClient().newBuilder().callTimeout(Duration.ofSeconds(config.getTimeoutSec()))
                 .build();
         Retrofit retrofit = new Retrofit.Builder().baseUrl(config.getUrl())
                 .addConverterFactory(JacksonConverterFactory.create()).client(client).build();
         IMeetjestadRestApi restApi = retrofit.create(IMeetjestadRestApi.class);
-        return new MeetjestadDownloader(restApi, mapper);
+        return new MeetjestadDownloader(restApi);
     }
 
     /**

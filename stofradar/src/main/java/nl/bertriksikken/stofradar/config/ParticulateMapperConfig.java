@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import nl.bertriksikken.stofradar.meetjestad.MeetjestadConfig;
 import nl.bertriksikken.stofradar.restapi.AirRestApiConfig;
 import nl.bertriksikken.stofradar.samenmeten.csv.SamenmetenCsvConfig;
 import nl.bertriksikken.stofradar.senscom.SensComConfig;
@@ -21,6 +22,9 @@ public final class ParticulateMapperConfig {
 
     @JsonProperty("samenmeten")
     private final SamenmetenCsvConfig samenmetenConfig = new SamenmetenCsvConfig();
+
+    @JsonProperty("meetjestad")
+    private final MeetjestadConfig meetjestadConfig = new MeetjestadConfig();
 
     @JsonProperty("keepingDurationMinutes")
     private final int keepingDurationMinutes = 60;
@@ -97,6 +101,10 @@ public final class ParticulateMapperConfig {
 
     public AirRestApiConfig getPmRestApiConfig() {
         return airRestApiConfig;
+    }
+
+    public MeetjestadConfig getMeetjestadConfig() {
+        return meetjestadConfig;
     }
 
 }

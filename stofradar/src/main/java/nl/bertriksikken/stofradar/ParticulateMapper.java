@@ -45,6 +45,8 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
 import nl.bertriksikken.stofradar.config.ParticulateMapperConfig;
 import nl.bertriksikken.stofradar.config.RenderJob;
+import nl.bertriksikken.stofradar.meetjestad.MeetjestadDataEntry;
+import nl.bertriksikken.stofradar.meetjestad.MeetjestadDownloader;
 import nl.bertriksikken.stofradar.render.ColorMapper;
 import nl.bertriksikken.stofradar.render.ColorPoint;
 import nl.bertriksikken.stofradar.render.IShader;
@@ -80,6 +82,7 @@ public final class ParticulateMapper {
     // map from id to sensor value
     private final Map<String, SensorValue> sensorValueMap = new ConcurrentHashMap<>();
     private final SamenmetenCsvDownloader samenmetenDownloader;
+    private final MeetjestadDownloader meetjestadDownloader;
     private final AirRestServer pmRestApiHandler;
     private final SamenmetenCsvWriter csvWriter = new SamenmetenCsvWriter();
 
@@ -104,6 +107,7 @@ public final class ParticulateMapper {
         objectMapper.findAndRegisterModules();
         sensComDataApi = SensComDataApi.create(config.getSensComConfig());
         samenmetenDownloader = SamenmetenCsvDownloader.create(config.getSamenmetenCsvConfig());
+        meetjestadDownloader = MeetjestadDownloader.create(config.getMeetjestadConfig());
         pmRestApiHandler = new AirRestServer(config.getPmRestApiConfig(), sensorValueMap);
     }
 
@@ -251,6 +255,12 @@ public final class ParticulateMapper {
             LOG.warn("Failed to download samenmeten data: {}", e.getMessage());
         }
 
+        // download PM2.5 from meetjestad
+        List<MeetjestadDataEntry> meetjestadEntries = meetjestadDownloader.download(now.minusSeconds(600));
+        List<SensorValue> meetjestadValues = convertMeetjestad(meetjestadEntries);
+        LOG.info("Collected {} PM2.5 values from meetjestad", meetjestadValues.size());
+        pmValues.addAll(meetjestadValues);
+
         // update list of sensor values, expiring old data
         pmValues.forEach(v -> sensorValueMap.put(v.id, v));
         Instant expiryTime = now.minus(config.getKeepingDuration());
@@ -290,6 +300,18 @@ public final class ParticulateMapper {
                     && Double.isFinite(entry.getPm2_5())) {
                 SensorValue value = new SensorValue(entry.getLocationCode(), entry.getLongitude(), entry.getLatitude(),
                         entry.getPm2_5(), timestamp);
+                values.add(value);
+            }
+        }
+        return values;
+    }
+
+    private List<SensorValue> convertMeetjestad(List<MeetjestadDataEntry> entries) {
+        List<SensorValue> values = new ArrayList<>();
+        for (MeetjestadDataEntry entry : entries) {
+            if (entry.hasLocation() && entry.hasPm()) {
+                SensorValue value = new SensorValue("mjs_" + entry.getId(), entry.getLongitude(), entry.getLatitude(),
+                        entry.getPm2_5(), entry.getTimestamp());
                 values.add(value);
             }
         }
@@ -370,8 +392,7 @@ public final class ParticulateMapper {
      * @param item       which item to select (P1 or P2)
      * @return list of sensor values
      */
-    private List<SensorValue> convertDataPoints(
-            List<DataPoint> dataPoints, String sensorType, String item) {
+    private List<SensorValue> convertDataPoints(List<DataPoint> dataPoints, String sensorType, String item) {
         List<SensorValue> values = new ArrayList<>();
         int numIndoor = 0;
         for (DataPoint dp : dataPoints) {

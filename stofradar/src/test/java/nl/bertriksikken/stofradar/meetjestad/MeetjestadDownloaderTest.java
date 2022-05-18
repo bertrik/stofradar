@@ -10,8 +10,6 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 /**
  * Downloads past 15 minutes of meetjestad data.
  */
@@ -26,8 +24,7 @@ public final class MeetjestadDownloaderTest {
 
     public void testDownload() throws IOException {
         MeetjestadConfig config = new MeetjestadConfig();
-        ObjectMapper mapper = new ObjectMapper();
-        MeetjestadDownloader downloader = MeetjestadDownloader.create(config, mapper);
+        MeetjestadDownloader downloader = MeetjestadDownloader.create(config);
 
         Instant from = Instant.now().minusSeconds(900);
         List<MeetjestadDataEntry> entries = downloader.download(from);
