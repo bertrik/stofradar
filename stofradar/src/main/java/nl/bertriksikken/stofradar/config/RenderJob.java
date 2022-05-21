@@ -94,5 +94,5 @@ public final class RenderJob {
     public String toString() {
         return name;
     }
-    
+
 }
