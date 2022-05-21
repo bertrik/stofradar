@@ -101,6 +101,7 @@ public final class ParticulateMapper {
             new ColorPoint(90, new int[] { 255, 75, 0, 0xC0 }), new ColorPoint(100, new int[] { 255, 25, 0, 0xC0 }),
             // very bad
             new ColorPoint(140, new int[] { 164, 58, 217, 0xC0 }) };
+    private final ColorMapper colorMapper = new ColorMapper(RANGE_PM2_5);
 
     ParticulateMapper(ParticulateMapperConfig config) {
         this.config = config;
@@ -329,7 +330,6 @@ public final class ParticulateMapper {
         double medianRh = calculateMedian(rhValues);
         LOG.info("Median humidity = {} %", String.format(Locale.ROOT, "%.2f", medianRh));
 
-        ColorMapper colorMapper = new ColorMapper(RANGE_PM2_5);
         try {
             // create overlay
             File overlayFile = new File(jobDir, "overlay.png");

@@ -1,23 +1,36 @@
 package nl.bertriksikken.stofradar.render;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
- * Maps an image consisting of scalar values to an image with RGB values.
+ * Maps an intensity value to an RGB colour.
  */
 public final class ColorMapper {
 
     private final ColorPoint[] range;
+    private final Map<Integer, int[]> cache = new HashMap<>();
 
     /**
      * Constructor.
      * 
-     * @param range
-     *            the color range
+     * @param range the color range
      */
     public ColorMapper(ColorPoint[] range) {
         this.range = range.clone();
     }
 
-    public int[] getColour(double v) {
+    public int[] getColour(double value) {
+        int intVal = (int) Math.round(value);
+        int[] color = cache.get(intVal);
+        if (color == null) {
+            color = calculateColour(intVal);
+            cache.put(intVal, color);
+        }
+        return color;
+    }
+
+    private int[] calculateColour(double v) {
         ColorPoint cp = range[0];
         for (int i = 1; i < range.length; i++) {
             ColorPoint next = range[i];

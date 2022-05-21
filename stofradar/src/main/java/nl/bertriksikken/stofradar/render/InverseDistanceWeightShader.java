@@ -19,7 +19,7 @@ public final class InverseDistanceWeightShader implements IShader {
      * @param job the render job
      */
     public InverseDistanceWeightShader(RenderJob job, ColorMapper mapper) {
-    	this.innerRadius = job.getInnerRadius();
+        this.innerRadius = job.getInnerRadius();
         this.outerRadius = job.getOuterRadius();
         this.mapper = mapper;
 
@@ -42,8 +42,8 @@ public final class InverseDistanceWeightShader implements IShader {
             valueSum += (v * w);
             weightSum += w;
             if (d2 < closestDistSquared) {
-            	closestDistSquared = d2;
-            	closestDistValue = v;
+                closestDistSquared = d2;
+                closestDistValue = v;
             }
         }
         double closest = Math.sqrt(closestDistSquared);
@@ -51,15 +51,15 @@ public final class InverseDistanceWeightShader implements IShader {
 
         int[] colour;
         if (closest < innerRadius) {
-        	// inside inner radius: fully opaque disc 
-        	colour = mapper.getColour(closestDistValue);
-        	colour[3] = 255;
+            // inside inner radius: fully opaque disc
+            colour = mapper.getColour(closestDistValue).clone();
+            colour[3] = 255;
         } else if (closest < outerRadius) {
-        	// between inner and outer radius: semi-transparent weighted sum
-        	colour = mapper.getColour(weighted);
+            // between inner and outer radius: semi-transparent weighted sum
+            colour = mapper.getColour(weighted);
         } else {
-        	// else fully transparent
-        	colour = new int[] {0, 0, 0, 0};
+            // else fully transparent
+            colour = new int[] { 0, 0, 0, 0 };
         }
         return colour;
     }
@@ -68,8 +68,8 @@ public final class InverseDistanceWeightShader implements IShader {
      * Calculates a measure of the distance between two coordinates.
      * 
      * @param aspect the x/y aspect ratio
-     * @param c1 the first coordinate
-     * @param c2 the second coordinate
+     * @param c1     the first coordinate
+     * @param c2     the second coordinate
      * @return distance-squared
      */
     private double distanceSquared(double[] aspect, Coord c1, Coord c2) {

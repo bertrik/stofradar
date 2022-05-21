@@ -49,7 +49,7 @@ public final class MedianShader implements IShader {
         }
         if (closestDistSquared < innerRadiusSquared) {
             // inside inner radius: fully opaque disc 
-            int[] colour = mapper.getColour(closestDistValue);
+            int[] colour = mapper.getColour(closestDistValue).clone();
             colour[3] = 255;
             return colour;
         }
