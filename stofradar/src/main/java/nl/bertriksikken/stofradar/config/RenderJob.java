@@ -1,5 +1,7 @@
 package nl.bertriksikken.stofradar.config;
 
+import java.util.Locale;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public final class RenderJob {
@@ -88,4 +90,9 @@ public final class RenderJob {
         return maxAgeMinutes;
     }
 
+    @Override
+    public String toString() {
+        return name;
+    }
+    
 }
