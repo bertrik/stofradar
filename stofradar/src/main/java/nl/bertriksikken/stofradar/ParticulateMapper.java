@@ -12,6 +12,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -125,12 +126,18 @@ public final class ParticulateMapper {
         return filtered;
     }
 
-    private List<SensorValue> filterByPercentile(List<SensorValue> rawValues, double perc) {
-        List<SensorValue> copy = new ArrayList<>(rawValues);
+    private List<SensorValue> filterByPercentile(List<SensorValue> values, double perc) {
+        List<SensorValue> copy = new ArrayList<>(values);
         Collections.sort(copy, (v1, v2) -> Double.compare(v1.value, v2.value));
-        int newSize = (int) ((1 - perc) * rawValues.size());
+        int newSize = (int) ((1 - perc) * values.size());
         List<SensorValue> filtered = copy.subList(0, newSize);
-        LOG.info("Filtered by percentile filter: {} -> {}", rawValues.size(), filtered.size());
+        LOG.info("Filtered by percentile filter: {} -> {}", values.size(), filtered.size());
+        return filtered;
+    }
+
+    private List<SensorValue> filterByTime(List<SensorValue> values, Instant oldest) {
+        List<SensorValue> filtered = values.stream().filter(v -> v.time.isAfter(oldest)).collect(Collectors.toList());
+        LOG.info("Filtered by time filter: {} -> {}", values.size(), filtered.size());
         return filtered;
     }
 
@@ -234,6 +241,7 @@ public final class ParticulateMapper {
         }
 
         // download data from sensor.community
+        LOG.info("Retrieving dust data from sensor.community");
         List<DataPoint> dataPoints = sensComDataApi.downloadDust();
 
         // convert DataPoints to internal format
@@ -249,7 +257,7 @@ public final class ParticulateMapper {
             // save to intermediate file
             csvWriter.write(new File("lucht.csv"), luchtEntries);
             // add to collection
-            List<SensorValue> samenmetenValues = convertSamenmeten(samenmetenLines, now);
+            List<SensorValue> samenmetenValues = convertSamenmeten(samenmetenLines);
             pmValues.addAll(samenmetenValues);
             LOG.info("Collected {} PM2.5 values from samenmeten", samenmetenValues.size());
         } catch (IOException e) {
@@ -286,21 +294,21 @@ public final class ParticulateMapper {
                 LOG.info("Created directory {}", jobDir);
             }
             File outputFile = new File(config.getOutputPath(), job.getName() + ".png");
-            render(job, jobDir, pmValues, rhValues, utcTime, outputFile);
+            render(job, jobDir, pmValues, rhValues, utcTime.toInstant(), outputFile);
             // copy file for animation
             File animationFile = new File(jobDir, pngName);
             Files.copy(outputFile.toPath(), animationFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
         }
     }
 
-    private List<SensorValue> convertSamenmeten(List<String> lines, Instant timestamp) {
+    private List<SensorValue> convertSamenmeten(List<String> lines) {
         List<SensorValue> values = new ArrayList<>();
         for (String line : lines) {
             SamenmetenCsvLuchtEntry entry = SamenmetenCsvLuchtEntry.parse(line);
             if ((entry != null) && !entry.getProject().equals("Luftdaten") && entry.hasValidLocation()
                     && Double.isFinite(entry.getPm2_5())) {
                 SensorValue value = new SensorValue(entry.getLocationCode(), entry.getLongitude(), entry.getLatitude(),
-                        entry.getPm2_5(), timestamp);
+                        entry.getPm2_5(), entry.getTimestamp());
                 values.add(value);
             }
         }
@@ -320,7 +328,11 @@ public final class ParticulateMapper {
     }
 
     private void render(RenderJob job, File jobDir, List<SensorValue> pmValues, List<SensorValue> rhValues,
-            ZonedDateTime utcTime, File outputFile) {
+            Instant instant, File outputFile) {
+
+        // apply job-specific time limit
+        Instant oldestAllowed = instant.minus(Duration.ofMinutes(job.getMaxAgeMinutes()));
+        pmValues = filterByTime(pmValues, oldestAllowed);
 
         // apply bounding box
         pmValues = filterByBoundingBox(pmValues, job, 2.0);
@@ -341,7 +353,7 @@ public final class ParticulateMapper {
             composite(config.getCompositeCmd(), overlayFile, baseMap, compositeFile);
 
             // add timestamp to composite
-            LocalDateTime localDateTime = LocalDateTime.ofInstant(utcTime.toInstant(), ZoneId.systemDefault());
+            LocalDateTime localDateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
             String timestampText = localDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
             String stampText = String.format(Locale.ROOT, "%s%nRV: %.1f %%", timestampText, medianRh);
             timestamp(config.getConvertCmd(), stampText, compositeFile, outputFile);

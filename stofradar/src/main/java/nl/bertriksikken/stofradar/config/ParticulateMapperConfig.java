@@ -27,7 +27,7 @@ public final class ParticulateMapperConfig {
     private final MeetjestadConfig meetjestadConfig = new MeetjestadConfig();
 
     @JsonProperty("keepingDurationMinutes")
-    private final int keepingDurationMinutes = 60;
+    private final int keepingDurationMinutes = 300;
 
     @JsonProperty("renderJobs")
     private final List<RenderJob> renderJobs = new ArrayList<>();
@@ -48,8 +48,8 @@ public final class ParticulateMapperConfig {
     private final AirRestApiConfig airRestApiConfig = new AirRestApiConfig();
 
     public ParticulateMapperConfig() {
-        renderJobs.add(
-                new RenderJob("netherlands", "netherlands.png", 53.560406, 3.359403, 50.750938, 7.227496, 1.0, 10.0));
+        renderJobs.add(new RenderJob("netherlands", "netherlands.png", 53.560406, 3.359403, 50.750938, 7.227496, 1.0,
+                10.0, 65));
     }
 
     /**
