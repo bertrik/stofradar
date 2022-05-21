@@ -330,13 +330,13 @@ public final class ParticulateMapper {
     private void render(RenderJob job, File jobDir, List<SensorValue> pmValues, List<SensorValue> rhValues,
             Instant instant, File outputFile) {
 
-        // apply job-specific time limit
-        Instant oldestAllowed = instant.minus(Duration.ofMinutes(job.getMaxAgeMinutes()));
-        pmValues = filterByTime(pmValues, oldestAllowed);
-
         // apply bounding box
         pmValues = filterByBoundingBox(pmValues, job, 2.0);
         rhValues = filterByBoundingBox(rhValues, job, 1.0);
+
+        // apply job-specific time limit
+        Instant oldestAllowed = instant.minus(Duration.ofMinutes(job.getMaxAgeMinutes()));
+        pmValues = filterByTime(pmValues, oldestAllowed);
 
         // calculate median humidity
         double medianRh = calculateMedian(rhValues);
@@ -530,7 +530,6 @@ public final class ParticulateMapper {
                     }
                 }
             }
-            LOG.info("Process ended with {}", exitValue);
         } catch (Exception e) {
             LOG.trace("Caught IOException", e);
             LOG.warn("Caught IOException: {}", e.getMessage());
