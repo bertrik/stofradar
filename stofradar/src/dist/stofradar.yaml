@@ -34,7 +34,7 @@ renderJobs:
   east: 4.7578
   innerRadius: 0.1
   outerRadius: 0.3
-  maxAgeMinutes: 65
+  maxAgeMinutes: 300
 - name: "nieuwerkerk"
   map: "nieuwerkerk.png"
   north: 51.9795
@@ -43,7 +43,7 @@ renderJobs:
   east: 4.6302
   innerRadius: 0.05
   outerRadius: 0.2
-  maxAgeMinutes: 65
+  maxAgeMinutes: 300
 - name: "stanthonis"
   map: "stanthonis.png"
   north: 51.8073
@@ -52,7 +52,7 @@ renderJobs:
   east: 6.1235
   innerRadius: 0.3
   outerRadius: 1.0
-  maxAgeMinutes: 65
+  maxAgeMinutes: 300
 - name: "delft"
   map: "delft.png"
   north: 52.0437
@@ -61,7 +61,7 @@ renderJobs:
   east: 4.4093
   innerRadius: 0.1
   outerRadius: 0.3
-  maxAgeMinutes: 65
+  maxAgeMinutes: 300
 - name: "amersfoort"
   map: "amersfoort.png"
   north: 52.2109
@@ -70,7 +70,7 @@ renderJobs:
   east: 5.4659
   innerRadius: 0.1
   outerRadius: 0.3
-  maxAgeMinutes: 65
+  maxAgeMinutes: 300
 compositeCmd: "/usr/bin/composite"
 convertCmd: "/usr/bin/convert"
 intermediateDir: "tmp"
