@@ -1,5 +1,7 @@
 package nl.bertriksikken.stofradar.restapi;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -27,6 +29,8 @@ public final class AirRestApi implements IAirRestApi {
 
     @Override
     public AirResult getAir(String userAgent, double latitude, double longitude) {
+        Instant start = Instant.now();
+
         // take a snapshot of values
         List<SensorValue> values = new ArrayList<>(dataStore.values());
 
@@ -39,9 +43,11 @@ public final class AirRestApi implements IAirRestApi {
 
         // calculate inverse distance weighted value
         double value = calculateIDW(values);
-        LOG.info("Calculated PM {} for location {}/{} for user {}", value, latitude, longitude, userAgent);
+        long ms = Duration.between(start, Instant.now()).toMillis();
+        AirResult result = new AirResult(value);
 
-        return new AirResult(value);
+        LOG.info("Calculated PM {} in {} ms, location {}/{}, user {}", result, ms, latitude, longitude, userAgent);
+        return result;
     }
 
     private List<SensorValue> convertToKm(Collection<SensorValue> values, double latitude, double longitude) {
