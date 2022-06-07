@@ -71,6 +71,15 @@ renderJobs:
   innerRadius: 0.1
   outerRadius: 0.3
   maxAgeMinutes: 300
+- name: "utrecht"
+  map: "utrecht.png"
+  north: 52.149
+  west: 5.0042
+  south: 52.0437
+  east: 5.2184
+  innerRadius: 0.1
+  outerRadius: 0.3
+  maxAgeMinutes: 300
 compositeCmd: "/usr/bin/composite"
 convertCmd: "/usr/bin/convert"
 intermediateDir: "tmp"
