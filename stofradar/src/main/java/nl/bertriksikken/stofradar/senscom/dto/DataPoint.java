@@ -1,7 +1,7 @@
 package nl.bertriksikken.stofradar.senscom.dto;
 
 import java.time.Instant;
-import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
@@ -16,7 +16,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public final class DataPoint {
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-            .withZone(ZoneId.of("UTC"));
+            .withZone(ZoneOffset.UTC);
     
     @JsonProperty("timestamp")
     private String timestamp;

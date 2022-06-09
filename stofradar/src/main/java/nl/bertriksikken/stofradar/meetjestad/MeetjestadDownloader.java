@@ -3,7 +3,7 @@ package nl.bertriksikken.stofradar.meetjestad;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -47,7 +47,7 @@ public final class MeetjestadDownloader {
         List<MeetjestadDataEntry> entries = new ArrayList<>();
 
         // build request
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd,HH:mm").withZone(ZoneId.of("UTC"));
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd,HH:mm").withZone(ZoneOffset.UTC);
         Map<String, String> queryMap = new HashMap<>();
         queryMap.put("type", "sensors");
         queryMap.put("format", "json");

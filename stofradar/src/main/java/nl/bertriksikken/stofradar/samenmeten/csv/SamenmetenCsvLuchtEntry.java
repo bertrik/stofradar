@@ -1,7 +1,7 @@
 package nl.bertriksikken.stofradar.samenmeten.csv;
 
 import java.time.Instant;
-import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -28,7 +28,7 @@ import com.google.common.base.Splitter;
 public final class SamenmetenCsvLuchtEntry {
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-            .withZone(ZoneId.of("UTC"));
+            .withZone(ZoneOffset.UTC);
 
     private static final Logger LOG = LoggerFactory.getLogger(SamenmetenCsvLuchtEntry.class);
     private static final ObjectMapper MAPPER = new ObjectMapper();

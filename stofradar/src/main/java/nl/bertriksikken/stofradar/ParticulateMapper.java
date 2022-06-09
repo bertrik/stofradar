@@ -16,6 +16,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoField;
@@ -217,7 +218,7 @@ public final class ParticulateMapper {
 
     private void downloadAndProcess(Instant now) throws IOException {
         // get UTC time rounded to 5 minutes
-        ZonedDateTime utcTime = ZonedDateTime.ofInstant(now, ZoneId.of("UTC"));
+        ZonedDateTime utcTime = ZonedDateTime.ofInstant(now, ZoneOffset.UTC);
         int minute = 5 * (utcTime.get(ChronoField.MINUTE_OF_HOUR) / 5);
         utcTime = utcTime.withMinute(minute).truncatedTo(ChronoUnit.MINUTES);
 

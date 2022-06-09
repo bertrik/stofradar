@@ -1,7 +1,5 @@
 package nl.bertriksikken.stofradar.config;
 
-import java.util.Locale;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public final class RenderJob {
