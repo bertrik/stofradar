@@ -15,7 +15,7 @@ public final class SensComConfig {
     private String url = "https://api.sensor.community";
     
     @JsonProperty("timeout")
-	private long timeoutSec = 20;
+	private long timeoutSec = 30;
 
     @JsonProperty("blacklist")
     private List<String> blacklist = Arrays.asList("11697");

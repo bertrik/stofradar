@@ -29,9 +29,6 @@ public final class ParticulateMapperConfig {
     @JsonProperty("keepingDurationMinutes")
     private final int keepingDurationMinutes = 300;
 
-    @JsonProperty("renderJobs")
-    private final List<RenderJob> renderJobs = new ArrayList<>();
-
     @JsonProperty("compositeCmd")
     private final String compositeCmd = "/usr/bin/composite";
 
@@ -46,6 +43,9 @@ public final class ParticulateMapperConfig {
 
     @JsonProperty("airRestApi")
     private final AirRestApiConfig airRestApiConfig = new AirRestApiConfig();
+
+    @JsonProperty("renderJobs")
+    private final List<RenderJob> renderJobs = new ArrayList<>();
 
     public ParticulateMapperConfig() {
         renderJobs.add(new RenderJob("netherlands", "netherlands.png", 53.560406, 3.359403, 50.750938, 7.227496, 1.0,

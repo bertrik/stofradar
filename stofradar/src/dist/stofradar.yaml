@@ -6,7 +6,21 @@ sensCom:
   - 11697
   - 35376
   - 30788
+samenmeten:
+  url: "https://samenmeten.rivm.nl"
+  timeout: 30
+meetjestad:
+  url: "https://meetjestad.net"
+  timeout: 30
 keepingDurationMinutes: 300
+compositeCmd: "/usr/bin/composite"
+convertCmd: "/usr/bin/convert"
+intermediateDir: "tmp"
+outputPath: "/home/bertrik/stofradar.nl/www"
+airRestApi:
+  port: 9000
+  path: ""
+  maxDistance: 1.0
 renderJobs:
 - name: "netherlands"
   map: "netherlands.png"
@@ -80,7 +94,3 @@ renderJobs:
   innerRadius: 0.1
   outerRadius: 0.3
   maxAgeMinutes: 300
-compositeCmd: "/usr/bin/composite"
-convertCmd: "/usr/bin/convert"
-intermediateDir: "tmp"
-outputPath: "/home/bertrik/stofradar.nl/www"

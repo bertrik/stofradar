@@ -11,7 +11,7 @@ public final class AirRestApiConfig {
     private String path = "";
 
     @JsonProperty("maxDistance")
-    private double maxDistance = 10;
+    private double maxDistance = 1.0;
 
     public int getPort() {
         return port;
