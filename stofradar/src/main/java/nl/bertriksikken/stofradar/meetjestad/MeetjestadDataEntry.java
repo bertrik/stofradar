@@ -41,7 +41,7 @@ public final class MeetjestadDataEntry {
     }
 
     public boolean hasLocation() {
-        return Double.isFinite(latitude) && Double.isFinite(latitude);
+        return Double.isFinite(latitude) && Double.isFinite(longitude);
     }
 
     public double getLatitude() {
