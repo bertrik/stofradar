@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,8 +26,7 @@ public final class RunSamenmetenCsvTest {
                 .collect(Collectors.toList());
 
         // save raw txt file
-        try (FileWriter fileWriter = new FileWriter("lucht.txt")) {
-            BufferedWriter writer = new BufferedWriter(fileWriter);
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("lucht.txt", StandardCharsets.US_ASCII))) {
             for (String line : lines) {
                 writer.write(line);
                 writer.newLine();
