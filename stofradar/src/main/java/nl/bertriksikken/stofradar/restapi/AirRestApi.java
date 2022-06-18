@@ -39,7 +39,7 @@ public final class AirRestApi implements IAirRestApi {
 
         // roughly filter box around center
         values = values.stream().filter(v -> (v.x > -maxd) && (v.x < maxd) && (v.y > -maxd) && (v.y < maxd))
-                .collect(Collectors.toList());
+                .filter(v -> (v.value >= 0)).collect(Collectors.toList());
 
         // calculate inverse distance weighted value
         double value = calculateIDW(values);
