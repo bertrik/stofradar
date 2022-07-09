@@ -11,6 +11,8 @@ dependencies {
 
     // REST server
     implementation libraries.jersey_server
+
+    implementation libraries.ratelimitj
 }
 
 // fix scripts executable bit and line endings

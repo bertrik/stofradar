@@ -1,6 +1,8 @@
 package nl.bertriksikken.stofradar.restapi;
 
 import java.io.IOException;
+import java.time.Duration;
+import java.util.Collections;
 import java.util.Map;
 
 import org.eclipse.jetty.server.Connector;
@@ -13,6 +15,9 @@ import org.glassfish.jersey.servlet.ServletContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import es.moki.ratelimitj.core.limiter.request.RequestLimitRule;
+import es.moki.ratelimitj.core.limiter.request.RequestRateLimiter;
+import es.moki.ratelimitj.inmemory.request.InMemorySlidingWindowRequestRateLimiter;
 import nl.bertriksikken.stofradar.render.SensorValue;
 
 public final class AirRestServer {
@@ -22,8 +27,11 @@ public final class AirRestServer {
     private final Server server;
 
     public AirRestServer(AirRestApiConfig config, Map<String, SensorValue> map) {
-        AirRestApi.initialize(config.getMaxDistance(), map);
         this.server = createRestServer(config.getPort(), config.getPath(), AirRestApi.class);
+
+        RequestLimitRule rule = RequestLimitRule.of(Duration.ofSeconds(30), 1).withPrecision(Duration.ofSeconds(3));
+        RequestRateLimiter rateLimiter = new InMemorySlidingWindowRequestRateLimiter(Collections.singleton(rule));
+        AirRestApi.initialize(config.getMaxDistance(), map, rateLimiter);
     }
 
     public void start() throws IOException {

@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import es.moki.ratelimitj.core.limiter.request.RequestRateLimiter;
 import nl.bertriksikken.stofradar.render.SensorValue;
 
 public final class AirRestApi implements IAirRestApi {
@@ -21,15 +22,23 @@ public final class AirRestApi implements IAirRestApi {
 
     private static double maxd = 10;
     private static Map<String, SensorValue> dataStore = new HashMap<>();
+    private static RequestRateLimiter rateLimiter;
 
-    public static void initialize(double radius, Map<String, SensorValue> map) {
+    public static void initialize(double radius, Map<String, SensorValue> map, RequestRateLimiter limiter) {
         maxd = radius;
         dataStore = map;
+        rateLimiter = limiter;
     }
 
     @Override
     public AirResult getAir(String userAgent, double latitude, double longitude) {
         Instant start = Instant.now();
+
+        // rate limit
+        if (rateLimiter.overLimitWhenIncremented(userAgent)) {
+            LOG.info("Denied PM calculation (rate limited), location {}/{}, user '{}'", latitude, longitude, userAgent);
+            return null;
+        }
 
         // take a snapshot of values
         List<SensorValue> values = new ArrayList<>(dataStore.values());
@@ -46,7 +55,7 @@ public final class AirRestApi implements IAirRestApi {
         long ms = Duration.between(start, Instant.now()).toMillis();
         AirResult result = new AirResult(value);
 
-        LOG.info("Calculated PM {} in {} ms, location {}/{}, user {}", result, ms, latitude, longitude, userAgent);
+        LOG.info("Calculated PM {} in {} ms, location {}/{}, user '{}'", result, ms, latitude, longitude, userAgent);
         return result;
     }
 
