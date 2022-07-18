@@ -32,7 +32,7 @@ def main():
         cmdfile.write('\n'.join(cmd_list))
     
     # invoke ffmpeg
-    params = ["ffmpeg", "-y", "-f", "concat", "-i", cmdfile_name, args.output]
+    params = ["ffmpeg", "-y", "-f", "concat", "-i", cmdfile_name, "-preset", "veryfast", "-vf", "scale=-2:0", "-pix_fmt", "yuv420p", args.output]
     subprocess.run(params, cwd = args.dir)
     
 if __name__ == "__main__":
