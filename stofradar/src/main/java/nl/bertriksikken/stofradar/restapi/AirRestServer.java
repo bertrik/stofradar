@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.HttpConnectionFactory;
@@ -25,13 +28,14 @@ public final class AirRestServer {
     private static final Logger LOG = LoggerFactory.getLogger(AirRestServer.class);
 
     private final Server server;
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     public AirRestServer(AirRestApiConfig config, Map<String, SensorValue> map) {
         this.server = createRestServer(config.getPort(), config.getPath(), AirRestApi.class);
 
         RequestLimitRule rule = RequestLimitRule.of(Duration.ofSeconds(30), 1).withPrecision(Duration.ofSeconds(3));
         RequestRateLimiter rateLimiter = new InMemorySlidingWindowRequestRateLimiter(Collections.singleton(rule));
-        AirRestApi.initialize(config.getMaxDistance(), map, rateLimiter);
+        AirRestApi.initialize(executorService, config.getMaxDistance(), rateLimiter);
     }
 
     public void start() throws IOException {
@@ -47,6 +51,8 @@ public final class AirRestServer {
         LOG.info("Stopping Air REST server");
         try {
             server.stop();
+            executorService.shutdownNow();
+            executorService.awaitTermination(3, TimeUnit.SECONDS);
         } catch (Exception e) {
             LOG.error("Caught exception during shutdown: {}", e.getMessage());
             LOG.trace("Caught exception during shutdown", e);

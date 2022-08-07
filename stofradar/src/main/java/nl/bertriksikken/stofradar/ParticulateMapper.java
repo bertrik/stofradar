@@ -55,6 +55,7 @@ import nl.bertriksikken.stofradar.render.IShader;
 import nl.bertriksikken.stofradar.render.Interpolator;
 import nl.bertriksikken.stofradar.render.InverseDistanceWeightShader;
 import nl.bertriksikken.stofradar.render.SensorValue;
+import nl.bertriksikken.stofradar.restapi.AirRestApi;
 import nl.bertriksikken.stofradar.restapi.AirRestServer;
 import nl.bertriksikken.stofradar.samenmeten.csv.SamenmetenCsvDownloader;
 import nl.bertriksikken.stofradar.samenmeten.csv.SamenmetenCsvLuchtEntry;
@@ -275,9 +276,12 @@ public final class ParticulateMapper {
         pmValues.forEach(v -> sensorValueMap.put(v.id, v));
         Instant expiryTime = now.minus(config.getKeepingDuration());
         sensorValueMap.entrySet().removeIf(e -> e.getValue().time.isBefore(expiryTime));
-        pmValues = new ArrayList<>(sensorValueMap.values());
+
+        // update in REST service
+        AirRestApi.updateSensorValues(sensorValueMap);
 
         // store cached value
+        pmValues = new ArrayList<>(sensorValueMap.values());
         persistSensorValues(pmValues);
 
         // remove top percentile of measurements

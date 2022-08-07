@@ -7,10 +7,14 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Preconditions;
 
 import es.moki.ratelimitj.core.limiter.request.RequestRateLimiter;
 import nl.bertriksikken.stofradar.render.SensorValue;
@@ -20,25 +24,43 @@ public final class AirRestApi implements IAirRestApi {
     private static final Logger LOG = LoggerFactory.getLogger(AirRestApi.class);
     private static final double KM_PER_DEGREE_LAT = 40075.0 / 360.0;
 
+    private static ExecutorService executor;
     private static double maxd = 10;
     private static Map<String, SensorValue> dataStore = new HashMap<>();
     private static RequestRateLimiter rateLimiter;
 
-    public static void initialize(double radius, Map<String, SensorValue> map, RequestRateLimiter limiter) {
+    public static void initialize(ExecutorService executorService, double radius, RequestRateLimiter limiter) {
+        executor = Preconditions.checkNotNull(executorService);
         maxd = radius;
-        dataStore = map;
-        rateLimiter = limiter;
+        rateLimiter = Preconditions.checkNotNull(limiter);
+    }
+
+    // updates the sensor values, runs on the (single-thread) executor, so is thread-safe with REST requests
+    public static void updateSensorValues(Map<String, SensorValue> sensorValues) {
+        executor.execute(() -> {
+            dataStore.clear();
+            dataStore.putAll(sensorValues);
+        });
     }
 
     @Override
     public AirResult getAir(String userAgent, double latitude, double longitude) {
-        Instant start = Instant.now();
-
         // rate limit
         if (rateLimiter.overLimitWhenIncremented(userAgent)) {
             LOG.info("Denied PM calculation (rate limited), location {}/{}, user '{}'", latitude, longitude, userAgent);
             return null;
         }
+        // schedule for immediate execution
+        try {
+            return executor.submit(() -> doGetAir(userAgent, latitude, longitude)).get();
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("Caught exception", e);
+            return null;
+        }
+    }
+
+    private AirResult doGetAir(String userAgent, double latitude, double longitude) {
+        Instant start = Instant.now();
 
         // take a snapshot of values
         List<SensorValue> values = new ArrayList<>(dataStore.values());
