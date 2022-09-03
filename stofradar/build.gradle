@@ -3,7 +3,7 @@ apply plugin: "application"
 mainClassName = 'nl.bertriksikken.stofradar.ParticulateMapper'
 
 dependencies {
-    implementation libraries.slf4jlog4j
+    implementation libraries.reload4j
     
     implementation libraries.guava
     implementation libraries.retrofit
