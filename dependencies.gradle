@@ -1,9 +1,9 @@
 ext {
     libraries = [:]
 
-    jacksonVersion = '2.13.3'
+    jacksonVersion = '2.13.4'
     retrofitVersion = '2.9.0'
-    slf4jVersion = '2.0.0'
+    slf4jVersion = '2.0.1'
     jerseyVersion = '2.34'
 }
 
@@ -49,5 +49,5 @@ libraries.ratelimitj = [
 
 // test libraries
 libraries.junit = 'junit:junit:4.13.2'
-libraries.mockito = 'org.mockito:mockito-core:4.6.1'
+libraries.mockito = 'org.mockito:mockito-core:4.8.0'
 
