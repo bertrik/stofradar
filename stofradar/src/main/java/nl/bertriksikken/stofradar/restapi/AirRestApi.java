@@ -78,6 +78,7 @@ public final class AirRestApi implements IAirRestApi {
         AirResult result = new AirResult(value);
 
         LOG.info("Calculated PM {} in {} ms, location {}/{}, user '{}'", result, ms, latitude, longitude, userAgent);
+        LOG.info("Google maps link: https://maps.google.com/?q={},{}", latitude, longitude);
         return result;
     }
 
