@@ -3,9 +3,9 @@ ext {
 
     jacksonVersion = '2.13.4'
     retrofitVersion = '2.9.0'
-    slf4jVersion = '2.0.2'
-    jerseyVersion = '2.36'
-    jettyVersion = '9.4.48.v20220622'
+    slf4jVersion = '2.0.3'
+    jerseyVersion = '2.37'
+    jettyVersion = '9.4.49.v20220914'
 }
 
 libraries.slf4j = [
