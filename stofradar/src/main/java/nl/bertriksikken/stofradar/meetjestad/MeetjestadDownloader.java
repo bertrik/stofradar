@@ -21,10 +21,12 @@ import retrofit2.converter.jackson.JacksonConverterFactory;
 public final class MeetjestadDownloader {
 
     private static final Logger LOG = LoggerFactory.getLogger(MeetjestadDownloader.class);
+    private static final DateTimeFormatter DATETIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd,HH:mm")
+            .withZone(ZoneOffset.UTC);
 
     private final IMeetjestadRestApi restApi;
 
-    public MeetjestadDownloader(IMeetjestadRestApi restApi) {
+    MeetjestadDownloader(IMeetjestadRestApi restApi) {
         this.restApi = restApi;
     }
 
@@ -38,20 +40,14 @@ public final class MeetjestadDownloader {
         return new MeetjestadDownloader(restApi);
     }
 
-    /**
-     * https://meetjestad.net/data/?type=sensors&format=json&begin=2022-05-12,14:46
-     *
-     * @throws IOException
-     */
     public List<MeetjestadDataEntry> download(Instant from) throws IOException {
         List<MeetjestadDataEntry> entries = new ArrayList<>();
 
         // build request
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd,HH:mm").withZone(ZoneOffset.UTC);
         Map<String, String> queryMap = new HashMap<>();
         queryMap.put("type", "sensors");
         queryMap.put("format", "json");
-        queryMap.put("begin", formatter.format(from));
+        queryMap.put("begin", DATETIME_FORMATTER.format(from));
 
         // execute
         Response<List<MeetjestadDataEntry>> response = restApi.getData(queryMap).execute();
@@ -59,7 +55,6 @@ public final class MeetjestadDownloader {
             List<MeetjestadDataEntry> data = response.body();
             entries.addAll(data);
         }
-
         return entries;
     }
 
