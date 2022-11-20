@@ -13,6 +13,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import nl.bertriksikken.stofradar.meetjestad.MeetjestadData.MeetjestadDataEntry;
 import okhttp3.OkHttpClient;
 import retrofit2.Response;
 import retrofit2.Retrofit;
@@ -40,7 +41,7 @@ public final class MeetjestadDownloader {
         return new MeetjestadDownloader(restApi);
     }
 
-    public List<MeetjestadDataEntry> download(Instant from) throws IOException {
+    public MeetjestadData download(Instant from) throws IOException {
         List<MeetjestadDataEntry> entries = new ArrayList<>();
 
         // build request
@@ -54,8 +55,10 @@ public final class MeetjestadDownloader {
         if (response.isSuccessful()) {
             List<MeetjestadDataEntry> data = response.body();
             entries.addAll(data);
+        } else {
+            LOG.warn("MJS download failed: {} - {}", response.code(), response.errorBody());
         }
-        return entries;
+        return new MeetjestadData(entries);
     }
 
 }

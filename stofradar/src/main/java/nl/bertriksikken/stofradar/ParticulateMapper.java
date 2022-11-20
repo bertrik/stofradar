@@ -47,7 +47,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
 import nl.bertriksikken.stofradar.config.ParticulateMapperConfig;
 import nl.bertriksikken.stofradar.config.RenderJob;
-import nl.bertriksikken.stofradar.meetjestad.MeetjestadDataEntry;
+import nl.bertriksikken.stofradar.meetjestad.MeetjestadData;
 import nl.bertriksikken.stofradar.meetjestad.MeetjestadDownloader;
 import nl.bertriksikken.stofradar.render.ColorMapper;
 import nl.bertriksikken.stofradar.render.ColorPoint;
@@ -268,8 +268,8 @@ public final class ParticulateMapper {
 
         // download PM2.5 from meetjestad
         try {
-            List<MeetjestadDataEntry> meetjestadEntries = meetjestadDownloader.download(now.minusSeconds(600));
-            List<SensorValue> meetjestadValues = convertMeetjestad(meetjestadEntries);
+            MeetjestadData meetjestadData = meetjestadDownloader.download(now.minusSeconds(600));
+            List<SensorValue> meetjestadValues = meetjestadData.toSensorValues();
             LOG.info("Collected {} PM2.5 values from meetjestad", meetjestadValues.size());
             pmValues.addAll(meetjestadValues);
         } catch (IOException e) {
@@ -317,18 +317,6 @@ public final class ParticulateMapper {
             if ((entry != null) && !entry.getProject().equals("Luftdaten") && entry.hasValidLocation()
                     && Double.isFinite(entry.getPm2_5())) {
                 SensorValue value = new SensorValue(entry.getLocationCode(), entry.getLongitude(), entry.getLatitude(),
-                        entry.getPm2_5(), entry.getTimestamp());
-                values.add(value);
-            }
-        }
-        return values;
-    }
-
-    private List<SensorValue> convertMeetjestad(List<MeetjestadDataEntry> entries) {
-        List<SensorValue> values = new ArrayList<>();
-        for (MeetjestadDataEntry entry : entries) {
-            if (entry.hasLocation() && entry.hasPm()) {
-                SensorValue value = new SensorValue("mjs_" + entry.getId(), entry.getLongitude(), entry.getLatitude(),
                         entry.getPm2_5(), entry.getTimestamp());
                 values.add(value);
             }
