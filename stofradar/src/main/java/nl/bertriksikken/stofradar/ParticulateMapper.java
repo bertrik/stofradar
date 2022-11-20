@@ -267,10 +267,14 @@ public final class ParticulateMapper {
         }
 
         // download PM2.5 from meetjestad
-        List<MeetjestadDataEntry> meetjestadEntries = meetjestadDownloader.download(now.minusSeconds(600));
-        List<SensorValue> meetjestadValues = convertMeetjestad(meetjestadEntries);
-        LOG.info("Collected {} PM2.5 values from meetjestad", meetjestadValues.size());
-        pmValues.addAll(meetjestadValues);
+        try {
+            List<MeetjestadDataEntry> meetjestadEntries = meetjestadDownloader.download(now.minusSeconds(600));
+            List<SensorValue> meetjestadValues = convertMeetjestad(meetjestadEntries);
+            LOG.info("Collected {} PM2.5 values from meetjestad", meetjestadValues.size());
+            pmValues.addAll(meetjestadValues);
+        } catch (IOException e) {
+            LOG.warn("Failed to download meetjestad data: {}", e.getMessage());
+        }
 
         // update list of sensor values, expiring old data
         pmValues.forEach(v -> sensorValueMap.put(v.id, v));
