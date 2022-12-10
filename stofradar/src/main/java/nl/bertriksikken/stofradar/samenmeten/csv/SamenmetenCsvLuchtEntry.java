@@ -6,117 +6,118 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.base.Splitter;
 
 /**
  * Representation of one line of
  * https://samenmeten.rivm.nl/dataportaal/php/getData-fromfile.php?compartiment=lucht
  */
-@JsonPropertyOrder({ "timestamp", "locationName", "locationCode", "project", "latitude", "longitude", "pm10", "pm2_5",
-        "temperature", "humidity", "pressure" })
+@JsonPropertyOrder({ "time", "kit_id", "label", "project", "geom_lat", "geom_lon", "pm10", "pm25", "no2", "no2_palmes",
+        "temp", "rh", "pres", "nh3_palmes", "pm10_kwal", "pm25_kwal" })
 @JsonAutoDetect(getterVisibility = Visibility.NONE)
 public final class SamenmetenCsvLuchtEntry {
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
             .withZone(ZoneOffset.UTC);
-
-    private static final Logger LOG = LoggerFactory.getLogger(SamenmetenCsvLuchtEntry.class);
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    @JsonProperty("timestamp")
-    private String timestamp;
-    @JsonProperty("loc_name")
-    private String locationName;
-    @JsonProperty("loc_code")
-    private String locationCode;
+    @JsonProperty("time")
+    private final String timestamp;
+    @JsonProperty("kit_id")
+    private final String kitId;
+    @JsonProperty("label")
+    private final String label;
     @JsonProperty("project")
-    private String project;
-    @JsonProperty("latitude")
-    private Double latitude;
-    @JsonProperty("longitude")
-    private Double longitude;
+    private final String project;
+    @JsonProperty("geom_lat")
+    private final Double latitude;
+    @JsonProperty("geom_lon")
+    private final Double longitude;
     @JsonProperty("pm10")
-    private Double pm10;
-    @JsonProperty("pm2_5")
-    private Double pm2_5;
-    @JsonProperty("temperature")
-    private Double temperature;
-    @JsonProperty("humidity")
-    private Double humidity;
-    @JsonProperty("pressure")
-    private Double pressure;
+    private final Double pm10;
+    @JsonProperty("pm25")
+    private final Double pm25;
+    @JsonProperty("no2")
+    private final Double no2;
+    @JsonProperty("no2_palmes")
+    private final Double no2Palmes;
+    @JsonProperty("temp")
+    private final Double temperature;
+    @JsonProperty("rh")
+    private final Double humidity;
+    @JsonProperty("pres")
+    private final Double pressure;
+    @JsonProperty("nh3_palmes")
+    private Object nh3Palmes;
+    @JsonProperty("pm10_kwal")
+    private int pm10Kwal;
+    @JsonProperty("pm25_kwal")
+    private int pm25Kwal;
 
-    SamenmetenCsvLuchtEntry(String timestamp, String locationName, String locationCode, String project, Double latitude,
-            Double longitude, Double pm10, Double pm2_5, Double temperature, Double humidity, Double pressure) {
+    SamenmetenCsvLuchtEntry(String timestamp, String kitId, String label, String project, Double latitude,
+            Double longitude, Double pm10, Double pm25, Double no2, Double no2Palmes, Double temperature,
+            Double humidity, Double pressure, Double nh3Palmes, int pm10_kwal, int pm25_kwal) {
         this.timestamp = timestamp;
-        this.locationName = locationName;
-        this.locationCode = locationCode;
+        this.kitId = kitId;
+        this.label = label;
         this.project = project;
         this.latitude = latitude;
         this.longitude = longitude;
         this.pm10 = pm10;
-        this.pm2_5 = pm2_5;
+        this.pm25 = pm25;
+        this.no2 = no2;
+        this.no2Palmes = no2Palmes;
         this.temperature = temperature;
         this.humidity = humidity;
         this.pressure = pressure;
+        this.nh3Palmes = nh3Palmes;
+        this.pm10Kwal = pm10_kwal;
+        this.pm25Kwal = pm25_kwal;
+    }
+
+    public static SamenmetenCsvLuchtEntry from(List<String> fields)
+            throws JsonMappingException, JsonProcessingException {
+        if (fields.size() < 16) {
+            return null;
+        }
+        String timestamp = fields.get(0);
+        String kitId = fields.get(1);
+        String label = fields.get(2);
+        String project = fields.get(3);
+        JsonNode geom = MAPPER.readTree(fields.get(4));
+        Double longitude = getDouble(geom.at("/coordinates/0").asText());
+        Double latitude = getDouble(geom.at("/coordinates/1").asText());
+        Double pm10 = getDouble(fields.get(5));
+        Double pm25 = getDouble(fields.get(6));
+        Double no2 = getDouble(fields.get(7));
+        Double no2Palmes = getDouble(fields.get(8));
+        Double temp = getDouble(fields.get(9));
+        Double rh = getDouble(fields.get(10));
+        Double pres = getDouble(fields.get(11));
+        Double nh3Palmes = getDouble(fields.get(12));
+        int pm10Kwal = getInteger(fields.get(13), -1);
+        int pm25Kwal = getInteger(fields.get(14), -1);
+        return new SamenmetenCsvLuchtEntry(timestamp, kitId, label, project, latitude, longitude, pm10, pm25, no2,
+                no2Palmes, temp, rh, pres, nh3Palmes, pm10Kwal, pm25Kwal);
+    }
+
+    private static Double getDouble(String s) {
+        return s.isEmpty() ? Double.NaN : Double.valueOf(s);
+    }
+
+    private static Integer getInteger(String s, int defaultValue) {
+        return s.isEmpty() ? defaultValue : Integer.valueOf(s);
     }
 
     public boolean hasValidLocation() {
         return Double.isFinite(latitude) && Double.isFinite(longitude);
-    }
-
-    /**
-     * Parses one line of the Samenmeten CSV-like structure.
-     * 
-     * @param line the line, excluding the line delimiter ";"
-     * @return a parsed SamenmetenCsvLuchtEntry, or null if it could not be parsed
-     */
-    public static SamenmetenCsvLuchtEntry parse(String line) {
-        try {
-            List<String> items = Splitter.on(", ").trimResults().splitToList(line);
-            if (items.size() < 15) {
-                return null;
-            }
-            String timestamp = items.get(0);
-            String locName = items.get(1);
-            String locCode = items.get(2);
-            String project = items.get(3);
-            JsonNode node = MAPPER.readTree(items.get(4));
-            Double longitude = parseDouble(node.at("/coordinates/0").asText());
-            Double latitude = parseDouble(node.at("/coordinates/1").asText());
-            Double pm10 = parseDouble(items.get(5));
-            Double pm2_5 = parseDouble(items.get(6));
-            Double temperature = parseDouble(items.get(9));
-            Double humidity = parseDouble(items.get(10));
-            Double pressure = parseDouble(items.get(11));
-            return new SamenmetenCsvLuchtEntry(timestamp, locName, locCode, project, latitude, longitude, pm10, pm2_5,
-                    temperature, humidity, pressure);
-        } catch (JsonProcessingException e) {
-            LOG.warn("Failed to parse CSV line '{}'", line);
-            return null;
-        }
-    }
-
-    // returns value parsed as double, or null if not possible
-    private static Double parseDouble(String s) {
-        if (s != null) {
-            try {
-                return Double.parseDouble(s);
-            } catch (NumberFormatException e) {
-                // fall through
-            }
-        }
-        return null;
     }
 
     public Instant getTimestamp() {
@@ -124,11 +125,11 @@ public final class SamenmetenCsvLuchtEntry {
     }
 
     public String getLocationName() {
-        return locationName;
+        return kitId;
     }
 
     public String getLocationCode() {
-        return locationCode;
+        return label;
     }
 
     public String getProject() {
@@ -136,24 +137,19 @@ public final class SamenmetenCsvLuchtEntry {
     }
 
     public double getLatitude() {
-        return getDouble(latitude);
+        return latitude;
     }
 
     public double getLongitude() {
-        return getDouble(longitude);
+        return longitude;
     }
 
     public double getPm10() {
-        return getDouble(pm10);
+        return pm10;
     }
 
     public double getPm2_5() {
-        return getDouble(pm2_5);
+        return pm25;
     }
 
-    // returns value as double, null is converted to Double.NaN
-    private static double getDouble(Double value) {
-        return value != null ? value : Double.NaN;
-    }
-    
 }

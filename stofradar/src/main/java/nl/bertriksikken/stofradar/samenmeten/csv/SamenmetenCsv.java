@@ -1,0 +1,57 @@
+package nl.bertriksikken.stofradar.samenmeten.csv;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
+import com.fasterxml.jackson.core.JacksonException;
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvSchema;
+import com.google.common.base.Splitter;
+import com.google.common.collect.ImmutableList;
+
+public final class SamenmetenCsv {
+
+    private static final CsvMapper CSV_MAPPER = new CsvMapper();
+    private List<SamenmetenCsvLuchtEntry> entries = new ArrayList<>();
+
+    private SamenmetenCsv() {
+    }
+
+    public static SamenmetenCsv parse(String text) throws JacksonException {
+        // parse into lines
+        List<String> lines = new ArrayList<>();
+        try (Scanner scanner = new Scanner(text).useDelimiter(";")) {
+            scanner.forEachRemaining(lines::add);
+        }
+
+        // parse each individual line
+        SamenmetenCsv csv = new SamenmetenCsv();
+        for (String line : lines) {
+            List<String> fields = Splitter.on(", ").trimResults().splitToList(line);
+            SamenmetenCsvLuchtEntry entry = SamenmetenCsvLuchtEntry.from(fields);
+            csv.add(entry);
+        }
+        return csv;
+    }
+
+    private void add(SamenmetenCsvLuchtEntry entry) {
+        entries.add(entry);
+    }
+
+    public void write(File file) throws IOException {
+        CsvSchema schema = CSV_MAPPER.schemaFor(SamenmetenCsvLuchtEntry.class).withHeader().withColumnSeparator(',');
+        try (Writer writer = new FileWriter(file)) {
+            CSV_MAPPER.writer(schema).writeValues(writer).writeAll(entries);
+        }
+    }
+
+    public List<SamenmetenCsvLuchtEntry> getEntries() {
+        return ImmutableList.copyOf(entries);
+    }
+
+}

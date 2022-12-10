@@ -57,9 +57,9 @@ import nl.bertriksikken.stofradar.render.InverseDistanceWeightShader;
 import nl.bertriksikken.stofradar.render.SensorValue;
 import nl.bertriksikken.stofradar.restapi.AirRestApi;
 import nl.bertriksikken.stofradar.restapi.AirRestServer;
+import nl.bertriksikken.stofradar.samenmeten.csv.SamenmetenCsv;
 import nl.bertriksikken.stofradar.samenmeten.csv.SamenmetenCsvDownloader;
 import nl.bertriksikken.stofradar.samenmeten.csv.SamenmetenCsvLuchtEntry;
-import nl.bertriksikken.stofradar.samenmeten.csv.SamenmetenCsvWriter;
 import nl.bertriksikken.stofradar.senscom.SensComConfig;
 import nl.bertriksikken.stofradar.senscom.SensComDataApi;
 import nl.bertriksikken.stofradar.senscom.dto.DataPoint;
@@ -87,7 +87,6 @@ public final class ParticulateMapper {
     private final SamenmetenCsvDownloader samenmetenDownloader;
     private final MeetjestadDownloader meetjestadDownloader;
     private final AirRestServer pmRestApiHandler;
-    private final SamenmetenCsvWriter csvWriter = new SamenmetenCsvWriter();
 
     // color range according
     // https://www.luchtmeetnet.nl/informatie/luchtkwaliteit/luchtkwaliteitsindex-(lki)
@@ -253,13 +252,11 @@ public final class ParticulateMapper {
         // download PM2.5 data from RIVM samenmeten
         try {
             // download lucht
-            List<String> samenmetenLines = samenmetenDownloader.downloadDataFromFile("lucht");
-            List<SamenmetenCsvLuchtEntry> luchtEntries = samenmetenLines.stream()
-                    .map(line -> SamenmetenCsvLuchtEntry.parse(line)).collect(Collectors.toList());
+            SamenmetenCsv csv = samenmetenDownloader.downloadDataFromFile("lucht");
             // save to intermediate file
-            csvWriter.write(new File("lucht.csv"), luchtEntries);
+            csv.write(new File("lucht.csv"));
             // add to collection
-            List<SensorValue> samenmetenValues = convertSamenmeten(samenmetenLines);
+            List<SensorValue> samenmetenValues = convertSamenmeten(csv);
             pmValues.addAll(samenmetenValues);
             LOG.info("Collected {} PM2.5 values from samenmeten", samenmetenValues.size());
         } catch (IOException e) {
@@ -310,10 +307,9 @@ public final class ParticulateMapper {
         }
     }
 
-    private List<SensorValue> convertSamenmeten(List<String> lines) {
+    private List<SensorValue> convertSamenmeten(SamenmetenCsv csv) {
         List<SensorValue> values = new ArrayList<>();
-        for (String line : lines) {
-            SamenmetenCsvLuchtEntry entry = SamenmetenCsvLuchtEntry.parse(line);
+        for (SamenmetenCsvLuchtEntry entry : csv.getEntries()) {
             if ((entry != null) && !entry.getProject().equals("Luftdaten") && entry.hasValidLocation()
                     && Double.isFinite(entry.getPm2_5())) {
                 SensorValue value = new SensorValue(entry.getLocationCode(), entry.getLongitude(), entry.getLatitude(),

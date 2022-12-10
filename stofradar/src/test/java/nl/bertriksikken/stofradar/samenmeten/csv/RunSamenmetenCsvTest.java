@@ -1,10 +1,7 @@
 package nl.bertriksikken.stofradar.samenmeten.csv;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,24 +15,12 @@ public final class RunSamenmetenCsvTest {
     public static void main(String[] args) throws IOException {
         SamenmetenCsvConfig config = new SamenmetenCsvConfig();
         SamenmetenCsvDownloader downloader = SamenmetenCsvDownloader.create(config);
-        List<String> lines = downloader.downloadDataFromFile("lucht");
-        LOG.info("Got {} total entries", lines.size());
-
-        // convert and filter out luftdaten entries
-        List<SamenmetenCsvLuchtEntry> entries = lines.stream().map(line -> SamenmetenCsvLuchtEntry.parse(line))
-                .collect(Collectors.toList());
-
-        // save raw txt file
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("lucht.txt", StandardCharsets.US_ASCII))) {
-            for (String line : lines) {
-                writer.write(line);
-                writer.newLine();
-            }
-        }
+        SamenmetenCsv csv = downloader.downloadDataFromFile("lucht");
+        List<SamenmetenCsvLuchtEntry> entries = csv.getEntries();
+        LOG.info("Got {} total entries", entries.size());
 
         // save as csv
-        SamenmetenCsvWriter writer = new SamenmetenCsvWriter();
-        writer.write(new File("lucht.csv"), entries);
+        csv.write(new File("lucht.csv"));
 
         List<SamenmetenCsvLuchtEntry> nonLuftdaten = entries.stream().filter(entry -> isInteresting(entry))
                 .collect(Collectors.toList());
