@@ -109,15 +109,15 @@ public final class SamenmetenCsvLuchtEntry {
     }
 
     private static Double getDouble(String s) {
-        return s.isEmpty() ? Double.NaN : Double.valueOf(s);
+        return s.isEmpty() ? null : Double.valueOf(s);
     }
 
-    private static Integer getInteger(String s, int defaultValue) {
-        return s.isEmpty() ? defaultValue : Integer.valueOf(s);
+    private static int getInteger(String s, int defaultValue) {
+        return s.isEmpty() ? defaultValue : Integer.parseInt(s);
     }
 
     public boolean hasValidLocation() {
-        return Double.isFinite(latitude) && Double.isFinite(longitude);
+        return Double.isFinite(getLatitude()) && Double.isFinite(getLongitude());
     }
 
     public Instant getTimestamp() {
@@ -137,19 +137,23 @@ public final class SamenmetenCsvLuchtEntry {
     }
 
     public double getLatitude() {
-        return latitude;
+        return latitude != null ? latitude : Double.NaN;
     }
 
     public double getLongitude() {
-        return longitude;
+        return longitude != null ? longitude : Double.NaN;
     }
 
     public double getPm10() {
-        return pm10;
+        return pm10 != null ? pm10 : Double.NaN;
     }
 
     public double getPm2_5() {
-        return pm25;
+        return pm25 != null ? pm25 : Double.NaN;
+    }
+
+    public int getPm25Qual() {
+        return pm25Kwal;
     }
 
 }
