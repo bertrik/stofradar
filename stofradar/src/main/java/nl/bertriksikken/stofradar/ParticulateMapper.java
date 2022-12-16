@@ -60,7 +60,6 @@ import nl.bertriksikken.stofradar.restapi.AirRestServer;
 import nl.bertriksikken.stofradar.samenmeten.csv.SamenmetenCsv;
 import nl.bertriksikken.stofradar.samenmeten.csv.SamenmetenCsvDownloader;
 import nl.bertriksikken.stofradar.samenmeten.csv.SamenmetenCsvLuchtEntry;
-import nl.bertriksikken.stofradar.senscom.SensComConfig;
 import nl.bertriksikken.stofradar.senscom.SensComDataApi;
 import nl.bertriksikken.stofradar.senscom.dto.DataPoint;
 import nl.bertriksikken.stofradar.senscom.dto.DataValue;
@@ -84,6 +83,7 @@ public final class ParticulateMapper {
     private final ObjectMapper objectMapper = new ObjectMapper();
     // map from id to sensor value
     private final Map<String, SensorValue> sensorValueMap = new ConcurrentHashMap<>();
+    private final Map<String, Integer> plausibilityMap = new ConcurrentHashMap<>();
     private final SamenmetenCsvDownloader samenmetenDownloader;
     private final MeetjestadDownloader meetjestadDownloader;
     private final AirRestServer pmRestApiHandler;
@@ -114,26 +114,25 @@ public final class ParticulateMapper {
         pmRestApiHandler = new AirRestServer(config.getPmRestApiConfig(), sensorValueMap);
     }
 
+    // entirely removes obviously invalid sensor values (e.g. negative PM)
     private List<SensorValue> filterBySensorValue(List<SensorValue> values) {
         List<SensorValue> filtered = values.stream().filter(v -> v.value >= 0.0).collect(Collectors.toList());
         LOG.info("Filtered by sensor value: {} -> {}", values.size(), filtered.size());
         return filtered;
     }
 
-    private List<SensorValue> filterBySensorId(List<SensorValue> values, List<String> blacklist) {
-        List<SensorValue> filtered = values.stream().filter(v -> !blacklist.contains(v.id))
-                .collect(Collectors.toList());
-        LOG.info("Filtered by sensor id: {} -> {}", values.size(), filtered.size());
-        return filtered;
-    }
-
-    private List<SensorValue> filterByPercentile(List<SensorValue> values, double perc) {
+    private List<SensorValue> scoreByPercentile(List<SensorValue> values, double perc, int score) {
         List<SensorValue> copy = new ArrayList<>(values);
-        Collections.sort(copy, (v1, v2) -> Double.compare(v1.value, v2.value));
-        int newSize = (int) ((1 - perc) * values.size());
-        List<SensorValue> filtered = copy.subList(0, newSize);
-        LOG.info("Filtered by percentile filter: {} -> {}", values.size(), filtered.size());
-        return filtered;
+        Collections.sort(copy, (v1, v2) -> Double.compare(v2.value, v1.value));
+        for (int i = 0; i < (perc * values.size()); i++) {
+            SensorValue value = copy.get(i);
+            if (value.plausibility >= 0) {
+                value.plausibility = Math.min(value.plausibility, score);
+            } else {
+                value.plausibility = score;
+            }
+        }
+        return copy;
     }
 
     private List<SensorValue> filterByTime(List<SensorValue> values, Instant oldest) {
@@ -241,13 +240,8 @@ public final class ParticulateMapper {
             }
         }
 
-        // download data from sensor.community
-        LOG.info("Retrieving dust data from sensor.community");
-        List<DataPoint> dataPoints = sensComDataApi.downloadDust();
-
-        // convert DataPoints to internal format
-        List<SensorValue> pmValues = convertDataPoints(dataPoints, "", "P2");
-        List<SensorValue> rhValues = convertDataPoints(dataPoints, "BME280", "humidity");
+        List<SensorValue> pmValues = new ArrayList<>();
+        List<SensorValue> rhValues = new ArrayList<>();
 
         // download PM2.5 data from RIVM samenmeten
         try {
@@ -261,6 +255,20 @@ public final class ParticulateMapper {
             LOG.info("Collected {} PM2.5 values from samenmeten", samenmetenValues.size());
         } catch (IOException e) {
             LOG.warn("Failed to download samenmeten data: {}", e.getMessage());
+        }
+
+        // download data from sensor.community
+        try {
+            LOG.info("Retrieving dust data from sensor.community");
+            List<DataPoint> dataPoints = sensComDataApi.downloadDust();
+
+            // convert DataPoints to internal format
+            List<SensorValue> scPmValues = convertDataPoints(dataPoints, "", "P2");
+            pmValues.addAll(scPmValues);
+            List<SensorValue> scRhValues = convertDataPoints(dataPoints, "BME280", "humidity");
+            rhValues.addAll(scRhValues);
+        } catch (IOException e) {
+            LOG.warn("Failed to download sensor.community data: {}", e.getMessage());
         }
 
         // download PM2.5 from meetjestad
@@ -285,13 +293,11 @@ public final class ParticulateMapper {
         pmValues = new ArrayList<>(sensorValueMap.values());
         persistSensorValues(pmValues);
 
-        // remove top percentile of measurements
-        pmValues = filterByPercentile(pmValues, 0.01);
-
         // filter by value and id
         pmValues = filterBySensorValue(pmValues);
-        SensComConfig sensComConfig = config.getSensComConfig();
-        pmValues = filterBySensorId(pmValues, sensComConfig.getBlacklist());
+
+        // score top percentile as implausible
+        pmValues = scoreByPercentile(pmValues, 0.01, 1);
 
         // render all jobs
         for (RenderJob job : config.getRenderJobs()) {
@@ -310,11 +316,16 @@ public final class ParticulateMapper {
     private List<SensorValue> convertSamenmeten(SamenmetenCsv csv) {
         List<SensorValue> values = new ArrayList<>();
         for (SamenmetenCsvLuchtEntry entry : csv.getEntries()) {
-            if ((entry != null) && !entry.getProject().equals("Luftdaten") && entry.hasValidLocation()
-                    && Double.isFinite(entry.getPm2_5())) {
-                SensorValue value = new SensorValue(entry.getLocationCode(), entry.getLongitude(), entry.getLatitude(),
-                        entry.getPm2_5(), entry.getTimestamp());
-                values.add(value);
+            if (entry.hasValidLocation() && Double.isFinite(entry.getPm2_5())) {
+                // we already have luftdaten/sensor.community data at high time resolution
+                if (!entry.getProject().equals("Luftdaten")) {
+                    SensorValue value = new SensorValue(entry.getKitId(), entry.getLongitude(), entry.getLatitude(),
+                            entry.getPm2_5(), entry.getTimestamp());
+                    value.setPlausibility(entry.getPm25Qual());
+                    values.add(value);
+                }
+                // update plausibility map
+                plausibilityMap.put(entry.getKitId(), entry.getPm25Qual());
             }
         }
         return values;
@@ -414,7 +425,12 @@ public final class ParticulateMapper {
                     double x = location.getLongitude();
                     double y = location.getLatitude();
                     double v = dataValue.getValue();
-                    values.add(new SensorValue(id, x, y, v, dp.getTimestamp()));
+                    SensorValue value = new SensorValue(id, x, y, v, dp.getTimestamp());
+                    // tag with plausibility
+                    String name = "LTD_" + dp.getLocation().getId();
+                    int plausibility = plausibilityMap.getOrDefault(name, -1);
+                    value.setPlausibility(plausibility);
+                    values.add(value);
                 }
             }
         }

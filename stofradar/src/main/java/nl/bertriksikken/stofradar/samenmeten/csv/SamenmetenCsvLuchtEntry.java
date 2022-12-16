@@ -124,11 +124,11 @@ public final class SamenmetenCsvLuchtEntry {
         return ZonedDateTime.parse(timestamp, DATE_FORMATTER).toInstant();
     }
 
-    public String getLocationName() {
+    public String getKitId() {
         return kitId;
     }
 
-    public String getLocationCode() {
+    public String getLabel() {
         return label;
     }
 

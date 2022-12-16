@@ -8,6 +8,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public final class Location {
 
+    @JsonProperty("id")
+    private int id;
+
     @JsonProperty("latitude")
     private double latitude;
 
@@ -19,9 +22,13 @@ public final class Location {
 
     @JsonProperty("country")
     private String country;
-    
+
     @JsonProperty("indoor")
     private int indoor;
+
+    public int getId() {
+        return id;
+    }
 
     public double getLatitude() {
         return latitude;
@@ -40,9 +47,9 @@ public final class Location {
     }
 
     public int getIndoor() {
-    	return indoor;
+        return indoor;
     }
-    
+
     @Override
     public String toString() {
         return String.format(Locale.ROOT, "{%f,%f,%f,%s}", latitude, longitude, altitude, country);

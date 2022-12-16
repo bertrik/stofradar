@@ -2,10 +2,6 @@
 sensCom:
   url: "https://api.sensor.community"
   timeout: 30
-  blacklist:
-  - 11697
-  - 35376
-  - 30788
 samenmeten:
   url: "https://samenmeten.rivm.nl"
   timeout: 30

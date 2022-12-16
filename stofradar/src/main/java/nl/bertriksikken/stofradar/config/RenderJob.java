@@ -33,14 +33,17 @@ public final class RenderJob {
     @JsonProperty("maxAgeMinutes")
     private final int maxAgeMinutes;
 
+    @JsonProperty("minimumScore")
+    private final int minimumScore;
+
     // jackson constructor
     @SuppressWarnings("unused")
     private RenderJob() {
-        this("name", "background.png", 53.560406, 3.359403, 50.750938, 7.227496, 1.0, 10.0, 65);
+        this("name", "background.png", 53.560406, 3.359403, 50.750938, 7.227496, 1.0, 10.0, 65, 5);
     }
 
     RenderJob(String name, String map, double north, double west, double south, double east, double innerRadius,
-            double outerRadius, int maxAgeMinutes) {
+            double outerRadius, int maxAgeMinutes, int minimumScore) {
         this.name = name;
         this.map = map;
         this.north = north;
@@ -50,6 +53,7 @@ public final class RenderJob {
         this.innerRadius = innerRadius;
         this.outerRadius = outerRadius;
         this.maxAgeMinutes = maxAgeMinutes;
+        this.minimumScore = minimumScore;
     }
 
     public String getName() {
@@ -91,6 +95,10 @@ public final class RenderJob {
     @Override
     public String toString() {
         return name;
+    }
+
+    public int getMinimumScore() {
+        return minimumScore;
     }
 
 }

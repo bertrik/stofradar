@@ -49,7 +49,7 @@ public final class ParticulateMapperConfig {
 
     public ParticulateMapperConfig() {
         renderJobs.add(new RenderJob("netherlands", "netherlands.png", 53.560406, 3.359403, 50.750938, 7.227496, 1.0,
-                10.0, 65));
+                10.0, 65, 5));
     }
 
     /**

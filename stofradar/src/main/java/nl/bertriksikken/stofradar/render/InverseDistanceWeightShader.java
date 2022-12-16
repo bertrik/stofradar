@@ -10,6 +10,7 @@ public final class InverseDistanceWeightShader implements IShader {
 
     private final double innerRadius;
     private final double outerRadius;
+    private final int minimumScore;
     private final ColorMapper mapper;
     private final double[] aspect;
 
@@ -21,6 +22,7 @@ public final class InverseDistanceWeightShader implements IShader {
     public InverseDistanceWeightShader(RenderJob job, ColorMapper mapper) {
         this.innerRadius = job.getInnerRadius();
         this.outerRadius = job.getOuterRadius();
+        this.minimumScore = job.getMinimumScore();
         this.mapper = mapper;
 
         // calculate km per degree
@@ -37,10 +39,15 @@ public final class InverseDistanceWeightShader implements IShader {
         for (SensorValue dp : sensorValues) {
             Coord c1 = new Coord(dp.x, dp.y);
             double d2 = distanceSquared(aspect, coordinate, c1);
-            double w = 1.0 / d2;
+            int score = dp.plausibility;
             double v = dp.value;
-            valueSum += (v * w);
-            weightSum += w;
+            // disregard values for interpolation if has a score, and it is lower than the minimum score 
+            if ((score < 0) || (score >= minimumScore)) {
+                double w = 1.0 / d2;
+                valueSum += (v * w);
+                weightSum += w;
+            }
+            // always keep track of the closest distance to a station
             if (d2 < closestDistSquared) {
                 closestDistSquared = d2;
                 closestDistValue = v;
