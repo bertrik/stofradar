@@ -7,31 +7,25 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 final class Coord {
 
     @JsonProperty("lon")
-    private double x;
+    public final double x;
     @JsonProperty("lat")
-    private double y;
+    public final double y;
 
+    // jackson constructor
+    @SuppressWarnings("unused")
     private Coord() {
-        // jackson constructor
+        x = Double.NaN;
+        y = Double.NaN;
     }
 
     Coord(double x, double y) {
-        this();
         this.x = x;
         this.y = y;
     }
 
-    public double getX() {
-        return x;
-    }
-
-    public double getY() {
-        return y;
-    }
-
     @Override
     public String toString() {
-        return String.format(Locale.ROOT, "{x=%f,y=%f}", x, y);
+        return String.format(Locale.ROOT, "{%f,%f}", x, y);
     }
 
 }

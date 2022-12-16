@@ -34,8 +34,8 @@ public final class Interpolator {
         // interpolate
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
-                double lon = job.getWest() + (0.5 + x) * size.getX() / width;
-                double lat = job.getNorth() - (0.5 + y) * size.getY() / height;
+                double lon = job.getWest() + (0.5 + x) * size.x / width;
+                double lat = job.getNorth() - (0.5 + y) * size.y / height;
 				Coord pixel = new Coord(lon, lat);
                 int[] colour = shader.calculatePixel(sensorValues, pixel);
 				raster.setPixel(x, y, colour);

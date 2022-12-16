@@ -22,7 +22,7 @@ public final class MedianShader implements IShader {
         
         // calculate km per degree
         Coord center = new Coord((job.getWest() + job.getEast()) / 2, (job.getNorth() + job.getSouth()) / 2);
-        this.aspect = new double[] { KM_PER_DEGREE_LAT * Math.cos(Math.toRadians(center.getY())), KM_PER_DEGREE_LAT };
+        this.aspect = new double[] { KM_PER_DEGREE_LAT * Math.cos(Math.toRadians(center.y)), KM_PER_DEGREE_LAT };
     }
 
     
@@ -68,8 +68,8 @@ public final class MedianShader implements IShader {
     
 
     private double distanceSquared(double[] aspect, Coord c1, Coord c2) {
-        double dx = aspect[0] * (c1.getX() - c2.getX());
-        double dy = aspect[1] * (c1.getY() - c2.getY());
+        double dx = aspect[0] * (c1.x - c2.x);
+        double dy = aspect[1] * (c1.y - c2.y);
         return (dx * dx) + (dy * dy);
     }
 
