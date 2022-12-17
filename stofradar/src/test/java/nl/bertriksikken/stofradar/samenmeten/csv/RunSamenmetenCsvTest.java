@@ -8,12 +8,14 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import nl.bertriksikken.stofradar.config.HostConnectionConfig;
+
 public final class RunSamenmetenCsvTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(RunSamenmetenCsvTest.class);
 
     public static void main(String[] args) throws IOException {
-        SamenmetenCsvConfig config = new SamenmetenCsvConfig();
+        HostConnectionConfig config = new HostConnectionConfig("https://samenmeten.rivm.nl", 30);
         SamenmetenCsvDownloader downloader = SamenmetenCsvDownloader.create(config);
         SamenmetenCsv csv = downloader.downloadDataFromFile("lucht");
         List<SamenmetenCsvLuchtEntry> entries = csv.getEntries();

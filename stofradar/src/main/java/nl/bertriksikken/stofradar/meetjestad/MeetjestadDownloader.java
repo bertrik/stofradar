@@ -1,7 +1,6 @@
 package nl.bertriksikken.stofradar.meetjestad;
 
 import java.io.IOException;
-import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -13,6 +12,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import nl.bertriksikken.stofradar.config.HostConnectionConfig;
 import nl.bertriksikken.stofradar.meetjestad.MeetjestadData.MeetjestadDataEntry;
 import okhttp3.OkHttpClient;
 import retrofit2.Response;
@@ -31,10 +31,9 @@ public final class MeetjestadDownloader {
         this.restApi = restApi;
     }
 
-    public static MeetjestadDownloader create(MeetjestadConfig config) {
-        LOG.info("Creating new REST client for URL '{}' with timeout {}", config.getUrl(), config.getTimeoutSec());
-        OkHttpClient client = new OkHttpClient().newBuilder().callTimeout(Duration.ofSeconds(config.getTimeoutSec()))
-                .build();
+    public static MeetjestadDownloader create(HostConnectionConfig config) {
+        LOG.info("Creating new REST client for URL '{}' with timeout {}", config.getUrl(), config.getTimeout());
+        OkHttpClient client = new OkHttpClient().newBuilder().callTimeout(config.getTimeout()).build();
         Retrofit retrofit = new Retrofit.Builder().baseUrl(config.getUrl())
                 .addConverterFactory(JacksonConverterFactory.create()).client(client).build();
         IMeetjestadRestApi restApi = retrofit.create(IMeetjestadRestApi.class);

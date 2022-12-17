@@ -5,6 +5,7 @@ import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import nl.bertriksikken.stofradar.config.HostConnectionConfig;
 import okhttp3.OkHttpClient;
 import retrofit2.Response;
 import retrofit2.Retrofit;
@@ -23,7 +24,7 @@ public final class SamenmetenCsvDownloader {
         this.restApi = restApi;
     }
     
-    public static SamenmetenCsvDownloader create(SamenmetenCsvConfig config) {
+    public static SamenmetenCsvDownloader create(HostConnectionConfig config) {
         LOG.info("Creating new REST client for URL '{}' with timeout {}", config.getUrl(), config.getTimeout());
         OkHttpClient client = new OkHttpClient().newBuilder().callTimeout(config.getTimeout()).build();
         Retrofit retrofit = new Retrofit.Builder().baseUrl(config.getUrl())

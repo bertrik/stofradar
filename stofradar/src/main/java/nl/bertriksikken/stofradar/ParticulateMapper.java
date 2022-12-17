@@ -108,10 +108,10 @@ public final class ParticulateMapper {
     ParticulateMapper(ParticulateMapperConfig config) {
         this.config = config;
         objectMapper.findAndRegisterModules();
-        sensComDataApi = SensComDataApi.create(config.getSensComConfig());
-        samenmetenDownloader = SamenmetenCsvDownloader.create(config.getSamenmetenCsvConfig());
-        meetjestadDownloader = MeetjestadDownloader.create(config.getMeetjestadConfig());
-        pmRestApiHandler = new AirRestServer(config.getPmRestApiConfig(), sensorValueMap);
+        sensComDataApi = SensComDataApi.create(config.sensComConfig);
+        samenmetenDownloader = SamenmetenCsvDownloader.create(config.samenmetenConfig);
+        meetjestadDownloader = MeetjestadDownloader.create(config.meetjestadConfig);
+        pmRestApiHandler = new AirRestServer(config.airRestApiConfig, sensorValueMap);
     }
 
     // entirely removes obviously invalid sensor values (e.g. negative PM)
@@ -222,14 +222,14 @@ public final class ParticulateMapper {
         utcTime = utcTime.withMinute(minute).truncatedTo(ChronoUnit.MINUTES);
 
         // create temporary name
-        File tempDir = new File(config.getIntermediateDir());
+        File tempDir = new File(config.intermediateDir);
         if (!tempDir.exists() && !tempDir.mkdirs()) {
             LOG.warn("Failed to create directory {}", tempDir.getAbsolutePath());
         }
 
         // delete output files for this time-of-day
         String pngName = String.format(Locale.ROOT, "%02d%02d.png", utcTime.getHour(), utcTime.getMinute());
-        for (RenderJob job : config.getRenderJobs()) {
+        for (RenderJob job : config.renderJobs) {
             File jobDir = new File(tempDir, job.getName());
             File outputFile = new File(jobDir, pngName);
             if (outputFile.exists()) {
@@ -283,7 +283,7 @@ public final class ParticulateMapper {
 
         // update list of sensor values, expiring old data
         pmValues.forEach(v -> sensorValueMap.put(v.id, v));
-        Instant expiryTime = now.minus(config.getKeepingDuration());
+        Instant expiryTime = now.minus(Duration.ofMinutes(config.keepingDurationMinutes));
         sensorValueMap.entrySet().removeIf(e -> e.getValue().time.isBefore(expiryTime));
 
         // update in REST service
@@ -300,12 +300,12 @@ public final class ParticulateMapper {
         pmValues = scoreByPercentile(pmValues, 0.01, 1);
 
         // render all jobs
-        for (RenderJob job : config.getRenderJobs()) {
+        for (RenderJob job : config.renderJobs) {
             File jobDir = new File(tempDir, job.getName());
             if (jobDir.mkdirs()) {
                 LOG.info("Created directory {}", jobDir);
             }
-            File outputFile = new File(config.getOutputPath(), job.getName() + ".png");
+            File outputFile = new File(config.outputPath, job.getName() + ".png");
             render(job, jobDir, pmValues, rhValues, utcTime.toInstant(), outputFile);
             // copy file for animation
             File animationFile = new File(jobDir, pngName);
@@ -354,13 +354,13 @@ public final class ParticulateMapper {
             // create composite from background image and overlay
             File baseMap = new File(job.getMapFile());
             File compositeFile = new File(jobDir, "composite.png");
-            composite(config.getCompositeCmd(), overlayFile, baseMap, compositeFile);
+            composite(config.compositeCmd, overlayFile, baseMap, compositeFile);
 
             // add timestamp to composite
             LocalDateTime localDateTime = LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
             String timestampText = localDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
             String stampText = String.format(Locale.ROOT, "%s%nRV: %.1f %%", timestampText, medianRh);
-            timestamp(config.getConvertCmd(), stampText, compositeFile, outputFile);
+            timestamp(config.convertCmd, stampText, compositeFile, outputFile);
         } catch (IOException e) {
             LOG.trace("Caught IOException", e);
             LOG.warn("Caught IOException: {}", e.getMessage());

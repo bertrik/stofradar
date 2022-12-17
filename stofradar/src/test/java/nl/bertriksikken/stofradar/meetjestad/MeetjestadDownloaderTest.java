@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import nl.bertriksikken.stofradar.config.HostConnectionConfig;
 import nl.bertriksikken.stofradar.meetjestad.MeetjestadData.MeetjestadDataEntry;
 
 /**
@@ -25,7 +26,7 @@ public final class MeetjestadDownloaderTest {
     }
 
     public void testDownload() throws IOException {
-        MeetjestadConfig config = new MeetjestadConfig();
+        HostConnectionConfig config = new HostConnectionConfig("https://meetjestad.net", 30);
         MeetjestadDownloader downloader = MeetjestadDownloader.create(config);
 
         Instant from = Instant.now().minusSeconds(900);

@@ -8,6 +8,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import nl.bertriksikken.stofradar.config.HostConnectionConfig;
 import nl.bertriksikken.stofradar.senscom.dto.DataPoint;
 import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
@@ -44,9 +45,9 @@ public final class SensComDataApi {
         return retrofit.create(ISensComRestApi.class);
     }
 
-    public static SensComDataApi create(SensComConfig config) {
-        LOG.info("Creating new REST client for URL '{}' with timeout {}", config.getUrl(), config.getTimeoutSec());
-        OkHttpClient client = new OkHttpClient().newBuilder().callTimeout(Duration.ofSeconds(config.getTimeoutSec()))
+    public static SensComDataApi create(HostConnectionConfig config) {
+        LOG.info("Creating new REST client for URL '{}' with timeout {}", config.getUrl(), config.getTimeout());
+        OkHttpClient client = new OkHttpClient().newBuilder().callTimeout(config.getTimeout())
                 .build();
         Retrofit retrofit = new Retrofit.Builder().baseUrl(config.getUrl())
                 .addConverterFactory(JacksonConverterFactory.create()).client(client).build();
