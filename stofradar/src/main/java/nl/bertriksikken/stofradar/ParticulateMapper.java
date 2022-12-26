@@ -281,6 +281,9 @@ public final class ParticulateMapper {
             LOG.warn("Failed to download meetjestad data: {}", e.getMessage());
         }
 
+        // filter invalid values
+        pmValues = filterBySensorValue(pmValues);
+        
         // update list of sensor values, expiring old data
         pmValues.forEach(v -> sensorValueMap.put(v.id, v));
         Instant expiryTime = now.minus(Duration.ofMinutes(config.keepingDurationMinutes));
@@ -292,9 +295,6 @@ public final class ParticulateMapper {
         // store cached value
         pmValues = new ArrayList<>(sensorValueMap.values());
         persistSensorValues(pmValues);
-
-        // filter invalid values
-        pmValues = filterBySensorValue(pmValues);
 
         // score top percentile as implausible
         pmValues = scoreByPercentile(pmValues, 0.01, 1);
