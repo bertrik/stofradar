@@ -263,9 +263,9 @@ public final class ParticulateMapper {
             List<DataPoint> dataPoints = sensComDataApi.downloadDust();
 
             // convert DataPoints to internal format
-            List<SensorValue> scPmValues = convertDataPoints(dataPoints, "", "P2");
+            List<SensorValue> scPmValues = convertDataPoints(dataPoints, "", "P2", 0);
             pmValues.addAll(scPmValues);
-            List<SensorValue> scRhValues = convertDataPoints(dataPoints, "BME280", "humidity");
+            List<SensorValue> scRhValues = convertDataPoints(dataPoints, "BME280", "humidity", 0);
             rhValues.addAll(scRhValues);
         } catch (IOException e) {
             LOG.warn("Failed to download sensor.community data: {}", e.getMessage());
@@ -293,7 +293,7 @@ public final class ParticulateMapper {
         pmValues = new ArrayList<>(sensorValueMap.values());
         persistSensorValues(pmValues);
 
-        // filter by value and id
+        // filter invalid values
         pmValues = filterBySensorValue(pmValues);
 
         // score top percentile as implausible
@@ -403,12 +403,9 @@ public final class ParticulateMapper {
 
     /**
      * Converts from the sensor.community datapoints format to internal format.
-     * 
-     * @param dataPoints the data points
-     * @param item       which item to select (P1 or P2)
-     * @return list of sensor values
      */
-    private List<SensorValue> convertDataPoints(List<DataPoint> dataPoints, String sensorType, String item) {
+    private List<SensorValue> convertDataPoints(List<DataPoint> dataPoints, String sensorType, String item,
+            int defaultPlausibility) {
         List<SensorValue> values = new ArrayList<>();
         int numIndoor = 0;
         for (DataPoint dp : dataPoints) {
@@ -428,7 +425,7 @@ public final class ParticulateMapper {
                     SensorValue value = new SensorValue(id, x, y, v, dp.getTimestamp());
                     // tag with plausibility
                     String name = "LTD_" + dp.getLocation().getId();
-                    int plausibility = plausibilityMap.getOrDefault(name, -1);
+                    int plausibility = plausibilityMap.getOrDefault(name, defaultPlausibility);
                     value.setPlausibility(plausibility);
                     values.add(value);
                 }
