@@ -16,7 +16,7 @@ outputPath: "/home/bertrik/stofradar.nl/www"
 airRestApi:
   port: 9000
   path: ""
-  maxDistance: 1.0
+  maxDistance: 5.0
 renderJobs:
 - name: "netherlands"
   map: "netherlands.png"
