@@ -35,6 +35,7 @@ public final class InverseDistanceWeightShader implements IShader {
         double weightSum = 0.0;
         double valueSum = 0.0;
         double closestDistSquared = Double.MAX_VALUE;
+        double closestDistSquaredInterpolated = Double.MAX_VALUE;
         double closestDistValue = 0.0;
         for (SensorValue dp : sensorValues) {
             Coord c1 = new Coord(dp.x, dp.y);
@@ -46,6 +47,8 @@ public final class InverseDistanceWeightShader implements IShader {
                 double w = 1.0 / d2;
                 valueSum += (v * w);
                 weightSum += w;
+                // keep track of closest station used in interpolation
+                closestDistSquaredInterpolated = Math.min(closestDistSquaredInterpolated, d2);
             }
             // always keep track of the closest distance to a station
             if (d2 < closestDistSquared) {
@@ -54,6 +57,7 @@ public final class InverseDistanceWeightShader implements IShader {
             }
         }
         double closest = Math.sqrt(closestDistSquared);
+        double closestInterpolated = Math.sqrt(closestDistSquaredInterpolated);
         double weighted = valueSum / weightSum;
 
         int[] colour;
@@ -61,7 +65,7 @@ public final class InverseDistanceWeightShader implements IShader {
             // inside inner radius: fully opaque disc
             colour = mapper.getColour(closestDistValue).clone();
             colour[3] = 255;
-        } else if (closest < outerRadius) {
+        } else if (closestInterpolated < outerRadius) {
             // between inner and outer radius: semi-transparent weighted sum
             colour = mapper.getColour(weighted);
         } else {
