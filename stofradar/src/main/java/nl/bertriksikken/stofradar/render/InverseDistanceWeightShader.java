@@ -2,6 +2,8 @@ package nl.bertriksikken.stofradar.render;
 
 import java.util.List;
 
+import com.google.common.base.Preconditions;
+
 import nl.bertriksikken.stofradar.config.RenderJob;
 
 public final class InverseDistanceWeightShader implements IShader {
@@ -23,7 +25,7 @@ public final class InverseDistanceWeightShader implements IShader {
         this.innerRadius = job.getInnerRadius();
         this.outerRadius = job.getOuterRadius();
         this.minimumScore = job.getMinimumScore();
-        this.mapper = mapper;
+        this.mapper = Preconditions.checkNotNull(mapper);
 
         // calculate km per degree
         Coord center = new Coord((job.getWest() + job.getEast()) / 2, (job.getNorth() + job.getSouth()) / 2);
@@ -39,7 +41,7 @@ public final class InverseDistanceWeightShader implements IShader {
         double closestDistValue = 0.0;
         for (SensorValue dp : sensorValues) {
             Coord c1 = new Coord(dp.x, dp.y);
-            double d2 = distanceSquared(aspect, coordinate, c1);
+            double d2 = distanceSquared(coordinate, c1);
             int score = dp.plausibility;
             double v = dp.value;
             // disregard values for interpolation if has a score, and it is lower than the minimum score 
@@ -77,13 +79,12 @@ public final class InverseDistanceWeightShader implements IShader {
 
     /**
      * Calculates a measure of the distance between two coordinates.
-     * 
-     * @param aspect the x/y aspect ratio
      * @param c1     the first coordinate
      * @param c2     the second coordinate
+     * 
      * @return distance-squared
      */
-    private double distanceSquared(double[] aspect, Coord c1, Coord c2) {
+    private double distanceSquared(Coord c1, Coord c2) {
         double dx = aspect[0] * (c1.x - c2.x);
         double dy = aspect[1] * (c1.y - c2.y);
         return (dx * dx) + (dy * dy);
