@@ -11,9 +11,9 @@ import org.slf4j.LoggerFactory;
 import nl.bertriksikken.stofradar.config.HostConnectionConfig;
 import nl.bertriksikken.stofradar.senscom.dto.DataPoint;
 import okhttp3.OkHttpClient;
+import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
-import retrofit2.converter.scalars.ScalarsConverterFactory;
 
 public final class SensComDataApi {
 
@@ -30,25 +30,11 @@ public final class SensComDataApi {
         this.api = api;
     }
 
-    /**
-     * Creates a REST interface.
-     * 
-     * @param url     the base URL
-     * @param timeout timeout (ms)
-     * @return REST interface
-     */
-    ISensComRestApi newRestClient(String url, Duration timeout) {
-        LOG.info("Creating new REST client for URL '{}' with timeout {}", url, timeout);
-        OkHttpClient client = new OkHttpClient().newBuilder().callTimeout(timeout).build();
-        Retrofit retrofit = new Retrofit.Builder().baseUrl(url).addConverterFactory(ScalarsConverterFactory.create())
-                .client(client).build();
-        return retrofit.create(ISensComRestApi.class);
-    }
-
     public static SensComDataApi create(HostConnectionConfig config) {
         LOG.info("Creating new REST client for URL '{}' with timeout {}", config.getUrl(), config.getTimeout());
-        OkHttpClient client = new OkHttpClient().newBuilder().callTimeout(config.getTimeout())
-                .build();
+        Duration timeout = config.getTimeout();
+        OkHttpClient client = new OkHttpClient().newBuilder().connectTimeout(timeout).readTimeout(timeout)
+                .writeTimeout(timeout).build();
         Retrofit retrofit = new Retrofit.Builder().baseUrl(config.getUrl())
                 .addConverterFactory(JacksonConverterFactory.create()).client(client).build();
         ISensComRestApi restApi = retrofit.create(ISensComRestApi.class);
@@ -57,11 +43,11 @@ public final class SensComDataApi {
 
     public List<DataPoint> downloadDust() throws IOException {
         List<DataPoint> entries = new ArrayList<>();
-        retrofit2.Response<List<DataPoint>> response = api.getAverageDustData().execute();
+        Response<List<DataPoint>> response = api.getAverageDustData().execute();
         if (response.isSuccessful()) {
             entries.addAll(response.body());
         } else {
-            LOG.warn("Download failed!");
+            LOG.warn("Download failed: {}", response.errorBody());
         }
         return entries;
     }
