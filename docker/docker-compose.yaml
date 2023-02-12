@@ -1,0 +1,8 @@
+version: "3"
+services:
+  java:
+    image: ghcr.io/bertrik/stofradar
+    build: ..
+    restart: always
+    volumes:
+      - "./stofradar.yaml:/opt/stofradar/stofradar.yaml:ro"

@@ -1,0 +1,92 @@
+---
+sensCom:
+  url: "https://api.sensor.community"
+  timeout: 30
+samenmeten:
+  url: "https://samenmeten.rivm.nl"
+  timeout: 30
+meetjestad:
+  url: "https://meetjestad.net"
+  timeout: 30
+keepingDurationMinutes: 300
+compositeCmd: "/usr/bin/composite"
+convertCmd: "/usr/bin/convert"
+intermediateDir: "tmp"
+outputPath: "/home/bertrik/stofradar.nl/www"
+airRestApi:
+  port: 9000
+  path: ""
+  maxDistance: 5.0
+renderJobs:
+- name: "netherlands"
+  map: "netherlands.png"
+  north: 53.560406
+  west: 3.359403
+  south: 50.750938
+  east: 7.227496
+  innerRadius: 1.0
+  outerRadius: 10.0
+  maxAgeMinutes: 65
+- name: "rotterdam"
+  map: "rotterdam.png"
+  north: 51.9778
+  west: 4.3796
+  south: 51.858
+  east: 4.5739
+  innerRadius: 0.1
+  outerRadius: 0.3
+  maxAgeMinutes: 300
+- name: "gouda"
+  map: "gouda.png"
+  north: 52.0412
+  west: 4.6646
+  south: 51.9952
+  east: 4.7578
+  innerRadius: 0.1
+  outerRadius: 0.3
+  maxAgeMinutes: 300
+- name: "nieuwerkerk"
+  map: "nieuwerkerk.png"
+  north: 51.9795
+  west: 4.5908
+  south: 51.9551
+  east: 4.6302
+  innerRadius: 0.05
+  outerRadius: 0.2
+  maxAgeMinutes: 300
+- name: "stanthonis"
+  map: "stanthonis.png"
+  north: 51.8073
+  west: 5.6429
+  south: 51.4664
+  east: 6.1235
+  innerRadius: 0.3
+  outerRadius: 1.0
+  maxAgeMinutes: 300
+- name: "delft"
+  map: "delft.png"
+  north: 52.0437
+  west: 4.2923
+  south: 51.9716
+  east: 4.4093
+  innerRadius: 0.1
+  outerRadius: 0.3
+  maxAgeMinutes: 300
+- name: "amersfoort"
+  map: "amersfoort.png"
+  north: 52.2109
+  west: 5.3172
+  south: 52.1197
+  east: 5.4659
+  innerRadius: 0.1
+  outerRadius: 0.3
+  maxAgeMinutes: 300
+- name: "utrecht"
+  map: "utrecht.png"
+  north: 52.149
+  west: 5.0042
+  south: 52.0437
+  east: 5.2184
+  innerRadius: 0.1
+  outerRadius: 0.3
+  maxAgeMinutes: 300
