@@ -9,7 +9,6 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.collect.ImmutableList;
 
 import nl.bertriksikken.stofradar.render.SensorValue;
 
@@ -21,11 +20,11 @@ public final class MeetjestadData {
     private final List<MeetjestadDataEntry> entries;
 
     MeetjestadData(List<MeetjestadDataEntry> entries) {
-        this.entries = ImmutableList.copyOf(entries);
+        this.entries = List.copyOf(entries);
     }
 
     public List<MeetjestadDataEntry> getEntries() {
-        return ImmutableList.copyOf(entries);
+        return List.copyOf(entries);
     }
 
     /**

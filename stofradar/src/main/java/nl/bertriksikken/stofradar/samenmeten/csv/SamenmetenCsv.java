@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -11,9 +12,7 @@ import java.util.Scanner;
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
-import com.google.common.base.Charsets;
 import com.google.common.base.Splitter;
-import com.google.common.collect.ImmutableList;
 
 public final class SamenmetenCsv {
 
@@ -46,13 +45,13 @@ public final class SamenmetenCsv {
 
     public void write(File file) throws IOException {
         CsvSchema schema = CSV_MAPPER.schemaFor(SamenmetenCsvLuchtEntry.class).withHeader().withNullValue("");
-        try (Writer writer = new FileWriter(file, Charsets.UTF_8)) {
+        try (Writer writer = new FileWriter(file, StandardCharsets.UTF_8)) {
             CSV_MAPPER.writer(schema).writeValues(writer).writeAll(entries);
         }
     }
 
     public List<SamenmetenCsvLuchtEntry> getEntries() {
-        return ImmutableList.copyOf(entries);
+        return List.copyOf(entries);
     }
 
 }
