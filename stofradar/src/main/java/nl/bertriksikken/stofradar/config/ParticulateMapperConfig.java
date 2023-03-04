@@ -34,7 +34,7 @@ public final class ParticulateMapperConfig {
     public final String intermediateDir = "tmp";
 
     @JsonProperty("outputPath")
-    public final String outputPath = "/home/bertrik/stofradar.nl/www";
+    public final String outputPath;
 
     @JsonProperty("airRestApi")
     public final AirRestApiConfig airRestApiConfig = new AirRestApiConfig();
@@ -43,6 +43,7 @@ public final class ParticulateMapperConfig {
     public final List<RenderJob> renderJobs = new ArrayList<>();
 
     public ParticulateMapperConfig() {
+        this.outputPath = "/home/bertrik/stofradar.nl/www";
         renderJobs.add(new RenderJob("netherlands", "netherlands.png", 53.560406, 3.359403, 50.750938, 7.227496, 1.0,
                 10.0, 65, 5));
     }
