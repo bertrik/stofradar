@@ -6,3 +6,4 @@ services:
     restart: always
     volumes:
       - "./stofradar.yaml:/opt/stofradar/stofradar.yaml:ro"
+      - "./www:/opt/stofradar/www:rw"

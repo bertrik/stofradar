@@ -12,7 +12,7 @@ keepingDurationMinutes: 300
 compositeCmd: "/usr/bin/composite"
 convertCmd: "/usr/bin/convert"
 intermediateDir: "tmp"
-outputPath: "/home/bertrik/stofradar.nl/www"
+outputPath: "/opt/stofradar/www"
 airRestApi:
   port: 9000
   path: ""
