@@ -8,11 +8,12 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
-import com.google.common.base.Splitter;
 
 public final class SamenmetenCsv {
 
@@ -32,9 +33,11 @@ public final class SamenmetenCsv {
         // parse each individual line
         SamenmetenCsv csv = new SamenmetenCsv();
         for (String line : lines) {
-            List<String> fields = Splitter.on(", ").trimResults().splitToList(line);
+            List<String> fields = Stream.of(line.split(", ", -1)).map(String::trim).collect(Collectors.toList());
             SamenmetenCsvLuchtEntry entry = SamenmetenCsvLuchtEntry.from(fields);
-            csv.add(entry);
+            if (entry != null) {
+                csv.add(entry);
+            }
         }
         return csv;
     }

@@ -7,14 +7,13 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Preconditions;
 
 import es.moki.ratelimitj.core.limiter.request.RequestRateLimiter;
 import nl.bertriksikken.stofradar.render.SensorValue;
@@ -30,9 +29,9 @@ public final class AirRestApi implements IAirRestApi {
     private static RequestRateLimiter rateLimiter;
 
     public static void initialize(ExecutorService executorService, double radius, RequestRateLimiter limiter) {
-        executor = Preconditions.checkNotNull(executorService);
+        executor = Objects.requireNonNull(executorService);
         maxd = radius;
-        rateLimiter = Preconditions.checkNotNull(limiter);
+        rateLimiter = Objects.requireNonNull(limiter);
     }
 
     // updates the sensor values, runs on the (single-thread) executor, so is thread-safe with REST requests

@@ -84,7 +84,7 @@ public final class SamenmetenCsvLuchtEntry {
 
     public static SamenmetenCsvLuchtEntry from(List<String> fields)
             throws JsonMappingException, JsonProcessingException {
-        if (fields.size() < 16) {
+        if (fields.size() < 15) {
             return null;
         }
         String timestamp = fields.get(0);

@@ -5,7 +5,6 @@ mainClassName = 'nl.bertriksikken.stofradar.ParticulateMapper'
 dependencies {
     implementation libraries.reload4j
     
-    implementation libraries.guava
     implementation libraries.retrofit
     implementation libraries.jackson
 

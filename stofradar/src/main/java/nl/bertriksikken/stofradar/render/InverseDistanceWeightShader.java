@@ -1,8 +1,7 @@
 package nl.bertriksikken.stofradar.render;
 
 import java.util.List;
-
-import com.google.common.base.Preconditions;
+import java.util.Objects;
 
 import nl.bertriksikken.stofradar.config.RenderJob;
 
@@ -25,7 +24,7 @@ public final class InverseDistanceWeightShader implements IShader {
         this.innerRadius = job.getInnerRadius();
         this.outerRadius = job.getOuterRadius();
         this.minimumScore = job.getMinimumScore();
-        this.mapper = Preconditions.checkNotNull(mapper);
+        this.mapper = Objects.requireNonNull(mapper);
 
         // calculate km per degree
         Coord center = new Coord((job.getWest() + job.getEast()) / 2, (job.getNorth() + job.getSouth()) / 2);
