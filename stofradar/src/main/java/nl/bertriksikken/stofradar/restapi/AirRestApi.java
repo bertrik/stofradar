@@ -1,5 +1,6 @@
 package nl.bertriksikken.stofradar.restapi;
 
+import java.io.InputStream;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -101,6 +102,11 @@ public final class AirRestApi implements IAirRestApi {
             }
         }
         return sum_pm / sum_w;
+    }
+
+    @Override
+    public InputStream getFavicon() {
+        return getClass().getClassLoader().getResourceAsStream("favicon.ico");
     }
 
 }
