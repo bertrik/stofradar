@@ -111,7 +111,7 @@ public final class ParticulateMapper {
         sensComDataApi = SensComDataApi.create(config.sensComConfig);
         samenmetenDownloader = SamenmetenCsvDownloader.create(config.samenmetenConfig);
         meetjestadDownloader = MeetjestadDownloader.create(config.meetjestadConfig);
-        pmRestApiHandler = new AirRestServer(config.airRestApiConfig, sensorValueMap);
+        pmRestApiHandler = new AirRestServer(config.airRestApiConfig);
     }
 
     // entirely removes obviously invalid sensor values (e.g. negative PM)

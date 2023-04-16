@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.time.Duration;
 import java.util.Collections;
-import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -19,7 +18,6 @@ import es.moki.ratelimitj.core.limiter.request.RequestLimitRule;
 import es.moki.ratelimitj.core.limiter.request.RequestRateLimiter;
 import es.moki.ratelimitj.inmemory.request.InMemorySlidingWindowRequestRateLimiter;
 import jakarta.ws.rs.core.UriBuilder;
-import nl.bertriksikken.stofradar.render.SensorValue;
 
 public final class AirRestServer {
 
@@ -28,8 +26,8 @@ public final class AirRestServer {
     private final Server server;
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
-    public AirRestServer(AirRestApiConfig config, Map<String, SensorValue> map) {
-        this.server = createRestServer(config.getPort(), config.getPath(), AirRestApi.class);
+    public AirRestServer(AirRestApiConfig config) {
+        this.server = createRestServer(config.getPort(), config.getPath());
 
         RequestLimitRule rule = RequestLimitRule.of(Duration.ofSeconds(30), 1).withPrecision(Duration.ofSeconds(3));
         RequestRateLimiter rateLimiter = new InMemorySlidingWindowRequestRateLimiter(Collections.singleton(rule));
@@ -57,7 +55,7 @@ public final class AirRestServer {
         }
     }
 
-    private Server createRestServer(int port, String contextPath, Class<?> clazz) {
+    private Server createRestServer(int port, String contextPath) {
         LOG.info("Setting up Air REST service on {}", port);
 
         URI uri = UriBuilder.fromUri("http://localhost").port(port).build();
