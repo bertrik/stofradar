@@ -1,7 +1,7 @@
 ext {
     libraries = [:]
 
-    jacksonVersion = '2.14.2'
+    jacksonVersion = '2.15.0'
     retrofitVersion = '2.9.0'
     slf4jVersion = '2.0.7'
     jerseyVersion = '3.1.1'
@@ -20,8 +20,7 @@ libraries.jackson = [
     "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}",
     "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:${jacksonVersion}",
     "com.fasterxml.jackson.dataformat:jackson-dataformat-csv:${jacksonVersion}",
-    "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jacksonVersion}",
-    "org.yaml:snakeyaml:2.0"
+    "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jacksonVersion}"
 ]
 
 libraries.retrofit = [
