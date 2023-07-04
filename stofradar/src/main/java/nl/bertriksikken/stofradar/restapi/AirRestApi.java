@@ -35,7 +35,8 @@ public final class AirRestApi implements IAirRestApi {
         rateLimiter = Objects.requireNonNull(limiter);
     }
 
-    // updates the sensor values, runs on the (single-thread) executor, so is thread-safe with REST requests
+    // updates the sensor values, runs on the (single-thread) executor, so is
+    // thread-safe with REST requests
     public static void updateSensorValues(Map<String, SensorValue> sensorValues) {
         executor.execute(() -> {
             dataStore.clear();
@@ -72,11 +73,17 @@ public final class AirRestApi implements IAirRestApi {
         values = values.stream().filter(v -> (v.x > -maxd) && (v.x < maxd) && (v.y > -maxd) && (v.y < maxd))
                 .filter(v -> (v.value >= 0)).collect(Collectors.toList());
 
+        // sort by distance
+        values.sort(this::compareByDistance);
+
         // calculate inverse distance weighted value
         double value = calculateIDW(values);
-        long ms = Duration.between(start, Instant.now()).toMillis();
         AirResult result = new AirResult(value);
 
+        // add list of closest sensors (up to 3)
+        values.stream().limit(3).forEach(result::addSensor);
+
+        long ms = Duration.between(start, Instant.now()).toMillis();
         LOG.info("Calculated PM {} in {} ms, location {}/{}, user '{}'", result, ms, latitude, longitude, userAgent);
         LOG.info("Google maps link: https://maps.google.com/?q={},{}", latitude, longitude);
         return result;
@@ -107,6 +114,10 @@ public final class AirRestApi implements IAirRestApi {
     @Override
     public InputStream getFavicon() {
         return getClass().getClassLoader().getResourceAsStream("favicon.ico");
+    }
+
+    private int compareByDistance(SensorValue v1, SensorValue v2) {
+        return Double.compare((v1.x * v1.x) + (v1.y * v1.y), (v2.x * v2.x) + (v2.y * v2.y));
     }
 
 }
