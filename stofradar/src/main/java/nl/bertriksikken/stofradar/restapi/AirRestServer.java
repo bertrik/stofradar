@@ -29,7 +29,7 @@ public final class AirRestServer {
     public AirRestServer(AirRestApiConfig config) {
         this.server = createRestServer(config.getPort(), config.getPath());
 
-        RequestLimitRule rule = RequestLimitRule.of(Duration.ofSeconds(30), 1).withPrecision(Duration.ofSeconds(3));
+        RequestLimitRule rule = RequestLimitRule.of(Duration.ofSeconds(60), 10).withPrecision(Duration.ofSeconds(3));
         RequestRateLimiter rateLimiter = new InMemorySlidingWindowRequestRateLimiter(Collections.singleton(rule));
         AirRestApi.initialize(executorService, config.getMaxDistance(), rateLimiter);
     }
