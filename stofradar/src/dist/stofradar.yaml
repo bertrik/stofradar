@@ -15,7 +15,6 @@ intermediateDir: "tmp"
 outputPath: "/home/bertrik/stofradar.nl/www"
 airRestApi:
   port: 9000
-  path: ""
   maxDistance: 5.0
 renderJobs:
 - name: "netherlands"

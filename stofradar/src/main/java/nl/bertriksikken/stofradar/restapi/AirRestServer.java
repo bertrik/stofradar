@@ -27,7 +27,7 @@ public final class AirRestServer {
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     public AirRestServer(AirRestApiConfig config) {
-        this.server = createRestServer(config.getPort(), config.getPath());
+        this.server = createRestServer(config.getPort());
 
         RequestLimitRule rule = RequestLimitRule.of(Duration.ofSeconds(60), 10).withPrecision(Duration.ofSeconds(3));
         RequestRateLimiter rateLimiter = new InMemorySlidingWindowRequestRateLimiter(Collections.singleton(rule));
@@ -55,7 +55,7 @@ public final class AirRestServer {
         }
     }
 
-    private Server createRestServer(int port, String contextPath) {
+    private Server createRestServer(int port) {
         LOG.info("Setting up Air REST service on {}", port);
 
         URI uri = UriBuilder.fromUri("http://localhost").port(port).build();
