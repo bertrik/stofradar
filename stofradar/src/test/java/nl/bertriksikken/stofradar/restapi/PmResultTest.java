@@ -12,9 +12,9 @@ public final class PmResultTest {
     public void testSerialize() throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         // ordinary number
-        Assert.assertEquals("{\"pm2.5\":12.46}", mapper.writeValueAsString(new AirResult(12.45678)));
+        Assert.assertEquals("{\"pm2.5\":12.46,\"sensors\":[]}", mapper.writeValueAsString(new AirResult(12.45678)));
         // NaN
-        Assert.assertEquals("{}", mapper.writeValueAsString(new AirResult(Double.NaN)));
+        Assert.assertEquals("{\"sensors\":[]}", mapper.writeValueAsString(new AirResult(Double.NaN)));
     }
 
 }
