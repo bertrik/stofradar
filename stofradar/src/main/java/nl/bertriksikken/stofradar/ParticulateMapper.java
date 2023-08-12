@@ -150,16 +150,20 @@ public final class ParticulateMapper {
     }
 
     private static ParticulateMapperConfig readConfig(File file) throws IOException {
+        ParticulateMapperConfig config = new ParticulateMapperConfig();
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         mapper.setVisibility(PropertyAccessor.ALL, Visibility.NONE);
-        try (FileInputStream fis = new FileInputStream(file)) {
-            return mapper.readValue(fis, ParticulateMapperConfig.class);
-        } catch (IOException e) {
+        if (file.exists()) {
+            try (FileInputStream fis = new FileInputStream(file)) {
+                config = mapper.readValue(fis, ParticulateMapperConfig.class);
+            } catch (IOException e) {
+                LOG.warn("Failed to load config {}, using defaults", file.getAbsoluteFile());
+            }
+        } else {
             LOG.warn("Failed to load config {}, writing defaults", file.getAbsoluteFile());
-            ParticulateMapperConfig config = new ParticulateMapperConfig();
             mapper.writeValue(file, config);
-            return config;
         }
+        return config;
     }
 
     private void start() throws IOException {
