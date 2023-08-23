@@ -134,10 +134,10 @@ public final class ParticulateMapper {
         Collections.sort(copy, (v1, v2) -> Double.compare(v2.value, v1.value));
         for (int i = 0; i < (perc * values.size()); i++) {
             SensorValue value = copy.get(i);
-            if (value.plausibility >= 0) {
-                value.plausibility = Math.min(value.plausibility, score);
+            if (value.getPlausibility() >= 0) {
+                value.setPlausibility(Math.min(value.getPlausibility(), score));
             } else {
-                value.plausibility = score;
+                value.setPlausibility(score);
             }
         }
         return copy;

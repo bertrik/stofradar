@@ -41,7 +41,7 @@ public final class InverseDistanceWeightShader implements IShader {
         for (SensorValue dp : sensorValues) {
             Coord c1 = new Coord(dp.x, dp.y);
             double d2 = distanceSquared(coordinate, c1);
-            int score = dp.plausibility;
+            int score = dp.getPlausibility();
             double v = dp.value;
             // disregard values for interpolation if has a score, and it is lower than the minimum score 
             if ((score < 0) || (score >= minimumScore)) {

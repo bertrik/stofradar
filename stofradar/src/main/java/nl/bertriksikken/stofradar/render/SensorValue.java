@@ -9,7 +9,7 @@ public final class SensorValue {
     public final double y;
     public final double value;
     public final Instant time;
-    public int plausibility;
+    private int plausibility;
 
     // jackson constructor
     @SuppressWarnings("unused")
@@ -24,6 +24,10 @@ public final class SensorValue {
         this.value = value;
         this.time = time;
         this.plausibility = -1;
+    }
+
+    public int getPlausibility() {
+        return plausibility;
     }
 
     public void setPlausibility(int plausibility) {
