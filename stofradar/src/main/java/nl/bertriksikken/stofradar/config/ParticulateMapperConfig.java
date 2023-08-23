@@ -1,7 +1,9 @@
 package nl.bertriksikken.stofradar.config;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -20,6 +22,9 @@ public final class ParticulateMapperConfig {
 
     @JsonProperty("meetjestad")
     public final HostConnectionConfig meetjestadConfig = new HostConnectionConfig("https://meetjestad.net", 30);
+
+    @JsonProperty("blocklist")
+    public final Set<String> blockList = new HashSet<>();
 
     @JsonProperty("keepingDurationMinutes")
     public final int keepingDurationMinutes = 300;
@@ -46,6 +51,7 @@ public final class ParticulateMapperConfig {
         this.outputPath = "/home/bertrik/stofradar.nl/www";
         renderJobs.add(new RenderJob("netherlands", "netherlands.png", 53.560406, 3.359403, 50.750938, 7.227496, 1.0,
                 10.0, 65, 5));
+        blockList.add("9222");
     }
 
 }

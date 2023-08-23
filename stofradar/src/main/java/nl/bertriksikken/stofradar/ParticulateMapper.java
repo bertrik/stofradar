@@ -121,6 +121,14 @@ public final class ParticulateMapper {
         return filtered;
     }
 
+    private List<SensorValue> scoreByBlockList(List<SensorValue> values, int score) {
+        List<SensorValue> blocked = values.stream().filter(v -> config.blockList.contains(v.id))
+                .collect(Collectors.toList());
+        blocked.forEach(v -> v.setPlausibility(score));
+        LOG.info("Scored {} sensors from block list as improbable", blocked.size());
+        return values;
+    }
+
     private List<SensorValue> scoreByPercentile(List<SensorValue> values, double perc, int score) {
         List<SensorValue> copy = new ArrayList<>(values);
         Collections.sort(copy, (v1, v2) -> Double.compare(v2.value, v1.value));
@@ -287,7 +295,7 @@ public final class ParticulateMapper {
 
         // filter invalid values
         pmValues = filterBySensorValue(pmValues);
-        
+
         // update list of sensor values, expiring old data
         pmValues.forEach(v -> sensorValueMap.put(v.id, v));
         Instant expiryTime = now.minus(Duration.ofMinutes(config.keepingDurationMinutes));
@@ -299,6 +307,9 @@ public final class ParticulateMapper {
         // store cached value
         pmValues = new ArrayList<>(sensorValueMap.values());
         persistSensorValues(pmValues);
+
+        // score by blocklist
+        pmValues = scoreByBlockList(pmValues, 0);
 
         // score top percentile as implausible
         pmValues = scoreByPercentile(pmValues, 0.01, 1);

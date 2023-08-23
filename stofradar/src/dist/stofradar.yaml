@@ -8,6 +8,8 @@ samenmeten:
 meetjestad:
   url: "https://meetjestad.net"
   timeout: 30
+blocklist:
+- "9222"
 keepingDurationMinutes: 300
 compositeCmd: "/usr/bin/composite"
 convertCmd: "/usr/bin/convert"
