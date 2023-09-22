@@ -49,8 +49,8 @@ retrofit = [
 ]
 
 [plugins]
-dependencycheck = "org.owasp.dependencycheck:8.3.1"
+dependencycheck = "org.owasp.dependencycheck:8.4.0"
 spotbugs = "com.github.spotbugs:5.1.1"
 version-catalog-update = "nl.littlerobots.version-catalog-update:0.8.1"
-versions = "com.github.ben-manes.versions:0.47.0"
+versions = "com.github.ben-manes.versions:0.48.0"
 
