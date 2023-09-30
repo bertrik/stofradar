@@ -60,9 +60,7 @@ public final class AirRestServer {
 
         URI uri = UriBuilder.fromUri("http://localhost").port(port).build();
         ResourceConfig config = new ResourceConfig(AirRestApi.class);
-        Server server = JettyHttpContainerFactory.createServer(uri, config);
-
-        return server;
+        return JettyHttpContainerFactory.createServer(uri, config);
     }
 
 }

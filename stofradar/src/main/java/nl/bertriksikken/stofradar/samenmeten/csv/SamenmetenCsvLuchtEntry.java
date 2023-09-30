@@ -11,7 +11,6 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -82,8 +81,7 @@ public final class SamenmetenCsvLuchtEntry {
         this.pm25Kwal = pm25_kwal;
     }
 
-    public static SamenmetenCsvLuchtEntry from(List<String> fields)
-            throws JsonMappingException, JsonProcessingException {
+    public static SamenmetenCsvLuchtEntry from(List<String> fields) throws JsonProcessingException {
         if (fields.size() < 15) {
             return null;
         }
