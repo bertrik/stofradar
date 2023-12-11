@@ -1,0 +1,31 @@
+---
+sensCom:
+  url: "https://api.sensor.community"
+  timeout: 30
+samenmeten:
+  url: "https://samenmeten.rivm.nl"
+  timeout: 30
+meetjestad:
+  url: "https://meetjestad.net"
+  timeout: 30
+blocklist:
+- "9222"
+keepingDurationMinutes: 300
+compositeCmd: "/usr/bin/composite"
+convertCmd: "/usr/bin/convert"
+intermediateDir: "tmp"
+outputPath: "/opt/stofradar.nl/www"
+airRestApi:
+  port: 9000
+  maxDistance: 1.0
+renderJobs:
+- name: "netherlands"
+  map: "netherlands.png"
+  north: 53.560406
+  west: 3.359403
+  south: 50.750938
+  east: 7.227496
+  innerRadius: 1.0
+  outerRadius: 10.0
+  maxAgeMinutes: 65
+  minimumScore: 5

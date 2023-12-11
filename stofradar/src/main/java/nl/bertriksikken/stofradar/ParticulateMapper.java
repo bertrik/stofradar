@@ -165,7 +165,7 @@ public final class ParticulateMapper {
             try (FileInputStream fis = new FileInputStream(file)) {
                 config = mapper.readValue(fis, ParticulateMapperConfig.class);
             } catch (IOException e) {
-                LOG.warn("Failed to load config {}, using defaults", file.getAbsoluteFile());
+                LOG.warn("Failed to load config {}, using defaults", file.getAbsoluteFile(), e);
             }
         } else {
             LOG.warn("Failed to load config {}, writing defaults", file.getAbsoluteFile());
