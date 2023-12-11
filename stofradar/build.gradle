@@ -11,6 +11,7 @@ dependencies {
     implementation libs.bundles.jackson
     
     implementation libs.jakarta.ws.rs
+    implementation libs.jakarta.servlet.api
     implementation libs.bundles.jersey.server
 
     implementation libs.ratelimitj
