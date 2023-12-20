@@ -15,7 +15,7 @@ import nl.bertriksikken.stofradar.restapi.AirRestApiConfig;
 public final class ParticulateMapperConfig {
 
     @JsonProperty("sensCom")
-    public final HostConnectionConfig sensComConfig = new HostConnectionConfig("https://api.sensor.community", 30);
+    public final HostConnectionConfig sensComConfig = new HostConnectionConfig("https://data.sensor.community", 30);
 
     @JsonProperty("samenmeten")
     public final HostConnectionConfig samenmetenConfig = new HostConnectionConfig("https://samenmeten.rivm.nl", 30);

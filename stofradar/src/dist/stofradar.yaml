@@ -1,6 +1,6 @@
 ---
 sensCom:
-  url: "https://api.sensor.community"
+  url: "https://data.sensor.community"
   timeout: 30
 samenmeten:
   url: "https://samenmeten.rivm.nl"
