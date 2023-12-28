@@ -1,8 +1,15 @@
 package nl.bertriksikken.stofradar.config;
 
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import nl.bertriksikken.stofradar.render.EDataSource;
 
 @JsonAutoDetect(getterVisibility = Visibility.NONE)
 public final class RenderJob {
@@ -33,20 +40,20 @@ public final class RenderJob {
     @JsonProperty("outerRadius")
     private final double outerRadius;
 
-    @JsonProperty("maxAgeMinutes")
-    private final int maxAgeMinutes;
-
     @JsonProperty("minimumScore")
     private final int minimumScore;
+
+    @JsonProperty("source")
+    private final String source;
 
     // jackson constructor
     @SuppressWarnings("unused")
     private RenderJob() {
-        this("name", "background.png", 53.560406, 3.359403, 50.750938, 7.227496, 1.0, 10.0, 65, 5);
+        this("name", "background.png", 53.560406, 3.359403, 50.750938, 7.227496, 1.0, 10.0, 5, "*");
     }
 
     RenderJob(String name, String map, double north, double west, double south, double east, double innerRadius,
-            double outerRadius, int maxAgeMinutes, int minimumScore) {
+            double outerRadius, int minimumScore, String source) {
         this.name = name;
         this.map = map;
         this.north = north;
@@ -55,8 +62,8 @@ public final class RenderJob {
         this.west = west;
         this.innerRadius = innerRadius;
         this.outerRadius = outerRadius;
-        this.maxAgeMinutes = maxAgeMinutes;
         this.minimumScore = minimumScore;
+        this.source = source;
     }
 
     public String getName() {
@@ -91,10 +98,6 @@ public final class RenderJob {
         return outerRadius;
     }
 
-    public int getMaxAgeMinutes() {
-        return maxAgeMinutes;
-    }
-
     @Override
     public String toString() {
         return name;
@@ -102,6 +105,14 @@ public final class RenderJob {
 
     public int getMinimumScore() {
         return minimumScore;
+    }
+
+    public Set<EDataSource> getSources() {
+        if (source.equals("*")) {
+            return Stream.of(EDataSource.values()).collect(Collectors.toSet());
+        }
+        return Stream.of(source.split(",", -1)).map(EDataSource::fromName).filter(Objects::nonNull)
+                .collect(Collectors.toSet());
     }
 
 }

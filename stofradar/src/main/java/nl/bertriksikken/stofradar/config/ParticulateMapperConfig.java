@@ -7,6 +7,7 @@ import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import nl.bertriksikken.stofradar.render.EDataSource;
 import nl.bertriksikken.stofradar.restapi.AirRestApiConfig;
 
 /**
@@ -50,7 +51,7 @@ public final class ParticulateMapperConfig {
     public ParticulateMapperConfig() {
         this.outputPath = "/home/bertrik/stofradar.nl/www";
         renderJobs.add(new RenderJob("netherlands", "netherlands.png", 53.560406, 3.359403, 50.750938, 7.227496, 1.0,
-                10.0, 65, 5));
+                10.0, 5, EDataSource.SENSOR_COMMUNITY.getName()));
         blockList.add("9222");
     }
 

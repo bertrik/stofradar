@@ -27,7 +27,7 @@ renderJobs:
   east: 7.227496
   innerRadius: 1.0
   outerRadius: 10.0
-  maxAgeMinutes: 65
+  source: "sensor.community"
 - name: "rotterdam"
   map: "rotterdam.png"
   north: 51.9778
@@ -36,7 +36,7 @@ renderJobs:
   east: 4.5739
   innerRadius: 0.1
   outerRadius: 0.3
-  maxAgeMinutes: 300
+  source: "samenmeten"
 - name: "gouda"
   map: "gouda.png"
   north: 52.0412
@@ -45,7 +45,7 @@ renderJobs:
   east: 4.7578
   innerRadius: 0.1
   outerRadius: 0.3
-  maxAgeMinutes: 300
+  source: "*"
 - name: "nieuwerkerk"
   map: "nieuwerkerk.png"
   north: 51.9795
@@ -54,7 +54,7 @@ renderJobs:
   east: 4.6302
   innerRadius: 0.05
   outerRadius: 0.2
-  maxAgeMinutes: 300
+  source: "*"
 - name: "stanthonis"
   map: "stanthonis.png"
   north: 51.8073
@@ -63,7 +63,7 @@ renderJobs:
   east: 6.1235
   innerRadius: 0.3
   outerRadius: 1.0
-  maxAgeMinutes: 300
+  source: "*"
 - name: "delft"
   map: "delft.png"
   north: 52.0437
@@ -72,7 +72,7 @@ renderJobs:
   east: 4.4093
   innerRadius: 0.1
   outerRadius: 0.3
-  maxAgeMinutes: 300
+  source: "*"
 - name: "amersfoort"
   map: "amersfoort.png"
   north: 52.2109
@@ -81,7 +81,7 @@ renderJobs:
   east: 5.4659
   innerRadius: 0.1
   outerRadius: 0.3
-  maxAgeMinutes: 300
+  source: "*"
 - name: "utrecht"
   map: "utrecht.png"
   north: 52.149
@@ -90,4 +90,4 @@ renderJobs:
   east: 5.2184
   innerRadius: 0.1
   outerRadius: 0.3
-  maxAgeMinutes: 300
+  source: "*"

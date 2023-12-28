@@ -91,8 +91,8 @@ public final class AirRestApi implements IAirRestApi {
 
     private List<SensorValue> convertToKm(Collection<SensorValue> values, double latitude, double longitude) {
         double kmPerDegreeLon = Math.cos(Math.toRadians(latitude)) * KM_PER_DEGREE_LAT;
-        return values.stream().map(v -> new SensorValue(v.id, (v.x - longitude) * kmPerDegreeLon,
-                (v.y - latitude) * KM_PER_DEGREE_LAT, v.value, v.time)).collect(Collectors.toList());
+        return values.stream().map(v -> new SensorValue(v.source, v.id,
+                (v.x - longitude) * kmPerDegreeLon, (v.y - latitude) * KM_PER_DEGREE_LAT, v.value, v.time)).collect(Collectors.toList());
     }
 
     private double calculateIDW(List<SensorValue> values) {

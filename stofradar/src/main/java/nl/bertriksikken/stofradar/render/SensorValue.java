@@ -4,6 +4,7 @@ import java.time.Instant;
 
 public final class SensorValue {
 
+    public final EDataSource source;
     public final String id;
     public final double x;
     public final double y;
@@ -14,10 +15,11 @@ public final class SensorValue {
     // jackson constructor
     @SuppressWarnings("unused")
     private SensorValue() {
-        this("", 0.0, 0.0, 0.0, Instant.now());
+        this(null, "", 0.0, 0.0, 0.0, Instant.now());
     }
 
-    public SensorValue(String id, double x, double y, double value, Instant time) {
+    public SensorValue(EDataSource source, String id, double x, double y, double value, Instant time) {
+        this.source = source;
         this.id = id;
         this.x = x;
         this.y = y;

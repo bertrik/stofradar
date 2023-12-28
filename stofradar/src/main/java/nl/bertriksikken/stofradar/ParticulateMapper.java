@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -51,6 +52,7 @@ import nl.bertriksikken.stofradar.meetjestad.MeetjestadData;
 import nl.bertriksikken.stofradar.meetjestad.MeetjestadDownloader;
 import nl.bertriksikken.stofradar.render.ColorMapper;
 import nl.bertriksikken.stofradar.render.ColorPoint;
+import nl.bertriksikken.stofradar.render.EDataSource;
 import nl.bertriksikken.stofradar.render.IShader;
 import nl.bertriksikken.stofradar.render.Interpolator;
 import nl.bertriksikken.stofradar.render.InverseDistanceWeightShader;
@@ -141,12 +143,6 @@ public final class ParticulateMapper {
             }
         }
         return copy;
-    }
-
-    private List<SensorValue> filterByTime(List<SensorValue> values, Instant oldest) {
-        List<SensorValue> filtered = values.stream().filter(v -> v.time.isAfter(oldest)).collect(Collectors.toList());
-        LOG.info("Filtered by time filter: {} -> {}", values.size(), filtered.size());
-        return filtered;
     }
 
     public static void main(String[] args) throws IOException {
@@ -334,8 +330,8 @@ public final class ParticulateMapper {
             if (entry.hasValidLocation() && Double.isFinite(entry.getPm2_5())) {
                 // we already have luftdaten/sensor.community data at high time resolution
                 if (!entry.getProject().equals("Luftdaten")) {
-                    SensorValue value = new SensorValue(entry.getKitId(), entry.getLongitude(), entry.getLatitude(),
-                            entry.getPm2_5(), entry.getTimestamp());
+                    SensorValue value = new SensorValue(EDataSource.SAMENMETEN, entry.getKitId(), entry.getLongitude(),
+                            entry.getLatitude(), entry.getPm2_5(), entry.getTimestamp());
                     value.setPlausibility(entry.getPm25Qual());
                     values.add(value);
                 }
@@ -353,9 +349,8 @@ public final class ParticulateMapper {
         pmValues = filterByBoundingBox(pmValues, job, 2.0);
         rhValues = filterByBoundingBox(rhValues, job, 1.0);
 
-        // apply job-specific time limit
-        Instant oldestAllowed = instant.minus(Duration.ofMinutes(job.getMaxAgeMinutes()));
-        pmValues = filterByTime(pmValues, oldestAllowed);
+        // filter by source
+        pmValues = filterBySource(pmValues, job.getSources());
 
         // calculate median humidity
         double medianRh = calculateMedian(rhValues);
@@ -416,6 +411,13 @@ public final class ParticulateMapper {
         return filtered;
     }
 
+    private List<SensorValue> filterBySource(List<SensorValue> values, Set<EDataSource> sources) {
+        List<SensorValue> filtered = values.stream().filter(v -> sources.contains(v.source))
+                .collect(Collectors.toList());
+        LOG.info("Filtered by source: {} -> {}", values.size(), filtered.size());
+        return filtered;
+    }
+
     /**
      * Converts from the sensor.community datapoints format to internal format.
      */
@@ -437,7 +439,7 @@ public final class ParticulateMapper {
                     double x = location.getLongitude();
                     double y = location.getLatitude();
                     double v = dataValue.getValue();
-                    SensorValue value = new SensorValue(id, x, y, v, dp.getTimestamp());
+                    SensorValue value = new SensorValue(EDataSource.SENSOR_COMMUNITY, id, x, y, v, dp.getTimestamp());
                     // tag with plausibility
                     String name = "LTD_" + dp.getLocation().getId();
                     int plausibility = plausibilityMap.getOrDefault(name, defaultPlausibility);

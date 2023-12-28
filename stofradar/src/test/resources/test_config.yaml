@@ -27,5 +27,5 @@ renderJobs:
   east: 7.227496
   innerRadius: 1.0
   outerRadius: 10.0
-  maxAgeMinutes: 65
   minimumScore: 5
+  source: "*"

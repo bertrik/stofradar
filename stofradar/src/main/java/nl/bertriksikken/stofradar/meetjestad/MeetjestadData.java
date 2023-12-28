@@ -10,6 +10,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import nl.bertriksikken.stofradar.render.EDataSource;
 import nl.bertriksikken.stofradar.render.SensorValue;
 
 /**
@@ -34,8 +35,8 @@ public final class MeetjestadData {
         List<SensorValue> values = new ArrayList<>();
         for (MeetjestadDataEntry entry : entries) {
             if (entry.hasLocation() && entry.hasPm()) {
-                SensorValue value = new SensorValue("mjs_" + entry.id, entry.longitude, entry.latitude, entry.pm2_5,
-                        entry.getTimestamp());
+                SensorValue value = new SensorValue(EDataSource.MEETJESTAD, "mjs_" + entry.id, entry.longitude,
+                        entry.latitude, entry.pm2_5, entry.getTimestamp());
                 values.add(value);
             }
         }
