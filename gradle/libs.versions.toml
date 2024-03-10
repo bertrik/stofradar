@@ -1,6 +1,5 @@
 [versions]
-jackson = "2.16.1"
-# jersey 3.1.4 is borked, jersey 3.1.5 *requires* java 17
+jackson = "2.16.2"
 jersey = "3.1.5"
 retrofit = "2.9.0"
 slf4j = "2.0.12"
