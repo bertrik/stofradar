@@ -11,6 +11,7 @@ import java.util.concurrent.TimeUnit;
 import org.eclipse.jetty.server.Server;
 import org.glassfish.jersey.jetty.JettyHttpContainerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.server.ServerProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,6 +61,7 @@ public final class AirRestServer {
 
         URI uri = UriBuilder.fromUri("http://localhost").port(port).build();
         ResourceConfig config = new ResourceConfig(AirRestApi.class);
+        config.property(ServerProperties.WADL_FEATURE_DISABLE, true);
         return JettyHttpContainerFactory.createServer(uri, config);
     }
 
