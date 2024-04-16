@@ -91,3 +91,12 @@ renderJobs:
   innerRadius: 0.1
   outerRadius: 0.3
   source: "*"
+- name: "apeldoorn"
+  map: "apeldoorn.png"
+  north: 52.2518
+  west: 5.8993
+  south: 52.1693
+  east: 6.0339
+  innerRadius: 0.1
+  outerRadius: 0.3
+  source: "*"
