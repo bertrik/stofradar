@@ -10,8 +10,8 @@ jackson-csv = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-cs
 jackson-jsr310 = { module = "com.fasterxml.jackson.datatype:jackson-datatype-jsr310", version.ref = "jackson" }
 jackson-yaml = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml", version.ref = "jackson" }
 
-jakarta-ws-rs = "jakarta.ws.rs:jakarta.ws.rs-api:3.1.0"
-jakarta-servlet-api = "jakarta.servlet:jakarta.servlet-api:6.0.0"
+jakarta-ws-rs = "jakarta.ws.rs:jakarta.ws.rs-api:4.0.0"
+jakarta-servlet-api = "jakarta.servlet:jakarta.servlet-api:6.1.0"
 
 jersey-server = { module = "org.glassfish.jersey.core:jersey-server", version.ref = "jersey" }
 jersey-server-inject = { module = "org.glassfish.jersey.inject:jersey-hk2", version.ref = "jersey" }
