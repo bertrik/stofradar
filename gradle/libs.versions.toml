@@ -12,6 +12,7 @@ jackson-bind = { module = "com.fasterxml.jackson.core:jackson-databind", version
 jackson-csv = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-csv", version.ref = "jackson" }
 jackson-jsr310 = { module = "com.fasterxml.jackson.datatype:jackson-datatype-jsr310", version.ref = "jackson" }
 jackson-yaml = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml", version.ref = "jackson" }
+jackson-blackbird = { module = "com.fasterxml.jackson.module:jackson-module-blackbird", version.ref = "jackson" }
 
 jakarta-ws-rs = "jakarta.ws.rs:jakarta.ws.rs-api:4.0.0"
 jakarta-servlet-api = "jakarta.servlet:jakarta.servlet-api:6.1.0"
@@ -35,6 +36,7 @@ jackson = [
     "jackson-csv",
     "jackson-jsr310",
     "jackson-yaml",
+    "jackson-blackbird",
 ]
 jersey-server = [
     "jersey-server",

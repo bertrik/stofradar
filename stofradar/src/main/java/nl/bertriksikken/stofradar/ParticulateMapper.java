@@ -105,7 +105,7 @@ public final class ParticulateMapper {
     ParticulateMapper(ParticulateMapperConfig config) {
         this.config = config;
         objectMapper.findAndRegisterModules();
-        sensComDataApi = SensComDataApi.create(config.sensComConfig);
+        sensComDataApi = SensComDataApi.create(config.sensComConfig, objectMapper);
         samenmetenDownloader = SamenmetenCsvDownloader.create(config.samenmetenConfig);
         meetjestadDownloader = MeetjestadDownloader.create(config.meetjestadConfig);
         pmRestApiHandler = new AirRestServer(config.airRestApiConfig);
