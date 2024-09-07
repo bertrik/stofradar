@@ -28,14 +28,14 @@ public final class HostConnectionConfig {
     }
 
     /**
-     * @return the base sensor.community API URL
+     * Returns the base sensor.community API URL
      */
     public String getUrl() {
         return url;
     }
 
     /**
-     * @return the sensor.community timeout
+     * Returns the sensor.community timeout
      */
     public Duration getTimeout() {
         return Duration.ofSeconds(timeoutSec);

@@ -1,6 +1,6 @@
 plugins {
-    alias libs.plugins.spotbugs
     alias libs.plugins.dependencycheck
+    alias libs.plugins.errorprone
     alias libs.plugins.versions
     alias libs.plugins.version.catalog.update
 }
@@ -18,9 +18,9 @@ dependencyCheck {
 subprojects {
     apply plugin: "java"
     apply plugin: "eclipse"
-    apply plugin: "com.github.spotbugs"
     apply plugin: 'com.github.ben-manes.versions'
-    
+    apply plugin: 'net.ltgt.errorprone'
+
     java {
         targetCompatibility = JavaVersion.VERSION_17
         sourceCompatibility = JavaVersion.VERSION_17
@@ -39,6 +39,9 @@ subprojects {
 
     // Standard libraries added to all projects
     dependencies {
+        errorprone(libs.errorprone.core)
+        compileOnly libs.errorprone.annotations
+
         implementation libs.slf4j
         testImplementation libs.junit
     }

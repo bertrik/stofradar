@@ -29,7 +29,7 @@ public final class MeetjestadData {
     }
 
     /**
-     * @return the data as a list of SensorValue objects
+     * Returns the data as a list of SensorValue objects
      */
     public List<SensorValue> toSensorValues() {
         List<SensorValue> values = new ArrayList<>();

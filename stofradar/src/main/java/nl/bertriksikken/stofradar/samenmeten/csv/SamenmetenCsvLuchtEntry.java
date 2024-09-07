@@ -18,6 +18,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * Representation of one line of
  * https://samenmeten.rivm.nl/dataportaal/php/getData-fromfile.php?compartiment=lucht
  */
+@SuppressWarnings("UnusedVariable")
 @JsonPropertyOrder({ "time", "kit_id", "label", "project", "geom_lat", "geom_lon", "pm10", "pm25", "no2", "no2_palmes",
         "temp", "rh", "pres", "nh3_palmes", "pm10_kwal", "pm25_kwal" })
 @JsonAutoDetect(getterVisibility = Visibility.NONE)

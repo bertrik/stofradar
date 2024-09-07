@@ -170,6 +170,7 @@ public final class ParticulateMapper {
         return config;
     }
 
+    @SuppressWarnings("FutureReturnValueIgnored")
     private void start() throws IOException {
         // restore cache
         restoreSensorValues();
@@ -208,6 +209,7 @@ public final class ParticulateMapper {
         }
     }
 
+    @SuppressWarnings("FutureReturnValueIgnored")
     private void runDownloadAndProcess(int retries) {
         // run the main process in a try-catch to protect the thread it runs on from
         // exceptions
@@ -458,7 +460,6 @@ public final class ParticulateMapper {
      * @param sensorValues the data points
      * @param pngFile      the PNG file
      * @param colorMapper  the color mapper
-     * @throws IOException
      */
     private void renderDust(List<SensorValue> sensorValues, File pngFile, ColorMapper colorMapper, RenderJob job)
             throws IOException {
@@ -491,7 +492,6 @@ public final class ParticulateMapper {
      * @param overlay the dust overlay image
      * @param baseMap the base map image
      * @param outFile the combined image
-     * @throws IOException
      */
     private void composite(String command, File overlay, File baseMap, File outFile) throws IOException {
         LOG.info("Compositing {} over {} to {}", overlay, baseMap, outFile);
