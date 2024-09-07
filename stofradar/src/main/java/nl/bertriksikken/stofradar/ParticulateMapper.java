@@ -1,51 +1,10 @@
 package nl.bertriksikken.stofradar;
 
-import java.awt.image.BufferedImage;
-import java.awt.image.WritableRaster;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
-import java.time.Duration;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoField;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-
-import javax.imageio.ImageIO;
-
-import org.apache.log4j.PropertyConfigurator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-
 import nl.bertriksikken.stofradar.config.ParticulateMapperConfig;
 import nl.bertriksikken.stofradar.config.RenderJob;
 import nl.bertriksikken.stofradar.meetjestad.MeetjestadData;
@@ -67,11 +26,47 @@ import nl.bertriksikken.stofradar.senscom.dto.DataPoint;
 import nl.bertriksikken.stofradar.senscom.dto.DataValue;
 import nl.bertriksikken.stofradar.senscom.dto.Location;
 import nl.bertriksikken.stofradar.senscom.dto.Sensor;
+import org.apache.log4j.PropertyConfigurator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.awt.image.WritableRaster;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * Process the sensor.community JSON and produces a CSV with coordinates and
  * weighted dust averages.
- *
  */
 public final class ParticulateMapper {
 
@@ -92,19 +87,19 @@ public final class ParticulateMapper {
 
     // color range according
     // https://www.luchtmeetnet.nl/informatie/luchtkwaliteit/luchtkwaliteitsindex-(lki)
-    private static final ColorPoint[] RANGE_PM2_5 = new ColorPoint[] {
+    private static final ColorPoint[] RANGE_PM2_5 = new ColorPoint[]{
             // good
-            new ColorPoint(0, new int[] { 0, 100, 255, 0x00 }), new ColorPoint(10, new int[] { 0, 175, 255, 0x60 }),
-            new ColorPoint(15, new int[] { 150, 200, 255, 0xC0 }),
+            new ColorPoint(0, new int[]{0, 100, 255, 0x00}), new ColorPoint(10, new int[]{0, 175, 255, 0x60}),
+            new ColorPoint(15, new int[]{150, 200, 255, 0xC0}),
             // not so good
-            new ColorPoint(20, new int[] { 255, 255, 200, 0xC0 }),
-            new ColorPoint(30, new int[] { 255, 255, 150, 0xC0 }), new ColorPoint(40, new int[] { 255, 255, 0, 0xC0 }),
+            new ColorPoint(20, new int[]{255, 255, 200, 0xC0}),
+            new ColorPoint(30, new int[]{255, 255, 150, 0xC0}), new ColorPoint(40, new int[]{255, 255, 0, 0xC0}),
             // insufficient
-            new ColorPoint(50, new int[] { 255, 200, 0, 0xC0 }), new ColorPoint(70, new int[] { 255, 150, 0, 0xC0 }),
+            new ColorPoint(50, new int[]{255, 200, 0, 0xC0}), new ColorPoint(70, new int[]{255, 150, 0, 0xC0}),
             // bad
-            new ColorPoint(90, new int[] { 255, 75, 0, 0xC0 }), new ColorPoint(100, new int[] { 255, 25, 0, 0xC0 }),
+            new ColorPoint(90, new int[]{255, 75, 0, 0xC0}), new ColorPoint(100, new int[]{255, 25, 0, 0xC0}),
             // very bad
-            new ColorPoint(140, new int[] { 164, 58, 217, 0xC0 }) };
+            new ColorPoint(140, new int[]{164, 58, 217, 0xC0})};
     private final ColorMapper colorMapper = new ColorMapper(RANGE_PM2_5);
 
     ParticulateMapper(ParticulateMapperConfig config) {
@@ -124,8 +119,7 @@ public final class ParticulateMapper {
     }
 
     private List<SensorValue> scoreByBlockList(List<SensorValue> values, int score) {
-        List<SensorValue> blocked = values.stream().filter(v -> config.blockList.contains(v.id))
-                .collect(Collectors.toList());
+        List<SensorValue> blocked = values.stream().filter(v -> config.blockList.contains(v.id)).toList();
         blocked.forEach(v -> v.setPlausibility(score));
         LOG.info("Scored {} sensors from block list as improbable", blocked.size());
         return values;
@@ -133,7 +127,7 @@ public final class ParticulateMapper {
 
     private List<SensorValue> scoreByPercentile(List<SensorValue> values, double perc, int score) {
         List<SensorValue> copy = new ArrayList<>(values);
-        Collections.sort(copy, (v1, v2) -> Double.compare(v2.value, v1.value));
+        copy.sort((v1, v2) -> Double.compare(v2.value, v1.value));
         for (int i = 0; i < (perc * values.size()); i++) {
             SensorValue value = copy.get(i);
             if (value.getPlausibility() >= 0) {
@@ -228,7 +222,7 @@ public final class ParticulateMapper {
     private void downloadAndProcess(Instant now) throws IOException {
         // get UTC time rounded to 5 minutes
         ZonedDateTime utcTime = ZonedDateTime.ofInstant(now, ZoneOffset.UTC);
-        int minute = 5 * (utcTime.get(ChronoField.MINUTE_OF_HOUR) / 5);
+        int minute = 5 * (utcTime.getMinute() / 5);
         utcTime = utcTime.withMinute(minute).truncatedTo(ChronoUnit.MINUTES);
 
         // create temporary name
@@ -345,7 +339,7 @@ public final class ParticulateMapper {
     }
 
     private void render(RenderJob job, File jobDir, List<SensorValue> pmValues, List<SensorValue> rhValues,
-            Instant instant, File outputFile) {
+                        Instant instant, File outputFile) {
 
         // apply bounding box
         pmValues = filterByBoundingBox(pmValues, job, 2.0);
@@ -381,7 +375,7 @@ public final class ParticulateMapper {
 
     private double calculateMedian(List<SensorValue> values) {
         List<SensorValue> copy = new ArrayList<>(values);
-        Collections.sort(copy, (v1, v2) -> Double.compare(v1.value, v2.value));
+        copy.sort(Comparator.comparingDouble(v -> v.value));
         if (copy.isEmpty()) {
             return Double.NaN;
         }
@@ -392,7 +386,7 @@ public final class ParticulateMapper {
 
     /**
      * Filters sensor values by position according to a bounding box.
-     * 
+     *
      * @param values the sensor values
      * @param job    the render job
      * @param area   the area multiplier
@@ -424,7 +418,7 @@ public final class ParticulateMapper {
      * Converts from the sensor.community datapoints format to internal format.
      */
     private List<SensorValue> convertDataPoints(List<DataPoint> dataPoints, String sensorType, String item,
-            int defaultPlausibility) {
+                                                int defaultPlausibility) {
         List<SensorValue> values = new ArrayList<>();
         int numIndoor = 0;
         for (DataPoint dp : dataPoints) {
@@ -456,7 +450,7 @@ public final class ParticulateMapper {
 
     /**
      * Renders a JSON file to a PNG.
-     * 
+     *
      * @param sensorValues the data points
      * @param pngFile      the PNG file
      * @param colorMapper  the color mapper
@@ -487,7 +481,7 @@ public final class ParticulateMapper {
 
     /**
      * Composites a combined image of a fine dust overlay over a base map.
-     * 
+     *
      * @param command path to the imagemagick 'composite command'
      * @param overlay the dust overlay image
      * @param baseMap the base map image

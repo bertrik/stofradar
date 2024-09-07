@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Representation of one line of
- * https://samenmeten.rivm.nl/dataportaal/php/getData-fromfile.php?compartiment=lucht
+ * <a href="https://samenmeten.rivm.nl/dataportaal/php/getData-fromfile.php?compartiment=lucht">lucht-data</a>
  */
 @SuppressWarnings("UnusedVariable")
 @JsonPropertyOrder({ "time", "kit_id", "label", "project", "geom_lat", "geom_lon", "pm10", "pm25", "no2", "no2_palmes",
@@ -55,11 +55,11 @@ public final class SamenmetenCsvLuchtEntry {
     @JsonProperty("pres")
     private final Double pressure;
     @JsonProperty("nh3_palmes")
-    private Object nh3Palmes;
+    private final Object nh3Palmes;
     @JsonProperty("pm10_kwal")
-    private int pm10Kwal;
+    private final int pm10Kwal;
     @JsonProperty("pm25_kwal")
-    private int pm25Kwal;
+    private final int pm25Kwal;
 
     SamenmetenCsvLuchtEntry(String timestamp, String kitId, String label, String project, Double latitude,
             Double longitude, Double pm10, Double pm25, Double no2, Double no2Palmes, Double temperature,
