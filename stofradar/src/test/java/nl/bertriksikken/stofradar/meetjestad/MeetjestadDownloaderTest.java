@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,7 +28,8 @@ public final class MeetjestadDownloaderTest {
 
     public void testDownload() throws IOException {
         HostConnectionConfig config = new HostConnectionConfig("https://meetjestad.net", 30);
-        MeetjestadDownloader downloader = MeetjestadDownloader.create(config);
+        ObjectMapper mapper = new ObjectMapper().findAndRegisterModules();
+        MeetjestadDownloader downloader = MeetjestadDownloader.create(config, mapper);
 
         Instant from = Instant.now().minusSeconds(900);
         MeetjestadData data = downloader.download(from);

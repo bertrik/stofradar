@@ -25,16 +25,14 @@ public final class SensComDataApi {
     private static final String USER_AGENT = "github.com/bertrik/stofradar";
 
     private final ISensComRestApi restApi;
-    private final ObjectMapper mapper;
 
     /**
      * Constructor.
      *
      * @param restApi the REST API
      */
-    SensComDataApi(ISensComRestApi restApi, ObjectMapper mapper) {
+    SensComDataApi(ISensComRestApi restApi) {
         this.restApi = Objects.requireNonNull(restApi);
-        this.mapper = Objects.requireNonNull(mapper);
     }
 
     public static SensComDataApi create(HostConnectionConfig config, ObjectMapper mapper) {
@@ -45,7 +43,7 @@ public final class SensComDataApi {
         Retrofit retrofit = new Retrofit.Builder().baseUrl(config.getUrl())
                 .addConverterFactory(JacksonConverterFactory.create(mapper)).client(client).build();
         ISensComRestApi restApi = retrofit.create(ISensComRestApi.class);
-        return new SensComDataApi(restApi, mapper);
+        return new SensComDataApi(restApi);
     }
 
     private static okhttp3.Response addUserAgent(Chain chain) throws IOException {
