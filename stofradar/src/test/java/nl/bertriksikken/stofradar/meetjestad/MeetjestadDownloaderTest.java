@@ -1,18 +1,16 @@
 package nl.bertriksikken.stofradar.meetjestad;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import nl.bertriksikken.stofradar.config.HostConnectionConfig;
+import nl.bertriksikken.stofradar.meetjestad.MeetjestadData.MeetjestadDataEntry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import nl.bertriksikken.stofradar.config.HostConnectionConfig;
-import nl.bertriksikken.stofradar.meetjestad.MeetjestadData.MeetjestadDataEntry;
 
 /**
  * Downloads past 15 minutes of meetjestad data.
@@ -36,7 +34,7 @@ public final class MeetjestadDownloaderTest {
         List<MeetjestadDataEntry> entries = data.getEntries();
         LOG.info("Got {} total entries", entries.size());
 
-        entries = entries.stream().filter(e -> e.hasLocation() && e.hasPm()).collect(Collectors.toList());
+        entries = entries.stream().filter(e -> e.hasLocation() && e.hasPm()).toList();
         LOG.info("Got {} PM entries with location", entries.size());
 
         // find unique entries

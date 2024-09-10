@@ -109,7 +109,7 @@ public final class RenderJob {
 
     public Set<EDataSource> getSources() {
         if (source.equals("*")) {
-            return Stream.of(EDataSource.values()).collect(Collectors.toSet());
+            return Set.of(EDataSource.values());
         }
         return Stream.of(source.split(",", -1)).map(EDataSource::fromName).filter(Objects::nonNull)
                 .collect(Collectors.toSet());

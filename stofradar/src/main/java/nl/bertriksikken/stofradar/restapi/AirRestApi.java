@@ -1,5 +1,10 @@
 package nl.bertriksikken.stofradar.restapi;
 
+import es.moki.ratelimitj.core.limiter.request.RequestRateLimiter;
+import nl.bertriksikken.stofradar.render.SensorValue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.InputStream;
 import java.time.Duration;
 import java.time.Instant;
@@ -11,13 +16,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.stream.Collectors;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import es.moki.ratelimitj.core.limiter.request.RequestRateLimiter;
-import nl.bertriksikken.stofradar.render.SensorValue;
 
 public final class AirRestApi implements IAirRestApi {
 
@@ -71,7 +69,7 @@ public final class AirRestApi implements IAirRestApi {
 
         // roughly filter box around center
         values = values.stream().filter(v -> (v.x > -maxd) && (v.x < maxd) && (v.y > -maxd) && (v.y < maxd))
-                .filter(v -> (v.value >= 0)).collect(Collectors.toList());
+                .filter(v -> (v.value >= 0)).toList();
 
         // sort by distance
         values.sort(this::compareByDistance);
@@ -92,7 +90,7 @@ public final class AirRestApi implements IAirRestApi {
     private List<SensorValue> convertToKm(Collection<SensorValue> values, double latitude, double longitude) {
         double kmPerDegreeLon = Math.cos(Math.toRadians(latitude)) * KM_PER_DEGREE_LAT;
         return values.stream().map(v -> new SensorValue(v.source, v.id,
-                (v.x - longitude) * kmPerDegreeLon, (v.y - latitude) * KM_PER_DEGREE_LAT, v.value, v.time)).collect(Collectors.toList());
+                (v.x - longitude) * kmPerDegreeLon, (v.y - latitude) * KM_PER_DEGREE_LAT, v.value, v.time)).toList();
     }
 
     private double calculateIDW(List<SensorValue> values) {

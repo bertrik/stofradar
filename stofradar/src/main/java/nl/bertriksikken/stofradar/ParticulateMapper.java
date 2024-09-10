@@ -62,7 +62,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 /**
  * Process the sensor.community JSON and produces a CSV with coordinates and
@@ -113,7 +112,7 @@ public final class ParticulateMapper {
 
     // entirely removes obviously invalid sensor values (e.g. negative PM)
     private List<SensorValue> filterBySensorValue(List<SensorValue> values) {
-        List<SensorValue> filtered = values.stream().filter(v -> v.value >= 0.0).collect(Collectors.toList());
+        List<SensorValue> filtered = values.stream().filter(v -> v.value >= 0.0).toList();
         LOG.info("Filtered by sensor value: {} -> {}", values.size(), filtered.size());
         return filtered;
     }
@@ -402,14 +401,13 @@ public final class ParticulateMapper {
         double minY = midY - rangeY / 2;
         double maxY = midY + rangeY / 2;
         List<SensorValue> filtered = values.stream().filter(v -> (v.x > minX)).filter(v -> (v.x < maxX))
-                .filter(v -> (v.y > minY)).filter(v -> (v.y < maxY)).collect(Collectors.toList());
+                .filter(v -> (v.y > minY)).filter(v -> (v.y < maxY)).toList();
         LOG.info("Filtered by bounding box: {} -> {}", values.size(), filtered.size());
         return filtered;
     }
 
     private List<SensorValue> filterBySource(List<SensorValue> values, Set<EDataSource> sources) {
-        List<SensorValue> filtered = values.stream().filter(v -> sources.contains(v.source))
-                .collect(Collectors.toList());
+        List<SensorValue> filtered = values.stream().filter(v -> sources.contains(v.source)).toList();
         LOG.info("Filtered by source: {} -> {}", values.size(), filtered.size());
         return filtered;
     }

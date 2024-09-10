@@ -1,14 +1,12 @@
 package nl.bertriksikken.stofradar.samenmeten.csv;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-import java.util.stream.Collectors;
-
+import nl.bertriksikken.stofradar.config.HostConnectionConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import nl.bertriksikken.stofradar.config.HostConnectionConfig;
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
 
 public final class RunSamenmetenCsvTest {
 
@@ -24,8 +22,7 @@ public final class RunSamenmetenCsvTest {
         // save as csv
         csv.write(new File("lucht.csv"));
 
-        List<SamenmetenCsvLuchtEntry> nonLuftdaten = entries.stream().filter(entry -> isInteresting(entry))
-                .collect(Collectors.toList());
+        List<SamenmetenCsvLuchtEntry> nonLuftdaten = entries.stream().filter(entry -> isInteresting(entry)).toList();
         LOG.info("Got {} total interesting entries", nonLuftdaten.size());
     }
 
