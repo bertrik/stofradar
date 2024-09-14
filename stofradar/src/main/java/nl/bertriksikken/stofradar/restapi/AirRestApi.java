@@ -67,12 +67,9 @@ public final class AirRestApi implements IAirRestApi {
         // convert to km
         values = convertToKm(values, latitude, longitude);
 
-        // roughly filter box around center
+        // roughly filter box around center, sort by distance
         values = values.stream().filter(v -> (v.x > -maxd) && (v.x < maxd) && (v.y > -maxd) && (v.y < maxd))
-                .filter(v -> (v.value >= 0)).toList();
-
-        // sort by distance
-        values.sort(this::compareByDistance);
+                .filter(v -> (v.value >= 0)).sorted(this::compareByDistance).toList();
 
         // calculate inverse distance weighted value
         double value = calculateIDW(values);
