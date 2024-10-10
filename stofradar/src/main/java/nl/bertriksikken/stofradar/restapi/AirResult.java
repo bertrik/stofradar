@@ -1,16 +1,14 @@
 package nl.bertriksikken.stofradar.restapi;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import nl.bertriksikken.stofradar.render.SensorValue;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
-
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import nl.bertriksikken.stofradar.render.SensorValue;
 
 @JsonInclude(Include.NON_NULL)
 final class AirResult {
@@ -41,21 +39,9 @@ final class AirResult {
         return String.valueOf(pm2_5);
     }
 
-    private static final class AirSensor {
-        @JsonProperty("id")
-        private final String id;
-
-        @JsonProperty("pm2.5")
-        private final BigDecimal val;
-
-        private AirSensor(String id, double val) {
-            this.id = id;
-            this.val = BigDecimal.valueOf(val).setScale(2, RoundingMode.HALF_UP);
-        }
-
-        @Override
-        public String toString() {
-            return String.format(Locale.ROOT, "{id=%s,val=%s}", id, val);
+    private record AirSensor(@JsonProperty("id") String id, @JsonProperty("pm2.5") BigDecimal pm25) {
+         AirSensor(String id, double val) {
+             this(id, BigDecimal.valueOf(val).setScale(2, RoundingMode.HALF_UP));
         }
     }
 }
