@@ -3,7 +3,7 @@
 # and enable with sudo systemctl enable --now stofradar
 
 [Unit]
-Description=luftdatenmapper
+Description=stofradar
 After=network.target
 
 [Service]
