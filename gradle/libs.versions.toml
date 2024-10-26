@@ -3,7 +3,7 @@ jackson = "2.18.0"
 jersey = "3.1.9"
 retrofit = "2.11.0"
 slf4j = "2.0.16"
-errorprone = "2.33.0"
+errorprone = "2.35.1"
 
 [libraries]
 errorprone_annotations = { module = "com.google.errorprone:error_prone_annotations", version.ref = "errorprone" }
@@ -53,5 +53,5 @@ retrofit = [
 [plugins]
 dependencycheck = "org.owasp.dependencycheck:8.4.2"
 versions = "com.github.ben-manes.versions:0.51.0"
-errorprone = "net.ltgt.errorprone:4.0.1"
+errorprone = "net.ltgt.errorprone:4.1.0"
 
