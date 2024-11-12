@@ -1,5 +1,5 @@
 [versions]
-jackson = "2.18.0"
+jackson = "2.18.1"
 jersey = "3.1.9"
 retrofit = "2.11.0"
 slf4j = "2.0.16"
@@ -51,7 +51,7 @@ retrofit = [
 ]
 
 [plugins]
-dependencycheck = "org.owasp.dependencycheck:8.4.2"
+dependencycheck = "org.owasp.dependencycheck:8.4.3"
 versions = "com.github.ben-manes.versions:0.51.0"
 errorprone = "net.ltgt.errorprone:4.1.0"
 
