@@ -1,6 +1,11 @@
 package nl.bertriksikken.stofradar.restapi;
 
+import es.moki.ratelimitj.core.limiter.request.RequestLimitRule;
 import es.moki.ratelimitj.core.limiter.request.RequestRateLimiter;
+import es.moki.ratelimitj.inmemory.request.InMemorySlidingWindowRequestRateLimiter;
+import jakarta.inject.Singleton;
+import jakarta.ws.rs.ClientErrorException;
+import jakarta.ws.rs.InternalServerErrorException;
 import nl.bertriksikken.stofradar.render.SensorValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,47 +19,62 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-public final class AirRestApi implements IAirRestApi {
+@Singleton
+public final class AirResource implements IAirResource {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AirRestApi.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AirResource.class);
     private static final double KM_PER_DEGREE_LAT = 40075.0 / 360.0;
 
-    private static ExecutorService executor;
-    private static double maxd = 10;
     private static Map<String, SensorValue> dataStore = new HashMap<>();
-    private static RequestRateLimiter rateLimiter;
 
-    public static void initialize(ExecutorService executorService, double radius, RequestRateLimiter limiter) {
-        executor = Objects.requireNonNull(executorService);
-        maxd = radius;
-        rateLimiter = Objects.requireNonNull(limiter);
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
+    private final RequestRateLimiter limiter;
+    private final AirRestApiConfig config;
+
+    public AirResource(AirRestApiConfig config) {
+        RequestLimitRule rule = RequestLimitRule.of(Duration.ofSeconds(60), 10).withPrecision(Duration.ofSeconds(3));
+        this.limiter = new InMemorySlidingWindowRequestRateLimiter(Set.of(rule));
+        this.config = Objects.requireNonNull(config);
     }
 
-    // updates the sensor values, runs on the (single-thread) executor, so is
-    // thread-safe with REST requests
+    public void start() {
+        LOG.info("Starting air resource");
+    }
+
+    public void stop() {
+        executor.shutdown();
+        LOG.info("Stopped air resource");
+    }
+
+    // swap in new data (hacky)
     public static void updateSensorValues(Map<String, SensorValue> sensorValues) {
-        executor.execute(() -> {
-            dataStore.clear();
-            dataStore.putAll(sensorValues);
-        });
+        dataStore = Map.copyOf(sensorValues);
+    }
+
+    @Override
+    public AirResult getAirLegacy(String userAgent, double latitude, double longitude) {
+        return getAir(userAgent, latitude, longitude);
     }
 
     @Override
     public AirResult getAir(String userAgent, double latitude, double longitude) {
         // rate limit
-        if (rateLimiter.overLimitWhenIncremented(userAgent)) {
+        if (limiter.overLimitWhenIncremented(userAgent)) {
             LOG.info("Denied PM calculation (rate limited), location {}/{}, user '{}'", latitude, longitude, userAgent);
-            return null;
+            throw new ClientErrorException("Rate limit reached", 419);
         }
+
         // schedule for immediate execution
         try {
             return executor.submit(() -> doGetAir(userAgent, latitude, longitude)).get();
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("Caught exception", e);
-            return null;
+            throw new InternalServerErrorException();
         }
     }
 
@@ -68,6 +88,7 @@ public final class AirRestApi implements IAirRestApi {
         values = convertToKm(values, latitude, longitude);
 
         // roughly filter box around center, sort by distance
+        double maxd = config.getMaxDistance();
         values = values.stream().filter(v -> (v.x > -maxd) && (v.x < maxd) && (v.y > -maxd) && (v.y < maxd))
                 .filter(v -> (v.value >= 0)).sorted(this::compareByDistance).toList();
 
