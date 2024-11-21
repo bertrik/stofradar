@@ -1,7 +1,5 @@
 package nl.bertriksikken.stofradar.restapi;
 
-import java.io.InputStream;
-
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.HeaderParam;
 import jakarta.ws.rs.Path;
@@ -9,6 +7,8 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
+
+import java.io.InputStream;
 
 @Path("/")
 public interface IAirResource {
@@ -27,7 +27,7 @@ public interface IAirResource {
     @GET
     @Path("/air")
     @Produces(MediaType.APPLICATION_JSON)
-    AirResult getAir(@HeaderParam("User-Agent") String userAgent, @QueryParam("lat") double latitude,
-                     @QueryParam("lon") double longitude);
+    AirResult getAir(@HeaderParam("User-Agent") String userAgent, @QueryParam("lat") Double latitude,
+                     @QueryParam("lon") Double longitude);
 
 }

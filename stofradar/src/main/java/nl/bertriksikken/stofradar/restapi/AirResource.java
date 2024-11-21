@@ -4,6 +4,7 @@ import es.moki.ratelimitj.core.limiter.request.RequestLimitRule;
 import es.moki.ratelimitj.core.limiter.request.RequestRateLimiter;
 import es.moki.ratelimitj.inmemory.request.InMemorySlidingWindowRequestRateLimiter;
 import jakarta.inject.Singleton;
+import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.ClientErrorException;
 import jakarta.ws.rs.InternalServerErrorException;
 import nl.bertriksikken.stofradar.render.SensorValue;
@@ -62,11 +63,16 @@ public final class AirResource implements IAirResource {
     }
 
     @Override
-    public AirResult getAir(String userAgent, double latitude, double longitude) {
+    public AirResult getAir(String userAgent, Double latitude, Double longitude) {
         // rate limit
         if (limiter.overLimitWhenIncremented(userAgent)) {
             LOG.info("Denied PM calculation (rate limited), location {}/{}, user '{}'", latitude, longitude, userAgent);
-            throw new ClientErrorException("Rate limit reached", 419);
+            throw new ClientErrorException("Rate limit reached", 429);
+        }
+
+        // validate
+        if ((latitude == null) || (longitude == null) || !Double.isFinite(latitude) || !Double.isFinite(longitude)) {
+            throw new BadRequestException();
         }
 
         // schedule for immediate execution
