@@ -143,6 +143,7 @@ public final class ParticulateMapper {
 
         ParticulateMapperConfig config = readConfig(new File("stofradar.yaml"));
         ParticulateMapper particulateMapper = new ParticulateMapper(config);
+        Runtime.getRuntime().addShutdownHook(new Thread(particulateMapper::stop));
         particulateMapper.start();
     }
 
@@ -165,6 +166,8 @@ public final class ParticulateMapper {
 
     @SuppressWarnings("FutureReturnValueIgnored")
     private void start() throws IOException {
+        LOG.info("Starting stofradar");
+
         // restore cache
         restoreSensorValues();
 
@@ -178,6 +181,12 @@ public final class ParticulateMapper {
         Instant now = Instant.now();
         long initialDelay = 300L - (now.getEpochSecond() % 300L);
         executor.scheduleAtFixedRate(() -> runDownloadAndProcess(2), initialDelay, 300L, TimeUnit.SECONDS);
+    }
+
+    private void stop() {
+        pmRestApiHandler.stop();
+        executor.shutdown();
+        LOG.info("Stopped stofradar");
     }
 
     private void persistSensorValues(List<SensorValue> values) {
