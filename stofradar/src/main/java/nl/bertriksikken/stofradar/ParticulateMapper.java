@@ -82,7 +82,7 @@ public final class ParticulateMapper {
     private final Map<String, Integer> plausibilityMap = new ConcurrentHashMap<>();
     private final SamenmetenCsvDownloader samenmetenDownloader;
     private final MeetjestadDownloader meetjestadDownloader;
-    private final AirRestServer pmRestApiHandler;
+    private final AirRestServer restServer;
 
     // color range according
     // https://www.luchtmeetnet.nl/informatie/luchtkwaliteit/luchtkwaliteitsindex-(lki)
@@ -100,6 +100,7 @@ public final class ParticulateMapper {
             // very bad
             new ColorPoint(140, new int[]{164, 58, 217, 0xC0})};
     private final ColorMapper colorMapper = new ColorMapper(RANGE_PM2_5);
+    private final AirResource airResource;
 
     ParticulateMapper(ParticulateMapperConfig config) {
         this.config = config;
@@ -107,7 +108,10 @@ public final class ParticulateMapper {
         sensComDataApi = SensComDataApi.create(config.sensComConfig, objectMapper);
         samenmetenDownloader = SamenmetenCsvDownloader.create(config.samenmetenConfig);
         meetjestadDownloader = MeetjestadDownloader.create(config.meetjestadConfig, objectMapper);
-        pmRestApiHandler = new AirRestServer(config.airRestApiConfig);
+
+        restServer = new AirRestServer(config.airRestApiConfig);
+        airResource = new AirResource(config.airRestApiConfig);
+        restServer.registerResource(airResource);
     }
 
     // entirely removes obviously invalid sensor values (e.g. negative PM)
@@ -172,7 +176,8 @@ public final class ParticulateMapper {
         restoreSensorValues();
 
         // start REST API
-        pmRestApiHandler.start();
+        airResource.start();
+        restServer.start();
 
         // schedule immediate job for instant feedback
         executor.submit(() -> runDownloadAndProcess(0));
@@ -184,8 +189,13 @@ public final class ParticulateMapper {
     }
 
     private void stop() {
-        pmRestApiHandler.stop();
         executor.shutdown();
+        try {
+            airResource.stop();
+            restServer.stop();
+        } catch (Exception e) {
+            LOG.warn("Caught exception during shutdown", e);
+        }
         LOG.info("Stopped stofradar");
     }
 
