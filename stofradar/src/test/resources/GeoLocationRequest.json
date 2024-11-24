@@ -1,0 +1,17 @@
+{
+  "considerIp": true,
+  "wifiAccessPoints": [
+    {
+      "macAddress": "8c:19:b5:58:a6:a1",
+      "signalStrength": -69
+    },
+    {
+      "macAddress": "a2:21:b7:9f:5a:bc",
+      "signalStrength": -54
+    },
+    {
+      "macAddress": "a6:21:b7:9f:5a:bc",
+      "signalStrength": -50
+    }
+  ]
+}

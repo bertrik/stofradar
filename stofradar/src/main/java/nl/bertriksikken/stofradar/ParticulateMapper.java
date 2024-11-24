@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import nl.bertriksikken.stofradar.config.ParticulateMapperConfig;
 import nl.bertriksikken.stofradar.config.RenderJob;
+import nl.bertriksikken.stofradar.gelocation.GeoLocationResource;
 import nl.bertriksikken.stofradar.meetjestad.MeetjestadData;
 import nl.bertriksikken.stofradar.meetjestad.MeetjestadDownloader;
 import nl.bertriksikken.stofradar.render.ColorMapper;
@@ -112,6 +113,7 @@ public final class ParticulateMapper {
         restServer = new AirRestServer(config.airRestApiConfig);
         airResource = new AirResource(config.airRestApiConfig);
         restServer.registerResource(airResource);
+        restServer.registerResource(new GeoLocationResource());
     }
 
     // entirely removes obviously invalid sensor values (e.g. negative PM)
@@ -169,7 +171,7 @@ public final class ParticulateMapper {
     }
 
     @SuppressWarnings("FutureReturnValueIgnored")
-    private void start() throws IOException {
+    private void start() {
         LOG.info("Starting stofradar");
 
         // restore cache
