@@ -1,4 +1,4 @@
-package nl.bertriksikken.stofradar.gelocation;
+package nl.bertriksikken.stofradar.geolocation;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;

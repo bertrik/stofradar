@@ -1,7 +1,7 @@
-package nl.bertriksikken.stofradar.gelocation.beacondb;
+package nl.bertriksikken.stofradar.geolocation.beacondb;
 
-import nl.bertriksikken.stofradar.gelocation.GeoLocationRequest;
-import nl.bertriksikken.stofradar.gelocation.GeoLocationResponse;
+import nl.bertriksikken.stofradar.geolocation.GeoLocationRequest;
+import nl.bertriksikken.stofradar.geolocation.GeoLocationResponse;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.Header;

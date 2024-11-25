@@ -3,9 +3,8 @@ package nl.bertriksikken.stofradar.geolocation.beacondb;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import nl.bertriksikken.stofradar.config.HostConnectionConfig;
-import nl.bertriksikken.stofradar.gelocation.GeoLocationRequest;
-import nl.bertriksikken.stofradar.gelocation.GeoLocationResponse;
-import nl.bertriksikken.stofradar.gelocation.beacondb.BeacondbClient;
+import nl.bertriksikken.stofradar.geolocation.GeoLocationRequest;
+import nl.bertriksikken.stofradar.geolocation.GeoLocationResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

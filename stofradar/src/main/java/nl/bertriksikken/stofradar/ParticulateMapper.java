@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import nl.bertriksikken.stofradar.config.ParticulateMapperConfig;
 import nl.bertriksikken.stofradar.config.RenderJob;
-import nl.bertriksikken.stofradar.gelocation.GeoLocationResource;
+import nl.bertriksikken.stofradar.geolocation.GeoLocationResource;
 import nl.bertriksikken.stofradar.meetjestad.MeetjestadData;
 import nl.bertriksikken.stofradar.meetjestad.MeetjestadDownloader;
 import nl.bertriksikken.stofradar.render.ColorMapper;

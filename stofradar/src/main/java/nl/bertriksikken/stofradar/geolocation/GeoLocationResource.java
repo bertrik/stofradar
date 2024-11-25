@@ -1,4 +1,4 @@
-package nl.bertriksikken.stofradar.gelocation;
+package nl.bertriksikken.stofradar.geolocation;
 
 import jakarta.inject.Singleton;
 import org.slf4j.Logger;

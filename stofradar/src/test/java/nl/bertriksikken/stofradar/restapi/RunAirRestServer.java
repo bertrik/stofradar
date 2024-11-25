@@ -1,6 +1,6 @@
 package nl.bertriksikken.stofradar.restapi;
 
-import nl.bertriksikken.stofradar.gelocation.GeoLocationResource;
+import nl.bertriksikken.stofradar.geolocation.GeoLocationResource;
 
 public final class RunAirRestServer {
 

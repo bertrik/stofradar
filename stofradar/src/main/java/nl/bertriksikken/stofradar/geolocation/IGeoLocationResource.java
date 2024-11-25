@@ -1,4 +1,4 @@
-package nl.bertriksikken.stofradar.gelocation;
+package nl.bertriksikken.stofradar.geolocation;
 
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;

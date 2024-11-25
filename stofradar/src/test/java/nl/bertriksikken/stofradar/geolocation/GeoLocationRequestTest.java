@@ -2,7 +2,6 @@ package nl.bertriksikken.stofradar.geolocation;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import nl.bertriksikken.stofradar.gelocation.GeoLocationRequest;
 import org.junit.Assert;
 import org.junit.Test;
 

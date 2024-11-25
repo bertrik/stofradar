@@ -1,9 +1,9 @@
-package nl.bertriksikken.stofradar.gelocation.beacondb;
+package nl.bertriksikken.stofradar.geolocation.beacondb;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import nl.bertriksikken.stofradar.config.HostConnectionConfig;
-import nl.bertriksikken.stofradar.gelocation.GeoLocationRequest;
-import nl.bertriksikken.stofradar.gelocation.GeoLocationResponse;
+import nl.bertriksikken.stofradar.geolocation.GeoLocationRequest;
+import nl.bertriksikken.stofradar.geolocation.GeoLocationResponse;
 import okhttp3.OkHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

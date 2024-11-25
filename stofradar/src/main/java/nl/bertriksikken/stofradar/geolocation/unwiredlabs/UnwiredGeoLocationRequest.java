@@ -1,4 +1,4 @@
-package nl.bertriksikken.stofradar.gelocation.unwiredlabs;
+package nl.bertriksikken.stofradar.geolocation.unwiredlabs;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

@@ -1,7 +1,6 @@
 package nl.bertriksikken.stofradar.geolocation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import nl.bertriksikken.stofradar.gelocation.GeoLocationResponse;
 import org.junit.Assert;
 import org.junit.Test;
 
