@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import nl.bertriksikken.stofradar.config.HostConnectionConfig;
 import nl.bertriksikken.stofradar.geolocation.GeoLocationRequest;
 import nl.bertriksikken.stofradar.geolocation.GeoLocationResponse;
+import nl.bertriksikken.stofradar.geolocation.IGeoLocator;
 import okhttp3.OkHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +16,7 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.Objects;
 
-public class BeacondbClient implements AutoCloseable {
+public final class BeacondbClient implements AutoCloseable, IGeoLocator {
 
     private static final Logger LOG = LoggerFactory.getLogger(BeacondbClient.class);
 
@@ -44,7 +45,8 @@ public class BeacondbClient implements AutoCloseable {
         httpClient.connectionPool().evictAll();
     }
 
-    public GeoLocationResponse geolocate(GeoLocationRequest request) throws IOException {
+    @Override
+    public GeoLocationResponse geoLocate(GeoLocationRequest request) throws IOException {
         Response<GeoLocationResponse> response = restApi.geoLocate(userAgent, request).execute();
         if (response.isSuccessful()) {
             return response.body();

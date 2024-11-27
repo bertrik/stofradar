@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import nl.bertriksikken.stofradar.config.HostConnectionConfig;
 import nl.bertriksikken.stofradar.geolocation.GeoLocationRequest;
 import nl.bertriksikken.stofradar.geolocation.GeoLocationResponse;
+import nl.bertriksikken.stofradar.geolocation.IGeoLocator;
 import okhttp3.OkHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +16,7 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.Objects;
 
-public class UnwiredClient implements AutoCloseable {
+public final class UnwiredClient implements AutoCloseable, IGeoLocator {
 
     private static final Logger LOG = LoggerFactory.getLogger(UnwiredClient.class);
 
@@ -46,6 +47,7 @@ public class UnwiredClient implements AutoCloseable {
         httpClient.connectionPool().evictAll();
     }
 
+    @Override
     public GeoLocationResponse geoLocate(GeoLocationRequest request) throws IOException {
         // build request
         UnwiredGeoLocationRequest unwiredRequest = new UnwiredGeoLocationRequest(token, 0);

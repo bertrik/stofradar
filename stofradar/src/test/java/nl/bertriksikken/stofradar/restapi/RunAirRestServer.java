@@ -1,6 +1,10 @@
 package nl.bertriksikken.stofradar.restapi;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import nl.bertriksikken.stofradar.config.HostConnectionConfig;
 import nl.bertriksikken.stofradar.geolocation.GeoLocationResource;
+import nl.bertriksikken.stofradar.geolocation.IGeoLocator;
+import nl.bertriksikken.stofradar.geolocation.beacondb.BeacondbClient;
 
 public final class RunAirRestServer {
 
@@ -12,8 +16,11 @@ public final class RunAirRestServer {
 
         AirRestServer server = new AirRestServer(config);
         server.registerResource(airResource);
-        server.registerResource(new GeoLocationResource());
+
+        IGeoLocator geoLocator = BeacondbClient.create(new HostConnectionConfig("https://api.beacondb.net", 30),
+                new ObjectMapper(), "github.com/bertrik/stofradar");
+        server.registerResource(new GeoLocationResource(geoLocator));
         server.start();
     }
-    
+
 }

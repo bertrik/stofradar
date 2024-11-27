@@ -24,6 +24,9 @@ public final class ParticulateMapperConfig {
     @JsonProperty("meetjestad")
     public final HostConnectionConfig meetjestadConfig = new HostConnectionConfig("https://meetjestad.net", 30);
 
+    @JsonProperty("beacondb")
+    public final HostConnectionConfig beaconDbConfig = new HostConnectionConfig("https://api.beacondb.net", 30);
+
     @JsonProperty("blocklist")
     public final Set<String> blockList = new HashSet<>();
 

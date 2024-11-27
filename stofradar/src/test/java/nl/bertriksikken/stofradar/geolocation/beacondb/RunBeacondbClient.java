@@ -30,7 +30,7 @@ public final class RunBeacondbClient {
         request.addAccessPoint("88:AC:C0:B5:E5:71", -84);
         LOG.info("Request: {}", WRITER.writeValueAsString(request));
         try (BeacondbClient client = BeacondbClient.create(config, mapper, "github.com/bertrik/stofradar")) {
-            GeoLocationResponse response = client.geolocate(request);
+            GeoLocationResponse response = client.geoLocate(request);
             LOG.info("Response: {}", response);
         }
     }

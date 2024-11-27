@@ -8,6 +8,8 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import nl.bertriksikken.stofradar.config.ParticulateMapperConfig;
 import nl.bertriksikken.stofradar.config.RenderJob;
 import nl.bertriksikken.stofradar.geolocation.GeoLocationResource;
+import nl.bertriksikken.stofradar.geolocation.IGeoLocator;
+import nl.bertriksikken.stofradar.geolocation.beacondb.BeacondbClient;
 import nl.bertriksikken.stofradar.meetjestad.MeetjestadData;
 import nl.bertriksikken.stofradar.meetjestad.MeetjestadDownloader;
 import nl.bertriksikken.stofradar.render.ColorMapper;
@@ -72,6 +74,7 @@ public final class ParticulateMapper {
 
     private static final Logger LOG = LoggerFactory.getLogger(ParticulateMapper.class);
     private static final File SENSOR_VALUE_CACHE_FILE = new File("sensorvaluecache.json");
+    private static final String USER_AGENT = "github.com/bertrik/stofradar";
 
     private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
@@ -106,14 +109,18 @@ public final class ParticulateMapper {
     ParticulateMapper(ParticulateMapperConfig config) {
         this.config = config;
         objectMapper.findAndRegisterModules();
-        sensComDataApi = SensComDataApi.create(config.sensComConfig, objectMapper);
+        sensComDataApi = SensComDataApi.create(config.sensComConfig, objectMapper, USER_AGENT);
         samenmetenDownloader = SamenmetenCsvDownloader.create(config.samenmetenConfig);
         meetjestadDownloader = MeetjestadDownloader.create(config.meetjestadConfig, objectMapper);
 
+        // PM2.5 service
         restServer = new AirRestServer(config.airRestApiConfig);
         airResource = new AirResource(config.airRestApiConfig);
         restServer.registerResource(airResource);
-        restServer.registerResource(new GeoLocationResource());
+
+        // geo location service
+        IGeoLocator geoLocator = BeacondbClient.create(config.beaconDbConfig, objectMapper, USER_AGENT);
+        restServer.registerResource(new GeoLocationResource(geoLocator));
     }
 
     // entirely removes obviously invalid sensor values (e.g. negative PM)

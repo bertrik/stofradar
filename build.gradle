@@ -42,6 +42,7 @@ subprojects {
 
         implementation libs.slf4j
         testImplementation libs.junit
+        testImplementation libs.mockito
     }
 }
 
