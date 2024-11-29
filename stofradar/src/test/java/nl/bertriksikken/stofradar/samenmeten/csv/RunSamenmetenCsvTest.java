@@ -14,7 +14,7 @@ public final class RunSamenmetenCsvTest {
 
     public static void main(String[] args) throws IOException {
         HostConnectionConfig config = new HostConnectionConfig("https://samenmeten.rivm.nl", 30);
-        SamenmetenCsvDownloader downloader = SamenmetenCsvDownloader.create(config);
+        SamenmetenCsvClient downloader = SamenmetenCsvClient.create(config);
         SamenmetenCsv csv = downloader.downloadDataFromFile("lucht");
         List<SamenmetenCsvLuchtEntry> entries = csv.getEntries();
         LOG.info("Got {} total entries", entries.size());
@@ -22,7 +22,7 @@ public final class RunSamenmetenCsvTest {
         // save as csv
         csv.write(new File("lucht.csv"));
 
-        List<SamenmetenCsvLuchtEntry> nonLuftdaten = entries.stream().filter(entry -> isInteresting(entry)).toList();
+        List<SamenmetenCsvLuchtEntry> nonLuftdaten = entries.stream().filter(RunSamenmetenCsvTest::isInteresting).toList();
         LOG.info("Got {} total interesting entries", nonLuftdaten.size());
     }
 
@@ -36,10 +36,7 @@ public final class RunSamenmetenCsvTest {
             return false;
         }
         // ignore entries without PM data
-        if (!Double.isFinite(entry.getPm10()) || !Double.isFinite(entry.getPm2_5())) {
-            return false;
-        }
-        return true;
+        return Double.isFinite(entry.getPm10()) && Double.isFinite(entry.getPm2_5());
     }
 
 }

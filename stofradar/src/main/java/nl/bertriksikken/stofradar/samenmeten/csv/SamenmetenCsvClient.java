@@ -16,17 +16,17 @@ import retrofit2.converter.scalars.ScalarsConverterFactory;
  * Downloads data from the unofficial samenmeten CSV API and parses it into
  * lines.
  */
-public final class SamenmetenCsvDownloader {
+public final class SamenmetenCsvClient {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SamenmetenCsvDownloader.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SamenmetenCsvClient.class);
 
     private final ISamenmetenCsvRestApi restApi;
 
-    SamenmetenCsvDownloader(ISamenmetenCsvRestApi restApi) {
+    SamenmetenCsvClient(ISamenmetenCsvRestApi restApi) {
         this.restApi = restApi;
     }
 
-    public static SamenmetenCsvDownloader create(HostConnectionConfig config) {
+    public static SamenmetenCsvClient create(HostConnectionConfig config) {
         LOG.info("Creating new REST client for URL '{}' with timeout {}", config.getUrl(), config.getTimeout());
         Duration timeout = config.getTimeout();
         OkHttpClient client = new OkHttpClient().newBuilder().connectTimeout(timeout).readTimeout(timeout)
@@ -34,7 +34,7 @@ public final class SamenmetenCsvDownloader {
         Retrofit retrofit = new Retrofit.Builder().baseUrl(config.getUrl())
                 .addConverterFactory(ScalarsConverterFactory.create()).client(client).build();
         ISamenmetenCsvRestApi restApi = retrofit.create(ISamenmetenCsvRestApi.class);
-        return new SamenmetenCsvDownloader(restApi);
+        return new SamenmetenCsvClient(restApi);
     }
 
     public SamenmetenCsv downloadDataFromFile(String compartiment) throws IOException {

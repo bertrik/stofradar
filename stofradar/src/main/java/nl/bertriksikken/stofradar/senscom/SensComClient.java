@@ -16,9 +16,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public final class SensComDataApi {
+public final class SensComClient {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SensComDataApi.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SensComClient.class);
 
     private final ISensComRestApi restApi;
     private final String userAgent;
@@ -28,12 +28,12 @@ public final class SensComDataApi {
      *
      * @param restApi the REST API
      */
-    SensComDataApi(ISensComRestApi restApi, String userAgent) {
+    SensComClient(ISensComRestApi restApi, String userAgent) {
         this.restApi = Objects.requireNonNull(restApi);
         this.userAgent = Objects.requireNonNull(userAgent);
     }
 
-    public static SensComDataApi create(HostConnectionConfig config, ObjectMapper mapper, String userAgent) {
+    public static SensComClient create(HostConnectionConfig config, ObjectMapper mapper, String userAgent) {
         LOG.info("Creating new REST client for URL '{}' with timeout {}", config.getUrl(), config.getTimeout());
         Duration timeout = config.getTimeout();
         OkHttpClient client = new OkHttpClient().newBuilder()
@@ -41,7 +41,7 @@ public final class SensComDataApi {
         Retrofit retrofit = new Retrofit.Builder().baseUrl(config.getUrl())
                 .addConverterFactory(JacksonConverterFactory.create(mapper)).client(client).build();
         ISensComRestApi restApi = retrofit.create(ISensComRestApi.class);
-        return new SensComDataApi(restApi, userAgent);
+        return new SensComClient(restApi, userAgent);
     }
 
     public List<DataPoint> downloadDust() throws IOException {

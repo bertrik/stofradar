@@ -15,22 +15,22 @@ import java.util.Map;
 /**
  * Downloads past 15 minutes of meetjestad data.
  */
-public final class MeetjestadDownloaderTest {
+public final class MeetjestadClientTest {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MeetjestadDownloaderTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MeetjestadClientTest.class);
 
-    public static void main(String args[]) throws IOException {
-        MeetjestadDownloaderTest test = new MeetjestadDownloaderTest();
+    public static void main(String[] args) throws IOException {
+        MeetjestadClientTest test = new MeetjestadClientTest();
         test.testDownload();
     }
 
     public void testDownload() throws IOException {
         HostConnectionConfig config = new HostConnectionConfig("https://meetjestad.net", 30);
         ObjectMapper mapper = new ObjectMapper().findAndRegisterModules();
-        MeetjestadDownloader downloader = MeetjestadDownloader.create(config, mapper);
+        MeetjestadClient client = MeetjestadClient.create(config, mapper);
 
         Instant from = Instant.now().minusSeconds(900);
-        MeetjestadData data = downloader.download(from);
+        MeetjestadData data = client.download(from);
         List<MeetjestadDataEntry> entries = data.getEntries();
         LOG.info("Got {} total entries", entries.size());
 

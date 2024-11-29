@@ -11,7 +11,7 @@ import nl.bertriksikken.stofradar.geolocation.GeoLocationResource;
 import nl.bertriksikken.stofradar.geolocation.IGeoLocator;
 import nl.bertriksikken.stofradar.geolocation.beacondb.BeacondbClient;
 import nl.bertriksikken.stofradar.meetjestad.MeetjestadData;
-import nl.bertriksikken.stofradar.meetjestad.MeetjestadDownloader;
+import nl.bertriksikken.stofradar.meetjestad.MeetjestadClient;
 import nl.bertriksikken.stofradar.render.ColorMapper;
 import nl.bertriksikken.stofradar.render.ColorPoint;
 import nl.bertriksikken.stofradar.render.EDataSource;
@@ -22,9 +22,9 @@ import nl.bertriksikken.stofradar.render.SensorValue;
 import nl.bertriksikken.stofradar.restapi.AirResource;
 import nl.bertriksikken.stofradar.restapi.AirRestServer;
 import nl.bertriksikken.stofradar.samenmeten.csv.SamenmetenCsv;
-import nl.bertriksikken.stofradar.samenmeten.csv.SamenmetenCsvDownloader;
+import nl.bertriksikken.stofradar.samenmeten.csv.SamenmetenCsvClient;
 import nl.bertriksikken.stofradar.samenmeten.csv.SamenmetenCsvLuchtEntry;
-import nl.bertriksikken.stofradar.senscom.SensComDataApi;
+import nl.bertriksikken.stofradar.senscom.SensComClient;
 import nl.bertriksikken.stofradar.senscom.dto.DataPoint;
 import nl.bertriksikken.stofradar.senscom.dto.DataValue;
 import nl.bertriksikken.stofradar.senscom.dto.Location;
@@ -79,13 +79,13 @@ public final class ParticulateMapper {
     private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
     private final ParticulateMapperConfig config;
-    private final SensComDataApi sensComDataApi;
+    private final SensComClient sensComClient;
     private final ObjectMapper objectMapper = new ObjectMapper();
     // map from id to sensor value
     private final Map<String, SensorValue> sensorValueMap = new ConcurrentHashMap<>();
     private final Map<String, Integer> plausibilityMap = new ConcurrentHashMap<>();
-    private final SamenmetenCsvDownloader samenmetenDownloader;
-    private final MeetjestadDownloader meetjestadDownloader;
+    private final SamenmetenCsvClient samenmetenClient;
+    private final MeetjestadClient meetjestadClient;
     private final AirRestServer restServer;
 
     // color range according
@@ -109,9 +109,9 @@ public final class ParticulateMapper {
     ParticulateMapper(ParticulateMapperConfig config) {
         this.config = config;
         objectMapper.findAndRegisterModules();
-        sensComDataApi = SensComDataApi.create(config.sensComConfig, objectMapper, USER_AGENT);
-        samenmetenDownloader = SamenmetenCsvDownloader.create(config.samenmetenConfig);
-        meetjestadDownloader = MeetjestadDownloader.create(config.meetjestadConfig, objectMapper);
+        sensComClient = SensComClient.create(config.sensComConfig, objectMapper, USER_AGENT);
+        samenmetenClient = SamenmetenCsvClient.create(config.samenmetenConfig);
+        meetjestadClient = MeetjestadClient.create(config.meetjestadConfig, objectMapper);
 
         // PM2.5 service
         restServer = new AirRestServer(config.airRestApiConfig);
@@ -277,7 +277,7 @@ public final class ParticulateMapper {
         // download PM2.5 data from RIVM samenmeten
         try {
             // download lucht
-            SamenmetenCsv csv = samenmetenDownloader.downloadDataFromFile("lucht");
+            SamenmetenCsv csv = samenmetenClient.downloadDataFromFile("lucht");
             // save to intermediate file
             csv.write(new File("lucht.csv"));
             // add to collection
@@ -291,7 +291,7 @@ public final class ParticulateMapper {
         // download data from sensor.community
         try {
             LOG.info("Retrieving dust data from sensor.community");
-            List<DataPoint> dataPoints = sensComDataApi.downloadDust();
+            List<DataPoint> dataPoints = sensComClient.downloadDust();
 
             // convert DataPoints to internal format
             List<SensorValue> scPmValues = convertDataPoints(dataPoints, "", "P2", 0);
@@ -304,7 +304,7 @@ public final class ParticulateMapper {
 
         // download PM2.5 from meetjestad
         try {
-            MeetjestadData meetjestadData = meetjestadDownloader.download(now.minusSeconds(600));
+            MeetjestadData meetjestadData = meetjestadClient.download(now.minusSeconds(600));
             List<SensorValue> meetjestadValues = meetjestadData.toSensorValues();
             LOG.info("Collected {} PM2.5 values from meetjestad", meetjestadValues.size());
             pmValues.addAll(meetjestadValues);

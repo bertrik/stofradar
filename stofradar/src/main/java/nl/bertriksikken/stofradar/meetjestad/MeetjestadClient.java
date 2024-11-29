@@ -20,19 +20,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public final class MeetjestadDownloader {
+public final class MeetjestadClient {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MeetjestadDownloader.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MeetjestadClient.class);
     private static final DateTimeFormatter DATETIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd,HH:mm")
             .withZone(ZoneOffset.UTC);
 
     private final IMeetjestadRestApi restApi;
 
-    MeetjestadDownloader(IMeetjestadRestApi restApi) {
+    MeetjestadClient(IMeetjestadRestApi restApi) {
         this.restApi = restApi;
     }
 
-    public static MeetjestadDownloader create(HostConnectionConfig config, ObjectMapper mapper) {
+    public static MeetjestadClient create(HostConnectionConfig config, ObjectMapper mapper) {
         LOG.info("Creating new REST client for URL '{}' with timeout {}", config.getUrl(), config.getTimeout());
         Duration timeout = config.getTimeout();
         OkHttpClient client = new OkHttpClient().newBuilder().connectTimeout(timeout).readTimeout(timeout)
@@ -40,7 +40,7 @@ public final class MeetjestadDownloader {
         Retrofit retrofit = new Retrofit.Builder().baseUrl(config.getUrl())
                 .addConverterFactory(JacksonConverterFactory.create(mapper)).client(client).build();
         IMeetjestadRestApi restApi = retrofit.create(IMeetjestadRestApi.class);
-        return new MeetjestadDownloader(restApi);
+        return new MeetjestadClient(restApi);
     }
 
     public MeetjestadData download(Instant from) throws IOException {
