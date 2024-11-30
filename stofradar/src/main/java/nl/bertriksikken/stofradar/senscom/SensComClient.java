@@ -2,7 +2,6 @@ package nl.bertriksikken.stofradar.senscom;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import nl.bertriksikken.stofradar.config.HostConnectionConfig;
-import nl.bertriksikken.stofradar.senscom.dto.DataPoint;
 import okhttp3.OkHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

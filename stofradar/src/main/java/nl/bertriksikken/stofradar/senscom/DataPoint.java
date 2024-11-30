@@ -1,4 +1,4 @@
-package nl.bertriksikken.stofradar.senscom.dto;
+package nl.bertriksikken.stofradar.senscom;
 
 import java.time.Instant;
 import java.time.ZoneOffset;
@@ -51,4 +51,18 @@ public final class DataPoint {
         return String.format(Locale.ROOT, "{%s,%s,%s}", location, sensor, sensorDataValues);
     }
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public record Location(@JsonProperty("id") int id, @JsonProperty("latitude") double latitude,
+                           @JsonProperty("longitude") double longitude, @JsonProperty("altitude") double altitude,
+                           @JsonProperty("country") String country, @JsonProperty("indoor") int indoor) {
+
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public record Sensor(@JsonProperty("id") int id, @JsonProperty("sensor_type") SensorType sensorType) {
+
+        public record SensorType(@JsonProperty("id") int id, @JsonProperty("name") String name,
+                                 @JsonProperty("manufacturer") String manufacturer) {
+        }
+    }
 }

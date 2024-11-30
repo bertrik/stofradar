@@ -25,10 +25,8 @@ import nl.bertriksikken.stofradar.samenmeten.csv.SamenmetenCsv;
 import nl.bertriksikken.stofradar.samenmeten.csv.SamenmetenCsvClient;
 import nl.bertriksikken.stofradar.samenmeten.csv.SamenmetenCsvLuchtEntry;
 import nl.bertriksikken.stofradar.senscom.SensComClient;
-import nl.bertriksikken.stofradar.senscom.dto.DataPoint;
-import nl.bertriksikken.stofradar.senscom.dto.DataValue;
-import nl.bertriksikken.stofradar.senscom.dto.Location;
-import nl.bertriksikken.stofradar.senscom.dto.Sensor;
+import nl.bertriksikken.stofradar.senscom.DataPoint;
+import nl.bertriksikken.stofradar.senscom.DataValue;
 import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -448,22 +446,22 @@ public final class ParticulateMapper {
         List<SensorValue> values = new ArrayList<>();
         int numIndoor = 0;
         for (DataPoint dp : dataPoints) {
-            Sensor sensor = dp.getSensor();
-            if (sensorType.isEmpty() || sensorType.equals(sensor.getSensorType().getName())) {
-                Location location = dp.getLocation();
-                if (location.getIndoor() != 0) {
+            DataPoint.Sensor sensor = dp.getSensor();
+            if (sensorType.isEmpty() || sensorType.equals(sensor.sensorType().name())) {
+                DataPoint.Location location = dp.getLocation();
+                if (location.indoor() != 0) {
                     numIndoor++;
                     continue;
                 }
                 DataValue dataValue = dp.getSensorDataValues().getDataValue(item);
                 if (dataValue != null) {
-                    String id = Integer.toString(sensor.getId());
-                    double x = location.getLongitude();
-                    double y = location.getLatitude();
-                    double v = dataValue.getValue();
+                    String id = Integer.toString(sensor.id());
+                    double x = location.longitude();
+                    double y = location.latitude();
+                    double v = dataValue.value();
                     SensorValue value = new SensorValue(EDataSource.SENSOR_COMMUNITY, id, x, y, v, dp.getTimestamp());
                     // tag with plausibility
-                    String name = "LTD_" + dp.getLocation().getId();
+                    String name = "LTD_" + dp.getLocation().id();
                     int plausibility = plausibilityMap.getOrDefault(name, defaultPlausibility);
                     value.setPlausibility(plausibility);
                     values.add(value);

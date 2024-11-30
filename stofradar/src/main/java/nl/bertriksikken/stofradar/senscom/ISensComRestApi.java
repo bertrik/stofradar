@@ -2,7 +2,6 @@ package nl.bertriksikken.stofradar.senscom;
 
 import java.util.List;
 
-import nl.bertriksikken.stofradar.senscom.dto.DataPoint;
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Header;

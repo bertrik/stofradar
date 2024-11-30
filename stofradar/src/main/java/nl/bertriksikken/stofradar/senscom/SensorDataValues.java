@@ -1,5 +1,6 @@
-package nl.bertriksikken.stofradar.senscom.dto;
+package nl.bertriksikken.stofradar.senscom;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,6 +9,7 @@ public final class SensorDataValues extends ArrayList<DataValue> {
     /**
      * Mandatory serial id.
      */
+    @Serial
     private static final long serialVersionUID = 1L;
     
     private SensorDataValues() {
@@ -31,7 +33,7 @@ public final class SensorDataValues extends ArrayList<DataValue> {
      */
     public DataValue getDataValue(String name) {
         for (DataValue value : this) {
-            if (value.getValueType().equals(name)) {
+            if (value.valueType().equals(name)) {
                 return value;
             }
         }

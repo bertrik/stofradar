@@ -1,4 +1,4 @@
-package nl.bertriksikken.stofradar.senscom.dto;
+package nl.bertriksikken.stofradar.senscom;
 
 import java.io.IOException;
 import java.net.URL;
