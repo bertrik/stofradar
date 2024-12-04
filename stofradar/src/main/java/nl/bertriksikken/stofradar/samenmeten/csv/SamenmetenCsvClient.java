@@ -27,11 +27,11 @@ public final class SamenmetenCsvClient {
     }
 
     public static SamenmetenCsvClient create(HostConnectionConfig config) {
-        LOG.info("Creating new REST client for URL '{}' with timeout {}", config.getUrl(), config.getTimeout());
-        Duration timeout = config.getTimeout();
+        LOG.info("Creating new REST client for URL '{}' with timeout {}", config.url(), config.timeout());
+        Duration timeout = config.timeout();
         OkHttpClient client = new OkHttpClient().newBuilder().connectTimeout(timeout).readTimeout(timeout)
                 .writeTimeout(timeout).build();
-        Retrofit retrofit = new Retrofit.Builder().baseUrl(config.getUrl())
+        Retrofit retrofit = new Retrofit.Builder().baseUrl(config.url())
                 .addConverterFactory(ScalarsConverterFactory.create()).client(client).build();
         ISamenmetenCsvRestApi restApi = retrofit.create(ISamenmetenCsvRestApi.class);
         return new SamenmetenCsvClient(restApi);

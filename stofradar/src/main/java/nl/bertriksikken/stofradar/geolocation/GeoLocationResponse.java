@@ -32,7 +32,8 @@ public record GeoLocationResponse(@JsonProperty("location") Location location,
         return Double.isFinite(accuracy) && location().isValid();
     }
 
-    public record Location(@JsonProperty("lat") Double latitude, @JsonProperty("lng") Double longitude) {
+    public record Location(@JsonProperty("lat") Double latitude,
+                           @JsonProperty("lng") Double longitude) {
         public Location {
             latitude = Objects.requireNonNullElse(latitude, Double.NaN);
             longitude = Objects.requireNonNullElse(longitude, Double.NaN);

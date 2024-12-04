@@ -31,10 +31,10 @@ public final class BeacondbClient implements AutoCloseable, IGeoLocator {
     }
 
     public static BeacondbClient create(HostConnectionConfig config, ObjectMapper mapper, String userAgent) {
-        LOG.info("Creating new REST client for URL '{}' with timeout {}", config.getUrl(), config.getTimeout());
-        Duration timeout = config.getTimeout();
+        LOG.info("Creating new REST client for URL '{}' with timeout {}", config.url(), config.timeout());
+        Duration timeout = config.timeout();
         OkHttpClient client = new OkHttpClient().newBuilder().connectTimeout(timeout).readTimeout(timeout).writeTimeout(timeout).build();
-        Retrofit retrofit = new Retrofit.Builder().baseUrl(config.getUrl()).addConverterFactory(JacksonConverterFactory.create(mapper)).client(client).build();
+        Retrofit retrofit = new Retrofit.Builder().baseUrl(config.url()).addConverterFactory(JacksonConverterFactory.create(mapper)).client(client).build();
         IBeacondbApi restApi = retrofit.create(IBeacondbApi.class);
         return new BeacondbClient(client, restApi, userAgent);
     }

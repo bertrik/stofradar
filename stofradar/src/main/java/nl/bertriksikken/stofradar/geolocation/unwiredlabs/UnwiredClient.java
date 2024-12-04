@@ -33,10 +33,10 @@ public final class UnwiredClient implements AutoCloseable, IGeoLocator {
     }
 
     public static UnwiredClient create(HostConnectionConfig config, String token, ObjectMapper mapper, String userAgent) {
-        LOG.info("Creating new REST client for URL '{}' with timeout {}", config.getUrl(), config.getTimeout());
-        Duration timeout = config.getTimeout();
+        LOG.info("Creating new REST client for URL '{}' with timeout {}", config.url(), config.timeout());
+        Duration timeout = config.timeout();
         OkHttpClient client = new OkHttpClient().newBuilder().connectTimeout(timeout).readTimeout(timeout).writeTimeout(timeout).build();
-        Retrofit retrofit = new Retrofit.Builder().baseUrl(config.getUrl()).addConverterFactory(JacksonConverterFactory.create(mapper)).client(client).build();
+        Retrofit retrofit = new Retrofit.Builder().baseUrl(config.url()).addConverterFactory(JacksonConverterFactory.create(mapper)).client(client).build();
         IUnwiredApi restApi = retrofit.create(IUnwiredApi.class);
         return new UnwiredClient(client, restApi, token, userAgent);
     }
