@@ -1,14 +1,12 @@
 package nl.bertriksikken.stofradar.restapi;
 
-import java.time.Instant;
-
-import org.junit.Test;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import nl.bertriksikken.stofradar.render.EDataSource;
 import nl.bertriksikken.stofradar.render.SensorValue;
+import org.junit.jupiter.api.Test;
+
+import java.time.Instant;
 
 public final class AirResultTest {
 

@@ -1,14 +1,13 @@
 package nl.bertriksikken.stofradar.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-
-import org.junit.Assert;
-import org.junit.Test;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 
 public final class ParticulateMapperConfigTest {
 
@@ -25,7 +24,7 @@ public final class ParticulateMapperConfigTest {
     public void testReadConfig() throws IOException {
         URL url = getClass().getClassLoader().getResource("test_config.yaml");
         ParticulateMapperConfig config = mapper.readValue(url, ParticulateMapperConfig.class);
-        Assert.assertEquals("/opt/stofradar.nl/www", config.outputPath);
+        Assertions.assertEquals("/opt/stofradar.nl/www", config.outputPath);
     }
 
 }

@@ -1,6 +1,7 @@
 [versions]
 jackson = "2.18.2"
 jersey = "3.1.9"
+junit = "5.11.3"
 retrofit = "2.11.0"
 slf4j = "2.0.16"
 errorprone = "2.36.0"
@@ -22,7 +23,10 @@ jersey-server-inject = { module = "org.glassfish.jersey.inject:jersey-hk2", vers
 jersey-server-jackson = { module = "org.glassfish.jersey.media:jersey-media-json-jackson", version.ref = "jersey" }
 jersey-server-jetty = { module = "org.glassfish.jersey.containers:jersey-container-jetty-http", version.ref = "jersey" }
 
-junit = "junit:junit:4.13.2"
+junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
+
 mockito = "org.mockito:mockito-core:5.14.2"
 ratelimitj = "es.moki.ratelimitj:ratelimitj-inmemory:0.7.0"
 reload4j = { module = "org.slf4j:slf4j-reload4j", version.ref = "slf4j" }

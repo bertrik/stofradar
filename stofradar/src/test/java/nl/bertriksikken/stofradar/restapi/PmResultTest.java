@@ -1,10 +1,10 @@
 package nl.bertriksikken.stofradar.restapi;
 
-import org.junit.Assert;
-import org.junit.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public final class PmResultTest {
 
@@ -12,9 +12,9 @@ public final class PmResultTest {
     public void testSerialize() throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         // ordinary number
-        Assert.assertEquals("{\"pm2.5\":12.46,\"sensors\":[]}", mapper.writeValueAsString(new AirResult(12.45678)));
+        Assertions.assertEquals("{\"pm2.5\":12.46,\"sensors\":[]}", mapper.writeValueAsString(new AirResult(12.45678)));
         // NaN
-        Assert.assertEquals("{\"sensors\":[]}", mapper.writeValueAsString(new AirResult(Double.NaN)));
+        Assertions.assertEquals("{\"sensors\":[]}", mapper.writeValueAsString(new AirResult(Double.NaN)));
     }
 
 }
