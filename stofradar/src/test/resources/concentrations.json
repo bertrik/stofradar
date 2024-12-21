@@ -1,0 +1,104 @@
+{
+  "data": [
+    {
+      "formula": "LKI",
+      "value": 5.34999990463257,
+      "timestamp_measured": "2023-04-29T06:00:00+00:00"
+    },
+    {
+      "formula": "LKI",
+      "value": 5.34999990463257,
+      "timestamp_measured": "2023-04-29T07:00:00+00:00"
+    },
+    {
+      "formula": "LKI",
+      "value": 5.34999990463257,
+      "timestamp_measured": "2023-04-29T08:00:00+00:00"
+    },
+    {
+      "formula": "LKI",
+      "value": 3.65000009536743,
+      "timestamp_measured": "2024-08-09T06:00:00+00:00"
+    },
+    {
+      "formula": "LKI",
+      "value": 2.40000009536743,
+      "timestamp_measured": "2024-09-15T09:00:00+00:00"
+    },
+    {
+      "formula": "LKI",
+      "value": 4,
+      "timestamp_measured": "2024-12-21T12:00:00+00:00"
+    },
+    {
+      "formula": "LKI",
+      "value": 4,
+      "timestamp_measured": "2024-12-21T13:00:00+00:00"
+    },
+    {
+      "formula": "LKI",
+      "value": 4,
+      "timestamp_measured": "2024-12-21T14:00:00+00:00"
+    },
+    {
+      "formula": "LKI",
+      "value": 3.84999990463257,
+      "timestamp_measured": "2024-12-21T15:00:00+00:00"
+    },
+    {
+      "formula": "LKI",
+      "value": 3.84999990463257,
+      "timestamp_measured": "2024-12-21T16:00:00+00:00"
+    },
+    {
+      "formula": "LKI",
+      "value": 3.84999990463257,
+      "timestamp_measured": "2024-12-21T17:00:00+00:00"
+    },
+    {
+      "formula": "LKI",
+      "value": 4.19000005722046,
+      "timestamp_measured": "2024-12-21T18:00:00+00:00"
+    },
+    {
+      "formula": "LKI",
+      "value": 4.19000005722046,
+      "timestamp_measured": "2024-12-21T19:00:00+00:00"
+    },
+    {
+      "formula": "LKI",
+      "value": 4.19000005722046,
+      "timestamp_measured": "2024-12-21T20:00:00+00:00"
+    },
+    {
+      "formula": "LKI",
+      "value": 4.55000019073486,
+      "timestamp_measured": "2024-12-21T21:00:00+00:00"
+    },
+    {
+      "formula": "LKI",
+      "value": 4.55000019073486,
+      "timestamp_measured": "2024-12-21T22:00:00+00:00"
+    },
+    {
+      "formula": "LKI",
+      "value": 4.55000019073486,
+      "timestamp_measured": "2024-12-21T23:00:00+00:00"
+    },
+    {
+      "formula": "LKI",
+      "value": 4.44999980926514,
+      "timestamp_measured": "2024-12-22T00:00:00+00:00"
+    },
+    {
+      "formula": "LKI",
+      "value": 4.44999980926514,
+      "timestamp_measured": "2024-12-22T01:00:00+00:00"
+    },
+    {
+      "formula": "LKI",
+      "value": 4.5,
+      "timestamp_measured": "2024-12-22T02:00:00+00:00"
+    }
+  ]
+}

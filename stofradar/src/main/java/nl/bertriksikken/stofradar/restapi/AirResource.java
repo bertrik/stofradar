@@ -7,10 +7,13 @@ import jakarta.inject.Singleton;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.ClientErrorException;
 import jakarta.ws.rs.InternalServerErrorException;
+import nl.bertriksikken.stofradar.config.HostConnectionConfig;
+import nl.bertriksikken.stofradar.luchtmeetnet.LuchtmeetnetClient;
 import nl.bertriksikken.stofradar.render.SensorValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.time.Duration;
 import java.time.Instant;
@@ -36,11 +39,18 @@ public final class AirResource implements IAirResource {
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final RequestRateLimiter limiter;
     private final AirRestApiConfig config;
+    private final LuchtmeetnetClient luchtmeetnetClient;
 
     public AirResource(AirRestApiConfig config) {
         RequestLimitRule rule = RequestLimitRule.of(Duration.ofSeconds(60), 10).withPrecision(Duration.ofSeconds(3));
         this.limiter = new InMemorySlidingWindowRequestRateLimiter(Set.of(rule));
         this.config = Objects.requireNonNull(config);
+        this.luchtmeetnetClient = LuchtmeetnetClient.create(new HostConnectionConfig("https://api.luchtmeetnet.nl/", 3));
+    }
+
+    // swap in new data (hacky)
+    public static void updateSensorValues(Map<String, SensorValue> sensorValues) {
+        dataStore = Map.copyOf(sensorValues);
     }
 
     public void start() {
@@ -48,13 +58,9 @@ public final class AirResource implements IAirResource {
     }
 
     public void stop() {
+        luchtmeetnetClient.close();
         executor.shutdown();
         LOG.info("Stopped air resource");
-    }
-
-    // swap in new data (hacky)
-    public static void updateSensorValues(Map<String, SensorValue> sensorValues) {
-        dataStore = Map.copyOf(sensorValues);
     }
 
     @Override
@@ -104,6 +110,16 @@ public final class AirResource implements IAirResource {
 
         // add list of closest sensors (up to 3)
         values.stream().limit(3).forEach(result::addSensor);
+
+        // add LKI if available
+        try {
+            double lki = luchtmeetnetClient.getMostRecentLki(latitude, longitude);
+            if (Double.isFinite(lki)) {
+                result.setLki(lki);
+            }
+        } catch (IOException e) {
+            LOG.warn("Could not get LKI for {}/{}", latitude, longitude);
+        }
 
         long ms = Duration.between(start, Instant.now()).toMillis();
         LOG.info("Calculated PM {} in {} ms, location {}/{}, user '{}'", result, ms, latitude, longitude, userAgent);
