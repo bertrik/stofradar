@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import java.io.InputStream;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -43,6 +42,11 @@ public final class AirResource implements IAirResource {
         this.config = Objects.requireNonNull(config);
     }
 
+    // swap in new data (hacky)
+    public static void updateSensorValues(Map<String, SensorValue> sensorValues) {
+        dataStore = Map.copyOf(sensorValues);
+    }
+
     public void start() {
         LOG.info("Starting air resource");
     }
@@ -50,11 +54,6 @@ public final class AirResource implements IAirResource {
     public void stop() {
         executor.shutdown();
         LOG.info("Stopped air resource");
-    }
-
-    // swap in new data (hacky)
-    public static void updateSensorValues(Map<String, SensorValue> sensorValues) {
-        dataStore = Map.copyOf(sensorValues);
     }
 
     @Override
@@ -87,23 +86,20 @@ public final class AirResource implements IAirResource {
     private AirResult doGetAir(String userAgent, double latitude, double longitude) {
         Instant start = Instant.now();
 
-        // take a snapshot of values
-        List<SensorValue> values = new ArrayList<>(dataStore.values());
-
         // convert to km
-        values = convertToKm(values, latitude, longitude);
+        List<SensorValueWrapper> values = convertToKm(dataStore.values(), latitude, longitude);
 
         // roughly filter box around center, sort by distance
         double maxd = config.getMaxDistance();
         values = values.stream().filter(v -> (v.x > -maxd) && (v.x < maxd) && (v.y > -maxd) && (v.y < maxd))
-                .filter(v -> (v.value >= 0)).sorted(this::compareByDistance).toList();
+                .filter(v -> (v.value.value >= 0)).sorted(this::compareByDistance).toList();
 
         // calculate inverse distance weighted value
         double value = calculateIDW(values);
         AirResult result = new AirResult(value);
 
         // add list of closest sensors (up to 3)
-        values.stream().limit(3).forEach(result::addSensor);
+        values.stream().limit(3).map(w -> w.value).forEach(result::addSensor);
 
         long ms = Duration.between(start, Instant.now()).toMillis();
         LOG.info("Calculated PM {} in {} ms, location {}/{}, user '{}'", result, ms, latitude, longitude, userAgent);
@@ -111,23 +107,23 @@ public final class AirResource implements IAirResource {
         return result;
     }
 
-    private List<SensorValue> convertToKm(Collection<SensorValue> values, double latitude, double longitude) {
+    private List<SensorValueWrapper> convertToKm(Collection<SensorValue> values, double latitude, double longitude) {
         double kmPerDegreeLon = Math.cos(Math.toRadians(latitude)) * KM_PER_DEGREE_LAT;
-        return values.stream().map(v -> new SensorValue(v.source, v.id,
-                (v.x - longitude) * kmPerDegreeLon, (v.y - latitude) * KM_PER_DEGREE_LAT, v.value, v.time)).toList();
+        return values.stream().map(v -> new SensorValueWrapper(v,
+                (v.x - longitude) * kmPerDegreeLon, (v.y - latitude) * KM_PER_DEGREE_LAT)).toList();
     }
 
-    private double calculateIDW(List<SensorValue> values) {
+    private double calculateIDW(List<SensorValueWrapper> values) {
         double sum_pm = 0.0;
         double sum_w = 0.0;
-        for (SensorValue value : values) {
-            double d2 = (value.x * value.x) + (value.y * value.y);
+        for (SensorValueWrapper wrapper : values) {
+            double d2 = (wrapper.value.x * wrapper.value.x) + (wrapper.value.y * wrapper.value.y);
             if (d2 > 0.0) {
                 double w = 1.0 / d2;
-                sum_pm += w * value.value;
+                sum_pm += w * wrapper.value.value;
                 sum_w += w;
             } else {
-                return value.value;
+                return wrapper.value.value;
             }
         }
         return sum_pm / sum_w;
@@ -138,8 +134,11 @@ public final class AirResource implements IAirResource {
         return getClass().getClassLoader().getResourceAsStream("favicon.ico");
     }
 
-    private int compareByDistance(SensorValue v1, SensorValue v2) {
+    private int compareByDistance(SensorValueWrapper v1, SensorValueWrapper v2) {
         return Double.compare((v1.x * v1.x) + (v1.y * v1.y), (v2.x * v2.x) + (v2.y * v2.y));
+    }
+
+    private record SensorValueWrapper(SensorValue value, double x, double y) {
     }
 
 }

@@ -31,7 +31,7 @@ final class AirResult {
     }
 
     void addSensor(SensorValue value) {
-        sensors.add(new AirSensor(value.id, value.value));
+        sensors.add(new AirSensor(value.id, value.value, value.y, value.x));
     }
 
     @Override
@@ -39,9 +39,12 @@ final class AirResult {
         return String.valueOf(pm2_5);
     }
 
-    private record AirSensor(@JsonProperty("id") String id, @JsonProperty("pm2.5") BigDecimal pm25) {
-         AirSensor(String id, double val) {
-             this(id, BigDecimal.valueOf(val).setScale(2, RoundingMode.HALF_UP));
+    private record AirSensor(@JsonProperty("id") String id, @JsonProperty("pm2.5") BigDecimal pm25,
+                             @JsonProperty("lat") BigDecimal lat, @JsonProperty("lon") BigDecimal lon) {
+        AirSensor(String id, double val, double lat, double lon) {
+            this(id, BigDecimal.valueOf(val).setScale(2, RoundingMode.HALF_UP),
+                    BigDecimal.valueOf(lat).setScale(5, RoundingMode.HALF_UP),
+                    BigDecimal.valueOf(lon).setScale(5, RoundingMode.HALF_UP));
         }
     }
 }
