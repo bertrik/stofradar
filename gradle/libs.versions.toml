@@ -1,6 +1,6 @@
 [versions]
 jackson = "2.18.2"
-jersey = "3.1.9"
+jersey = "3.1.10"
 junit = "5.11.4"
 retrofit = "2.11.0"
 slf4j = "2.0.16"
@@ -27,7 +27,7 @@ junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
 junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
 
-mockito = "org.mockito:mockito-core:5.14.2"
+mockito = "org.mockito:mockito-core:5.15.2"
 ratelimitj = "es.moki.ratelimitj:ratelimitj-inmemory:0.7.0"
 reload4j = { module = "org.slf4j:slf4j-reload4j", version.ref = "slf4j" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
@@ -57,6 +57,6 @@ retrofit = [
 
 [plugins]
 dependencycheck = "org.owasp.dependencycheck:8.4.3"
-versions = "com.github.ben-manes.versions:0.51.0"
+versions = "com.github.ben-manes.versions:0.52.0"
 errorprone = "net.ltgt.errorprone:4.1.0"
 
