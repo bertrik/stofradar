@@ -1,10 +1,11 @@
 [versions]
-jackson = "2.18.2"
+jackson = "2.18.3"
 jersey = "3.1.10"
-junit = "5.11.4"
+junit = "5.12.1"
 retrofit = "2.11.0"
-slf4j = "2.0.16"
-errorprone = "2.36.0"
+slf4j = "2.0.17"
+errorprone = "2.37.0"
+mockito = "5.16.1"
 
 [libraries]
 errorprone_annotations = { module = "com.google.errorprone:error_prone_annotations", version.ref = "errorprone" }
@@ -27,7 +28,7 @@ junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
 junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
 
-mockito = "org.mockito:mockito-core:5.15.2"
+mockito = { module = "org.mockito:mockito-core", version.ref = "mockito" }
 ratelimitj = "es.moki.ratelimitj:ratelimitj-inmemory:0.7.0"
 reload4j = { module = "org.slf4j:slf4j-reload4j", version.ref = "slf4j" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
