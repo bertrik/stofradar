@@ -1,7 +1,7 @@
 [versions]
 errorprone = "2.41.0"
 jackson = "2.19.2"
-jersey = "3.1.10"
+jersey = "3.1.11"
 junit = "5.13.4"
 mockito = "5.18.0"
 retrofit = "3.0.0"
