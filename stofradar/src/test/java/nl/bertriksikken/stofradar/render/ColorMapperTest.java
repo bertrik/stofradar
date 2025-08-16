@@ -1,7 +1,9 @@
 package nl.bertriksikken.stofradar.render;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public final class ColorMapperTest {
 
@@ -24,10 +26,10 @@ public final class ColorMapperTest {
         ColorMapper mapper = new ColorMapper(RANGE_PM2_5);
 
         int[] zero = mapper.getColour(0);
-        Assertions.assertEquals(0, zero[3]);
+        assertEquals(0, zero[3]);
 
         int[] bad = mapper.getColour(90);
-        Assertions.assertArrayEquals(new int[]{255, 75, 0, 0xC0}, bad);
+        assertArrayEquals(new int[]{255, 75, 0, 0xC0}, bad);
     }
 
 }

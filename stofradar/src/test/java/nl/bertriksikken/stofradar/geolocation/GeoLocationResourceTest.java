@@ -3,11 +3,13 @@ package nl.bertriksikken.stofradar.geolocation;
 import jakarta.ws.rs.ClientErrorException;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.io.IOException;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public final class GeoLocationResourceTest {
 
@@ -30,7 +32,7 @@ public final class GeoLocationResourceTest {
         var unused = Mockito.verify(locator, Mockito.atMost(10));
 
         // verify exception
-        ClientErrorException exception = Assertions.assertThrows(ClientErrorException.class, () -> resource.geoLocate(request));
-        Assertions.assertEquals(Response.Status.TOO_MANY_REQUESTS.getStatusCode(), exception.getResponse().getStatus());
+        ClientErrorException exception = assertThrows(ClientErrorException.class, () -> resource.geoLocate(request));
+        assertEquals(Response.Status.TOO_MANY_REQUESTS.getStatusCode(), exception.getResponse().getStatus());
     }
 }
