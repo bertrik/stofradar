@@ -39,6 +39,10 @@ subprojects {
         useJUnitPlatform()
     }
 
+    tasks.withType(Tar).configureEach {
+        preserveFileTimestamps = true
+    }
+
     // Standard libraries added to all projects
     dependencies {
         errorprone(libs.errorprone.core)
