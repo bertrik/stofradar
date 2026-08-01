@@ -5,6 +5,8 @@ application {
 }
 
 dependencies {
+    implementation(platform(libs.jetty.bom)) { because("jersey depends on older version with CVEs") }
+
     implementation libs.reload4j
 
     implementation libs.bundles.retrofit
