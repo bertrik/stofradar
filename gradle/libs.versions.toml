@@ -2,7 +2,7 @@
 errorprone = "2.50.0"
 jackson = "2.22.1"
 jersey = "4.0.2"
-jetty = "12.1.11"
+jetty = "12.1.12"
 junit = "6.1.2"
 mockito = "5.23.0"
 retrofit = "3.0.0"
